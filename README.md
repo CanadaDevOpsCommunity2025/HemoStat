@@ -5,5 +5,5 @@ Project Name - TBD
 
 Participant Names - 
 
-     Team Lead - 
-     Team Members - Adam Shaldam, Audrey Man, Chrono, Palikand, Seyon Sri
+     Team Lead - Jonathan Marien
+     Team Members - Imran Yafith, Adam Shaldam, Seyon Sri, Audrey Man
