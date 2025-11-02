@@ -6,4 +6,4 @@ Project Name - TBD
 Participant Names - 
 
      Team Lead - 
-     Team Members - Palikand, Adam Shaldam, Seyon Sri, Audrey Man, Chrono
+     Team Members - Adam Shaldam, Audrey Man, Chrono, Palikand, Seyon Sri
