@@ -2,6 +2,7 @@
 Canada DevOps Community of Practice Hackathon Toronto - Team 1 
 
 Project Name - TBD
+Team Mentor - Kanwarpreet Singh Khurana
 
 Participant Names - 
 
