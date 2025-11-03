@@ -90,8 +90,8 @@ class HealthAnalyzer(HemoStatAgent):
                     return None
 
                 self.logger.info(f"Initializing ChatAnthropic with model: {self.ai_model}")
-                return ChatAnthropic(  # type: ignore[call-arg]
-                    model_name=self.ai_model,
+                return ChatAnthropic(  
+                    model=self.ai_model,
                     temperature=0.3,
                 )
 
