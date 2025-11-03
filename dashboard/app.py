@@ -43,33 +43,47 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Custom CSS styling - clinical/medical + DevOps infrastructure theme
+# Custom CSS styling - Modern blue and teal theme with consistent color palette
 st.markdown("""
 <style>
-    /* Primary colors: Medical blue + DevOps infrastructure orange */
+    /* Color palette */
     :root {
         --primary-blue: #0066cc;
         --secondary-blue: #003d99;
-        --devops-orange: #ff6b35;
-        --accent-green: #00aa44;
-        --accent-red: #cc0000;
-        --accent-yellow: #ffaa00;
-        --neutral-light: #f5f7fa;
-        --neutral-dark: #1a1a1a;
+        --accent-teal: #00b4d8;
+        --accent-green: #06d6a0;
+        --accent-red: #ef476f;
+        --accent-yellow: #ffd166;
+        --neutral-light: #f0f4f8;
+        --neutral-lighter: #f8fafc;
+        --neutral-dark: #1a202c;
+        --text-primary: #2d3748;
+        --text-secondary: #718096;
     }
     
-    /* Main container styling - subtle infrastructure grid pattern */
+    /* Overall page background - ensure white */
+    body {
+        background-color: #ffffff !important;
+    }
+    
+    /* Page background - white */
+    .stApp {
+        background: #ffffff !important;
+    }
+    
+    /* Main container - clean light background */
     .main {
-        background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
-        background-image: 
-            linear-gradient(0deg, transparent 24%, rgba(0, 102, 204, 0.02) 25%, rgba(0, 102, 204, 0.02) 26%, transparent 27%, transparent 74%, rgba(0, 102, 204, 0.02) 75%, rgba(0, 102, 204, 0.02) 76%, transparent 77%, transparent),
-            linear-gradient(90deg, transparent 24%, rgba(0, 102, 204, 0.02) 25%, rgba(0, 102, 204, 0.02) 26%, transparent 27%, transparent 74%, rgba(0, 102, 204, 0.02) 75%, rgba(0, 102, 204, 0.02) 76%, transparent 77%, transparent);
-        background-size: 50px 50px;
+        background: linear-gradient(135deg, #f8fafc 0%, #f0f4f8 100%) !important;
     }
     
-    /* Sidebar styling - DevOps infrastructure gradient */
+    /* Block container background */
+    .block-container {
+        background: transparent !important;
+    }
+    
+    /* Sidebar - modern blue gradient */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #003d99 0%, #0066cc 50%, #ff6b35 100%);
+        background: linear-gradient(180deg, #003d99 0%, #0066cc 50%, #00b4d8 100%);
         color: white;
     }
     
@@ -77,61 +91,117 @@ st.markdown("""
         color: white !important;
     }
     
-    /* Headers - clean and professional with DevOps accent */
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3 {
+        color: white !important;
+        border: none !important;
+    }
+    
+    /* Headers - professional blue with teal accent */
     h1, h2, h3 {
         color: #003d99;
-        font-weight: 600;
+        font-weight: 700;
         letter-spacing: -0.5px;
     }
     
     h1 {
-        border-bottom: 3px solid #ff6b35;
-        padding-bottom: 12px;
         margin-bottom: 24px;
+        line-height: 1.3;
     }
     
     h2 {
-        border-left: 4px solid #ff6b35;
-        padding-left: 12px;
+        border-left: 4px solid #0066cc;
+        padding-left: 20px;
+        margin-top: 20px;
+        margin-bottom: 16px;
     }
     
-    /* Metric cards - elevated with DevOps accent */
+    h3 {
+        color: #0066cc;
+        margin-top: 16px;
+    }
+    
+    /* Metric cards - blue gradient with teal accents */
     [data-testid="metric-container"] {
-        background: white;
-        border-radius: 12px;
-        border-left: 4px solid #ff6b35;
-        box-shadow: 0 2px 8px rgba(255, 107, 53, 0.1);
-        padding: 20px;
-        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #f0f4f8 0%, #e8f0ff 100%) !important;
+        border-radius: 12px !important;
+        border-left: 4px solid #0066cc !important;
+        border-top: 1px solid rgba(0, 180, 216, 0.2) !important;
+        box-shadow: 0 2px 12px rgba(0, 102, 204, 0.08) !important;
+        padding: 20px !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    [data-testid="metric-container"] label {
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        color: #003d99 !important;
+        letter-spacing: 0.5px !important;
+        text-transform: uppercase !important;
+    }
+    
+    [data-testid="metric-container"] [data-testid="metric-value"] {
+        font-size: 32px !important;
+        font-weight: 700 !important;
+        color: #0066cc !important;
+        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif !important;
     }
     
     [data-testid="metric-container"]:hover {
-        box-shadow: 0 4px 16px rgba(255, 107, 53, 0.15);
-        transform: translateY(-2px);
-        border-left-color: #0066cc;
+        box-shadow: 0 4px 20px rgba(0, 102, 204, 0.15) !important;
+        transform: translateY(-2px) !important;
+        border-left-color: #00b4d8 !important;
+        background: linear-gradient(135deg, #e8f0ff 0%, #dce8ff 100%) !important;
     }
     
-    /* Data frames - infrastructure style */
+    /* Data frames - clean with blue borders */
     [data-testid="stDataFrame"] {
         border-radius: 8px;
         overflow: hidden;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(255, 107, 53, 0.1);
+        box-shadow: 0 1px 6px rgba(0, 102, 204, 0.08);
+        border: 1px solid rgba(0, 102, 204, 0.12);
+        background: white;
     }
     
-    /* Buttons - DevOps orange with blue accent */
+    /* Buttons - blue with teal hover */
     button {
-        background: linear-gradient(135deg, #ff6b35 0%, #ff5722 100%) !important;
+        background: linear-gradient(135deg, #0066cc 0%, #003d99 100%) !important;
         color: white !important;
         border: none !important;
         border-radius: 6px !important;
-        font-weight: 500 !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+        padding: 12px 24px !important;
         transition: all 0.2s ease !important;
     }
     
+    /* Hide icon text in expanders and buttons */
+    button svg,
+    button img,
+    [class*="stIconMaterial"],
+    .material-icons,
+    [data-testid="StyledLinkIconContainer"],
+    span[data-testid] > span:only-child:not([class]) {
+        display: none !important;
+    }
+    
+    /* Hide Material Icons text specifically */
+    span:has(.material-icons),
+    div:has(.material-icons) {
+        font-size: 0 !important;
+    }
+    
+    /* Force hide any element containing icon text keywords */
+    *:contains("keyboard"),
+    *:contains("arrow") {
+        font-size: 0px !important;
+    }
+    
     button:hover {
-        background: linear-gradient(135deg, #ff5722 0%, #ff6b35 100%) !important;
-        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4) !important;
+        background: linear-gradient(135deg, #00b4d8 0%, #0066cc 100%) !important;
+        box-shadow: 0 4px 12px rgba(0, 180, 216, 0.3) !important;
+        transform: translateY(-1px) !important;
     }
     
     /* Containers and cards */
@@ -139,92 +209,179 @@ st.markdown("""
         border-radius: 8px;
     }
     
-    /* Expanders - DevOps infrastructure style */
+    /* Expanders - blue themed */
     [data-testid="stExpander"] {
-        border: 1px solid rgba(255, 107, 53, 0.2);
+        border: 1px solid rgba(0, 102, 204, 0.15);
         border-radius: 8px;
-        background: white;
+        background: linear-gradient(135deg, #f8fafc 0%, #f0f4f8 100%);
+    }
+    
+    [data-testid="stExpander"] summary > span {
+        display: inline-block !important;
+    }
+    
+    [data-testid="stExpander"] summary > span > span {
+        font-size: 0 !important;
+    }
+    
+    [data-testid="stExpander"] summary > span::before {
+        content: "▼ " !important;
+        font-size: 14px !important;
+        display: inline-block !important;
+    }
+    
+    [data-testid="stExpander"]:not([open]) summary > span::before {
+        content: "▶ " !important;
     }
     
     [data-testid="stExpander"] summary {
         color: #003d99;
-        font-weight: 500;
+        font-weight: 600;
     }
     
-    /* Tabs - modern with DevOps accent */
+    [data-testid="stExpander"] summary:hover {
+        color: #0066cc;
+    }
+    
+    /* Tabs - modern with blue accent */
     [data-testid="stTabs"] [role="tablist"] {
-        border-bottom: 2px solid rgba(255, 107, 53, 0.2);
+        border-bottom: 2px solid rgba(0, 102, 204, 0.1);
+        display: flex;
+        gap: 0;
     }
     
     [data-testid="stTabs"] [role="tab"] {
-        color: #666;
-        font-weight: 500;
+        color: white !important;
+        font-weight: 600;
         border-bottom: 3px solid transparent;
         transition: all 0.2s ease;
+        flex: 1;
+        text-align: center;
+        padding: 12px 20px;
+        background: #0066cc;
+        border-radius: 8px 8px 0 0;
+        margin-right: 4px;
+    }
+    
+    [data-testid="stTabs"] [role="tab"] * {
+        color: white !important;
+    }
+    
+    [data-testid="stTabs"] [role="tab"] p,
+    [data-testid="stTabs"] [role="tab"] span,
+    [data-testid="stTabs"] [role="tab"] div {
+        color: white !important;
+    }
+    
+    [data-testid="stTabs"] [role="tab"]:hover {
+        background: #003d99;
     }
     
     [data-testid="stTabs"] [role="tab"][aria-selected="true"] {
-        color: #ff6b35;
-        border-bottom-color: #ff6b35;
+        background: #00b4d8;
+        border-bottom-color: #00b4d8;
     }
     
-    /* Status indicators - operational colors */
+    [data-testid="stTabs"] [role="tab"][aria-selected="true"] * {
+        color: white !important;
+    }
+    
+    /* Status indicators - semantic colors */
     .status-healthy {
-        color: #00aa44;
-        font-weight: 600;
+        color: #06d6a0;
+        font-weight: 700;
     }
     
     .status-unhealthy {
-        color: #cc0000;
-        font-weight: 600;
+        color: #ef476f;
+        font-weight: 700;
     }
     
     .status-warning {
-        color: #ffaa00;
-        font-weight: 600;
+        color: #ffd166;
+        font-weight: 700;
     }
     
     .status-deploying {
-        color: #ff6b35;
-        font-weight: 600;
+        color: #00b4d8;
+        font-weight: 700;
     }
     
-    /* Chart containers - infrastructure monitoring style */
+    /* Chart containers - clean blue style */
     [data-testid="stPlotlyContainer"] {
         border-radius: 8px;
         background: white;
         padding: 16px;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(255, 107, 53, 0.1);
+        box-shadow: 0 1px 6px rgba(0, 102, 204, 0.08);
+        border: 1px solid rgba(0, 102, 204, 0.12);
     }
     
-    /* Dividers - DevOps themed */
+    /* Chart axis labels - horizontal orientation */
+    svg.marks text {
+        transform: rotate(0deg) !important;
+        text-anchor: middle !important;
+    }
+    
+    .vega-embed .mark-text text {
+        transform: rotate(0deg) !important;
+    }
+    
+    /* Fix chart label overlapping */
+    [data-testid="stVegaLiteChart"] text {
+        font-size: 11px !important;
+    }
+    
+    /* Ensure chart has enough padding */
+    [data-testid="stVegaLiteChart"] {
+        padding: 10px;
+    }
+    
+    /* Dividers - subtle blue gradient */
     hr {
         border: none;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.3), transparent);
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(0, 102, 204, 0.2), transparent);
         margin: 24px 0;
     }
     
-    /* Text styling */
+    /* Text styling - improved readability */
     p, span, label {
-        color: #333;
+        color: #2d3748;
         line-height: 1.6;
+        font-size: 14px;
     }
     
-    /* Info boxes - infrastructure alerts */
+    /* Captions - secondary text */
+    .stCaption {
+        color: #718096 !important;
+    }
+    
+    /* Info boxes - blue themed alerts */
     [data-testid="stAlert"] {
         border-radius: 8px;
-        border-left: 4px solid #ff6b35;
+        border-left: 4px solid #0066cc;
+        background: linear-gradient(135deg, rgba(0, 102, 204, 0.05) 0%, rgba(0, 180, 216, 0.05) 100%);
     }
     
-    /* Code blocks - terminal style */
+    /* Code blocks - terminal style with blue accent */
     code {
-        background: #1a1a1a;
-        color: #00aa44;
+        background: #1a202c;
+        color: #06d6a0;
         padding: 2px 6px;
         border-radius: 4px;
         font-family: 'Courier New', monospace;
+        font-size: 12px;
+    }
+    
+    /* Links - blue themed */
+    a {
+        color: #0066cc !important;
+        text-decoration: none;
+    }
+    
+    a:hover {
+        color: #00b4d8 !important;
+        text-decoration: underline;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -329,7 +486,7 @@ def render_header() -> None:
     col1, col2 = st.columns([3, 1], gap="large")
     
     with col1:
-        st.markdown("## HemoStat Container Health Monitoring")
+        st.markdown("<h2 style='border-left: 4px solid #0066cc; padding-left: 18px; margin-bottom: 0;'>HemoStat Container Health Monitoring</h2>", unsafe_allow_html=True)
         st.caption(f"Real-time autonomous monitoring • {now_et.strftime(f'%Y-%m-%d %I:%M:%S %p {tz_abbr}')}")
 
     with col2:
@@ -390,7 +547,7 @@ def render_live_content() -> None:
 
     # Tabs for different views (outside fragment to preserve tab state)
     tab1, tab2, tab3, tab4 = st.tabs(
-        ["🏥 Health Grid", "⚠️ Active Issues", "📊 History", "📈 Timeline"]
+        ["Health Grid", "Active Issues", "History", "Timeline"]
     )
 
     with tab1:
