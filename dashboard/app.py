@@ -235,12 +235,9 @@ def render_footer() -> None:
     col1, col2 = st.columns(2)
 
     with col1:
-        st.caption("HemoStat v0.1.0")
+        st.caption("HemoStat v0.1.0 • Phase 4: Testing & Integration")
 
     with col2:
-        st.caption("Phase 4: Testing & Integration")
-
-    with col3:
         if st.session_state.last_refresh:
             tz_abbr = st.session_state.last_refresh.strftime("%Z")
             st.caption(f"Last updated: {st.session_state.last_refresh.strftime(f'%I:%M:%S %p {tz_abbr}')}")
