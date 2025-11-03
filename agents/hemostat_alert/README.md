@@ -49,15 +49,16 @@ The Alert Agent inherits from `HemoStatAgent` base class and implements the foll
 5. Paste URL into `.env` file as `SLACK_WEBHOOK_URL`
 
 Example:
-```bash
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX
+
+```sh
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/
 ```
 
 ## Usage
 
 ### Docker Compose (Recommended)
 
-```bash
+```sh
 # Ensure SLACK_WEBHOOK_URL is set in .env
 docker-compose up -d alert
 
@@ -67,7 +68,7 @@ docker-compose logs -f alert
 
 ### Local Development
 
-```bash
+```sh
 # Install dependencies with UV
 uv sync --extra agents
 
@@ -80,7 +81,7 @@ uv run python -m agents.hemostat_alert.main
 
 ### Testing Event Flow
 
-```bash
+```sh
 # Terminal 1: Run all agents
 docker-compose up -d
 
@@ -217,6 +218,7 @@ The Alert Agent implements deduplication to prevent duplicate Slack notification
   - `error` (string, optional): Error details if failed
 
 Example:
+
 ```json
 {
   "container": "web-app-1",
@@ -239,6 +241,7 @@ Example:
   - `analysis_method` (string): Analysis method (AI or rule-based)
 
 Example:
+
 ```json
 {
   "container": "cache-service",
@@ -379,7 +382,7 @@ From `[project.optional-dependencies.agents]`:
 
 ### Installation
 
-```bash
+```sh
 # Install with UV
 uv sync --extra agents
 ```
