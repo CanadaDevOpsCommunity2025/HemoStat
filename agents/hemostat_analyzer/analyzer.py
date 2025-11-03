@@ -37,20 +37,20 @@ class HealthAnalyzer(HemoStatAgent):
 
         # Load AI configuration
         self.ai_model = os.getenv("AI_MODEL", "gpt-4")
-        # AI_FALLBACK_ENABLED forces rule-based analysis (disables AI)
-        self.force_rule_based = os.getenv("AI_FALLBACK_ENABLED", "false").lower() == "true"
+        # AI_FALLBACK_ENABLED: if true, use AI with fallback to rule-based; if false, force rule-based only
+        self.ai_enabled = os.getenv("AI_FALLBACK_ENABLED", "true").lower() == "true"
         self.confidence_threshold = float(os.getenv("ANALYZER_CONFIDENCE_THRESHOLD", 0.7))
         self.history_size = int(os.getenv("ANALYZER_HISTORY_SIZE", 10))
         self.history_ttl = int(os.getenv("ANALYZER_HISTORY_TTL", 3600))
 
-        # Initialize LLM (skip if force_rule_based is enabled)
-        self.llm = None if self.force_rule_based else self._initialize_llm()
+        # Initialize LLM (skip if AI is disabled)
+        self.llm = None if not self.ai_enabled else self._initialize_llm()
 
         # Subscribe to health alerts
         self.subscribe_to_channel("hemostat:health_alert", self._handle_health_alert)
 
         self.logger.info(
-            f"Analyzer Agent initialized with AI model: {self.ai_model if self.llm else 'DISABLED (using rule-based fallback)'}",
+            f"Analyzer Agent initialized with AI model: {self.ai_model if self.llm else 'DISABLED - using rule-based analysis only'}",
             extra={"agent": self.agent_name},
         )
 
