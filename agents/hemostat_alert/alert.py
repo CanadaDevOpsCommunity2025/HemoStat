@@ -1,3 +1,11 @@
+"""
+HemoStat Alert Agent - Event Storage and Notifications
+
+Consumes remediation completion and false alarm events from the Responder and Analyzer agents.
+Sends formatted notifications to Slack webhooks, stores events in Redis for dashboard consumption,
+and implements event deduplication to prevent notification spam.
+"""
+
 import hashlib
 import json
 import os
@@ -16,10 +24,20 @@ class AlertNotifier(HemoStatAgent):
 
     Subscribes to remediation completion and false alarm events,
     sends Slack notifications, and stores events in Redis for dashboard consumption.
+    Implements event deduplication using minute-level timestamps and event type hashing
+    to prevent duplicate notifications within configurable TTL windows.
     """
 
     def __init__(self):
-        """Initialize Alert Agent with configuration and channel subscriptions."""
+        """
+        Initialize the Alert Agent.
+
+        Loads configuration from environment variables, subscribes to remediation
+        completion and false alarm channels, and validates Slack webhook URL if provided.
+
+        Raises:
+            HemoStatConnectionError: If Redis connection fails
+        """
         super().__init__(agent_name="alert")
 
         # Load configuration from environment
@@ -52,7 +70,11 @@ class AlertNotifier(HemoStatAgent):
         )
 
     def run(self) -> None:
-        """Start the message listening loop."""
+        """
+        Start the message listening loop.
+
+        Blocks until stop() is called. Handles exceptions gracefully and logs errors.
+        """
         try:
             self.logger.info("Alert Agent starting listening loop")
             self.start_listening()
@@ -61,7 +83,15 @@ class AlertNotifier(HemoStatAgent):
             raise
 
     def _handle_remediation_complete(self, message: dict[str, Any]) -> None:
-        """Handle remediation completion event from Responder Agent."""
+        """
+        Handle remediation completion event from Responder Agent.
+
+        Extracts payload and timestamp from message envelope, stores event in Redis,
+        and sends Slack notification if enabled.
+
+        Args:
+            message: Full message wrapper with event_type, timestamp, agent, and data fields
+        """
         try:
             # Extract the inner payload from the envelope
             payload = message.get("data", {})
@@ -84,7 +114,15 @@ class AlertNotifier(HemoStatAgent):
             self.logger.error(f"Error handling remediation_complete event: {e}", exc_info=True)
 
     def _handle_false_alarm(self, message: dict[str, Any]) -> None:
-        """Handle false alarm event from Analyzer Agent."""
+        """
+        Handle false alarm event from Analyzer Agent.
+
+        Extracts payload and timestamp from message envelope, stores event in Redis,
+        and sends Slack notification if enabled.
+
+        Args:
+            message: Full message wrapper with event_type, timestamp, agent, and data fields
+        """
         try:
             # Extract the inner payload from the envelope
             payload = message.get("data", {})
@@ -109,7 +147,18 @@ class AlertNotifier(HemoStatAgent):
     def _store_event(
         self, event_type: str, payload: dict[str, Any], source_timestamp: str | None = None
     ) -> None:
-        """Store event in Redis list for dashboard consumption."""
+        """
+        Store event in Redis list for dashboard consumption.
+
+        Stores events in both type-specific lists and a unified timeline list.
+        Uses source timestamp if available, otherwise uses current time.
+        Maintains max event count and TTL per list.
+
+        Args:
+            event_type: Type of event (e.g., 'remediation_complete', 'false_alarm')
+            payload: Event data payload
+            source_timestamp: Optional timestamp from event source (ISO format string)
+        """
         try:
             # Use source timestamp if available, otherwise use current time
             timestamp = source_timestamp or datetime.now(UTC).isoformat()
@@ -144,7 +193,17 @@ class AlertNotifier(HemoStatAgent):
     def _send_slack_notification(
         self, message: dict[str, Any], event_type: str, event_timestamp: str | None = None
     ) -> None:
-        """Send formatted notification to Slack webhook."""
+        """
+        Send formatted notification to Slack webhook.
+
+        Checks if Slack is configured, performs deduplication, formats message
+        based on event type, and sends via webhook with retry logic.
+
+        Args:
+            message: Event message data to format and send
+            event_type: Type of event ('remediation_complete' or 'false_alarm')
+            event_timestamp: Optional timestamp for deduplication (ISO format string)
+        """
         try:
             # Check if Slack is configured
             if not self.slack_webhook_url:
@@ -175,7 +234,18 @@ class AlertNotifier(HemoStatAgent):
     def _send_webhook_with_retry(
         self, payload: dict[str, Any], message: dict[str, Any], event_type: str | None = None
     ) -> None:
-        """Send webhook with exponential backoff retry logic."""
+        """
+        Send webhook with exponential backoff retry logic.
+
+        Implements retry logic with exponential backoff for transient failures.
+        Handles rate limiting (429) with longer backoff. Marks successfully sent
+        events in deduplication cache.
+
+        Args:
+            payload: Formatted Slack message payload
+            message: Original event message
+            event_type: Type of event for deduplication cache
+        """
         max_retries = 3
         base_delay = 1
 
@@ -229,7 +299,21 @@ class AlertNotifier(HemoStatAgent):
                     time.sleep(delay)
 
     def _format_remediation_notification(self, message: dict[str, Any]) -> dict[str, Any] | None:
-        """Format remediation completion event as Slack message."""
+        """
+        Format remediation completion event as Slack message.
+
+        Creates a formatted Slack attachment with color coding based on status:
+        - Green (#36a64f) for success
+        - Red (#ff0000) for failed
+        - Orange (#ff9900) for rejected
+        - Gray (#cccccc) for not applicable
+
+        Args:
+            message: Remediation event data with container, action, result, etc.
+
+        Returns:
+            Dictionary with Slack attachment format, or None if formatting fails
+        """
         container = message.get("container", "unknown")
         action = message.get("action", "unknown")
         dry_run = message.get("dry_run", False)
@@ -297,7 +381,18 @@ class AlertNotifier(HemoStatAgent):
         return {"attachments": [attachment]}
 
     def _format_false_alarm_notification(self, message: dict[str, Any]) -> dict[str, Any] | None:
-        """Format false alarm event as Slack message."""
+        """
+        Format false alarm event as Slack message.
+
+        Creates a formatted Slack attachment for false alarm events with yellow color (#ffcc00).
+        Includes container name, analysis method, reason, and confidence score.
+
+        Args:
+            message: False alarm event data with container, reason, confidence, etc.
+
+        Returns:
+            Dictionary with Slack attachment format, or None if formatting fails
+        """
         container = message.get("container", "unknown")
         reason = message.get("reason", "")
         confidence = message.get("confidence", 0)
@@ -328,13 +423,37 @@ class AlertNotifier(HemoStatAgent):
         return {"attachments": [attachment]}
 
     def _is_duplicate_event(self, event_type: str, event_timestamp: str | None = None) -> bool:
-        """Check if event was recently sent to avoid duplicate notifications."""
+        """
+        Check if event was recently sent to avoid duplicate notifications.
+
+        Uses minute-level timestamp granularity and event type to generate hash.
+        Checks Redis cache for recent sends within dedupe_ttl window.
+
+        Args:
+            event_type: Type of event ('remediation_complete' or 'false_alarm')
+            event_timestamp: Optional timestamp for deduplication (ISO format string)
+
+        Returns:
+            True if event was recently sent, False otherwise
+        """
         event_hash = self._get_event_hash(event_type, event_timestamp)
         cache_key = f"hemostat:alert_sent:{event_hash}"
         return bool(self.redis.get(cache_key))
 
     def _get_event_hash(self, event_type: str, event_timestamp: str | None = None) -> str:
-        """Generate deterministic hash for event deduplication."""
+        """
+        Generate deterministic hash for event deduplication.
+
+        Creates hash from event type and minute-level timestamp to allow
+        deduplication of duplicate events within the same minute.
+
+        Args:
+            event_type: Type of event
+            event_timestamp: Optional timestamp (ISO format string)
+
+        Returns:
+            MD5 hash string for deduplication cache key
+        """
         # Use provided timestamp or current time, rounded to minute
         timestamp = event_timestamp or datetime.now(UTC).isoformat()
         if isinstance(timestamp, str):

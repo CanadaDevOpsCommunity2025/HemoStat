@@ -137,8 +137,17 @@ class ContainerMonitor(HemoStatAgent):
         Fetch container metrics using non-streaming stats call.
 
         Uses precpu_stats and cpu_stats for CPU calculation without maintaining open streams.
+        This method retrieves a single snapshot of container statistics and calculates
+        CPU percentage using Docker's official formula with precpu_stats to avoid
+        connection leaks from streaming calls.
+
+        Args:
+            container: Docker container object to fetch stats for
+
         Returns:
-            Dictionary with CPU, memory, network, and disk I/O metrics, or None if failed
+            Dictionary with keys: cpu_percent, memory_percent, memory_usage, memory_limit,
+            network_rx_bytes, network_tx_bytes, blkio_read_bytes, blkio_write_bytes.
+            Returns None if stats retrieval fails.
         """
         try:
             # Use non-streaming call to get stats with precpu_stats for CPU calculation

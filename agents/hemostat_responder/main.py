@@ -20,8 +20,13 @@ from agents.agent_base import HemoStatConnectionError
 from agents.hemostat_responder import ContainerResponder
 
 
-def main():
-    """Main entry point for the Responder Agent."""
+def main() -> None:
+    """
+    Main entry point for the Responder Agent.
+
+    Initializes the agent and starts the remediation listening loop with graceful
+    shutdown handling. Logs startup/shutdown banners and handles connection errors.
+    """
     # Load environment variables
     load_dotenv()
 

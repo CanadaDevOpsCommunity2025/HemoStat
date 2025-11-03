@@ -24,14 +24,19 @@ if TYPE_CHECKING:
     pass
 
 
-def main():
-    """Main entry point for Alert Agent."""
+def main() -> None:
+    """
+    Main entry point for the Alert Agent.
+
+    Initializes the agent with configuration logging and starts the event listening loop.
+    Handles graceful shutdown and connection errors with proper exit codes.
+    """
     load_dotenv()
 
     # Set up logging
-    log_level = logging.getLevelName(os.getenv("LOG_LEVEL", "INFO").upper())
+    log_level_str = os.getenv("LOG_LEVEL", "INFO").upper()
     logging.basicConfig(
-        level=log_level,
+        level=log_level_str,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
     logger = logging.getLogger("hemostat.alert")

@@ -28,7 +28,16 @@ class ContainerResponder(HemoStatAgent):
     """
 
     def __init__(self):
-        """Initialize the Responder Agent with Docker client and safety configuration."""
+        """
+        Initialize the Responder Agent.
+
+        Connects to Docker daemon with retry logic, loads safety configuration from
+        environment variables, and subscribes to remediation_needed channel.
+
+        Raises:
+            DockerException: If Docker connection fails after retries
+            HemoStatConnectionError: If Redis connection fails
+        """
         super().__init__(agent_name="responder")
 
         # Initialize Docker client with exponential backoff retry logic
@@ -96,7 +105,12 @@ class ContainerResponder(HemoStatAgent):
         raise DockerException(msg) from last_error
 
     def run(self) -> None:
-        """Start the message listening loop."""
+        """
+        Start the message listening loop.
+
+        Blocks until stop() is called. Listens for remediation requests on
+        hemostat:remediation_needed channel and processes them.
+        """
         try:
             self.logger.info("Starting Responder Agent listening loop")
             self.start_listening()
@@ -240,7 +254,17 @@ class ContainerResponder(HemoStatAgent):
             return True
 
     def _get_cooldown_remaining(self, container: str) -> int:
-        """Get remaining cooldown time in seconds."""
+        """
+        Get remaining cooldown time in seconds.
+
+        Calculates how many seconds remain in the cooldown period for a container.
+
+        Args:
+            container: Container name
+
+        Returns:
+            Remaining cooldown time in seconds (0 if no cooldown active)
+        """
         history = self.get_shared_state(f"remediation_history:{container}") or {}
         last_timestamp = history.get("last_action_timestamp")
 
