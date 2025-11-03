@@ -27,9 +27,9 @@ docker-compose up -d
 sleep 30
 
 # 3. Verify it works
-./scripts/verify_message_flow.zsh  # macOS
-./scripts/verify_message_flow.sh   # Linux
-.\scripts\verify_message_flow.ps1  # Windows
+./scripts/macos/verify_message_flow.zsh    # macOS
+./scripts/linux/verify_message_flow.sh     # Linux
+.\scripts\windows\verify_message_flow.ps1  # Windows
 
 # 4. Open Dashboard
 open http://localhost:8501  # macOS
@@ -532,6 +532,112 @@ docker-compose ps
 
 ```bash
 docker inspect hemostat-test-api | grep -A 10 Health
+```
+
+---
+
+## Managing Redis Data
+
+### Clear Redis Data (Fresh Start)
+
+Between test runs, you may want to clear old data from Redis for a clean slate.
+
+**Option 1: Manual Clear Script**
+
+Use the clear script when you want to reset data:
+
+**Windows:**
+
+```powershell
+.\scripts\windows\clear_redis_data.ps1
+```
+
+**macOS:**
+
+```zsh
+./scripts/macos/clear_redis_data.zsh
+```
+
+**Linux:**
+
+```bash
+./scripts/linux/clear_redis_data.sh
+```
+
+This will prompt for confirmation and clear:
+
+- All events (timeline, history)
+- Remediation state and cooldowns
+- Circuit breaker state
+- Alert history
+- Audit logs
+
+**Option 2: Auto-Clear on Startup**
+
+To automatically clear Redis every time services start, set in `.env`:
+
+```bash
+REDIS_CLEAR_ON_STARTUP=true
+```
+
+Then restart services:
+
+```powershell
+docker-compose down
+docker-compose up -d
+```
+
+⚠️ **Warning:** This deletes all data on every startup. Use for testing/demos only!
+
+### Backup Redis Data
+
+Save current data before clearing (useful for demos, analysis, or debugging):
+
+**Windows:**
+
+```powershell
+.\scripts\windows\backup_redis_data.ps1
+.\scripts\windows\backup_redis_data.ps1 -OutputFile "my_demo_backup.json"
+```
+
+**macOS:**
+
+```zsh
+./scripts/macos/backup_redis_data.zsh
+./scripts/macos/backup_redis_data.zsh my_demo_backup.json
+```
+
+**Linux:**
+
+```bash
+./scripts/linux/backup_redis_data.sh
+./scripts/linux/backup_redis_data.sh my_demo_backup.json
+```
+
+Backup files are JSON format and include:
+
+- All events and timeline data
+- Remediation history
+- State information
+- Timestamps
+
+### Typical Workflow for Testing
+
+```powershell
+# 1. Backup current data (if you want to keep it)
+.\scripts\backup_redis_data.ps1
+
+# 2. Clear Redis for fresh start
+.\scripts\clear_redis_data.ps1
+
+# 3. Run your tests/demos
+.\scripts\demo_trigger_cpu_spike.ps1
+
+# 4. Review results in Dashboard
+start http://localhost:8501
+
+# 5. Backup results
+.\scripts\backup_redis_data.ps1 -OutputFile "test_run_results.json"
 ```
 
 ---

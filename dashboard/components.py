@@ -89,9 +89,11 @@ def render_health_grid(events: list[dict]) -> None:
     # Extract unique containers from recent events
     containers_map = {}
     for event in events:
-        container_id = event.get("container_id")
-        if container_id and container_id not in containers_map:
-            containers_map[container_id] = event
+        # Extract container from nested data structure
+        data = event.get("data", {})
+        container_name = data.get("container")
+        if container_name and container_name not in containers_map:
+            containers_map[container_name] = event
 
     if not containers_map:
         st.info("No container data available")
@@ -102,17 +104,21 @@ def render_health_grid(events: list[dict]) -> None:
 
     # Build dataframe for display
     grid_data = []
-    for container_id, event in containers_map.items():
+    for container_name, event in containers_map.items():
+        # Extract data from event
+        data = event.get("data", {})
+        result = data.get("result", {})
+        
         # Prefer stats from hemostat:stats:*, fall back to event data
-        stats = all_stats.get(container_id, {})
-        cpu_percent = stats.get("cpu_percent", event.get("cpu_percent", 0))
-        memory_percent = stats.get("memory_percent", event.get("memory_percent", 0))
-        status = stats.get("status", event.get("status", "unknown")).upper()
-        timestamp = stats.get("timestamp", event.get("timestamp", ""))
+        stats = all_stats.get(container_name, {})
+        cpu_percent = stats.get("cpu_percent", data.get("cpu_percent", 0))
+        memory_percent = stats.get("memory_percent", data.get("memory_percent", 0))
+        status = result.get("status", stats.get("status", "active")).upper()
+        timestamp = event.get("timestamp", stats.get("timestamp", ""))
 
         grid_data.append(
             {
-                "Container": container_id,
+                "Container": container_name,
                 "Status": status,
                 "CPU %": f"{cpu_percent:.1f}",
                 "Memory %": f"{memory_percent:.1f}",
@@ -204,7 +210,7 @@ def render_remediation_history(events: list[dict]) -> None:
         )
 
     with col2:
-        unique_containers = sorted({e.get("container_id", "Unknown") for e in events})
+        unique_containers = sorted({e.get("data", {}).get("container", "Unknown") for e in events})
         container_filter = st.selectbox(
             "Filter by Container",
             ["All", *unique_containers],
@@ -231,11 +237,11 @@ def render_remediation_history(events: list[dict]) -> None:
         filtered_events = [
             e
             for e in filtered_events
-            if e.get("status", "").lower() == status_map.get(status_filter, "")
+            if e.get("data", {}).get("result", {}).get("status", "").lower() == status_map.get(status_filter, "")
         ]
 
     if container_filter != "All":
-        filtered_events = [e for e in filtered_events if e.get("container_id") == container_filter]
+        filtered_events = [e for e in filtered_events if e.get("data", {}).get("container") == container_filter]
 
     if time_filter != "All":
         time_deltas = {
@@ -260,14 +266,18 @@ def render_remediation_history(events: list[dict]) -> None:
     # Build dataframe
     history_data = []
     for event in filtered_events:
+        # Extract data from nested structure
+        data = event.get("data", {})
+        result = data.get("result", {})
+        
         history_data.append(
             {
                 "Timestamp": format_timestamp(event.get("timestamp", "")),
-                "Container": event.get("container_id", "Unknown"),
-                "Action": event.get("action", "Unknown"),
-                "Status": event.get("status", "unknown").upper(),
-                "Reason": event.get("reason", "N/A")[:50],  # Truncate for display
-                "Confidence": f"{event.get('confidence', 0):.1%}",
+                "Container": data.get("container", "Unknown"),
+                "Action": data.get("action", "Unknown"),
+                "Status": result.get("status", "unknown").upper(),
+                "Reason": result.get("reason", "N/A")[:50],  # Truncate for display
+                "Confidence": f"{data.get('confidence', 0):.1%}",
             }
         )
 

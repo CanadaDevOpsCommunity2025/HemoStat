@@ -65,58 +65,37 @@ All agents inherit from the shared `HemoStatAgent` base class, which provides Re
 
 ### Running Demo Scenarios
 
-**Bash (Linux, macOS, Git Bash, WSL):**
+**Linux (Bash):**
 
 ```bash
-# Start all services including test containers
+# Start all services
 docker-compose up -d
 
-# Verify system is working
-./scripts/verify_message_flow.sh
-
-# Run demo scenarios
-./scripts/demo_trigger_cpu_spike.sh      # CPU spike detection
-./scripts/demo_trigger_high_memory.sh    # Memory leak detection
-./scripts/demo_trigger_cleanup.sh        # Cleanup remediation
-
-# View Dashboard
-open http://localhost:8501
+# Verify and run demos
+./scripts/linux/verify_message_flow.sh
+./scripts/linux/demo_trigger_cpu_spike.sh
 ```
 
-**Zsh (macOS):**
+**macOS (Zsh):**
 
 ```zsh
-# Start all services including test containers
+# Start all services
 docker-compose up -d
 
-# Verify system is working
-./scripts/verify_message_flow.zsh
-
-# Run demo scenarios
-./scripts/demo_trigger_cpu_spike.zsh      # CPU spike detection
-./scripts/demo_trigger_high_memory.zsh    # Memory leak detection
-./scripts/demo_trigger_cleanup.zsh        # Cleanup remediation
-
-# View Dashboard
-open http://localhost:8501
+# Verify and run demos
+./scripts/macos/verify_message_flow.zsh
+./scripts/macos/demo_trigger_cpu_spike.zsh
 ```
 
-**PowerShell (Windows):**
+**Windows (PowerShell):**
 
 ```powershell
-# Start all services including test containers
+# Start all services
 docker-compose up -d
 
-# Verify system is working
-.\scripts\verify_message_flow.ps1
-
-# Run demo scenarios
-.\scripts\demo_trigger_cpu_spike.ps1      # CPU spike detection
-.\scripts\demo_trigger_high_memory.ps1    # Memory leak detection
-.\scripts\demo_trigger_cleanup.ps1        # Cleanup remediation
-
-# View Dashboard
-start http://localhost:8501
+# Verify and run demos
+.\scripts\windows\verify_message_flow.ps1
+.\scripts\windows\demo_trigger_cpu_spike.ps1
 ```
 
 ### Test Services
@@ -298,20 +277,11 @@ HemoStat-test/
 │   └── hemostat_alert/             # Alert agent ✅
 ├── dashboard/                       # Streamlit UI (Phase 3) ✅
 ├── scripts/                         # Demo and test scripts ✅
+│   ├── windows/                     # PowerShell scripts (.ps1)
+│   ├── macos/                       # Zsh scripts (.zsh)
+│   ├── linux/                       # Bash scripts (.sh)
 │   ├── test_api.py                  # Test API service
 │   ├── test_worker.py               # Test worker service
-│   ├── demo_trigger_cpu_spike.sh    # CPU spike demo (bash)
-│   ├── demo_trigger_cpu_spike.zsh   # CPU spike demo (zsh)
-│   ├── demo_trigger_cpu_spike.ps1   # CPU spike demo (PowerShell)
-│   ├── demo_trigger_high_memory.sh  # Memory spike demo (bash)
-│   ├── demo_trigger_high_memory.zsh # Memory spike demo (zsh)
-│   ├── demo_trigger_high_memory.ps1 # Memory spike demo (PowerShell)
-│   ├── demo_trigger_cleanup.sh      # Cleanup demo (bash)
-│   ├── demo_trigger_cleanup.zsh     # Cleanup demo (zsh)
-│   ├── demo_trigger_cleanup.ps1     # Cleanup demo (PowerShell)
-│   ├── verify_message_flow.sh       # E2E verification (bash)
-│   ├── verify_message_flow.zsh      # E2E verification (zsh)
-│   ├── verify_message_flow.ps1      # E2E verification (PowerShell)
 │   └── README.md                    # Scripts documentation
 ├── tests/                           # Test suite (Phase 5)
 ├── docs/                            # Detailed documentation

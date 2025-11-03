@@ -2,26 +2,23 @@
 
 Collection of scripts for demonstrating HemoStat's autonomous container health monitoring and remediation capabilities. These scripts are designed for hackathon demos, testing, and verification of the end-to-end agent workflow.
 
+## Directory Structure
+
+Scripts are organized by platform for easier navigation:
+
+- **`windows/`** - PowerShell scripts (`.ps1`) for Windows
+- **`macos/`** - Zsh scripts (`.zsh`) for macOS
+- **`linux/`** - Bash scripts (`.sh`) for Linux/WSL
+
 ## Prerequisites
 
 - Docker and Docker Compose installed and running
 - HemoStat services started: `docker-compose up -d`
 - curl installed (for HTTP requests)
-- bash shell (Linux, macOS, Git Bash on Windows, or WSL)
-
-**Platform Notes**:
-
-- **macOS users**: All scripts available in `.sh` (bash) and `.zsh` (zsh - default on macOS) versions
-- **Windows users**: All scripts available in `.sh` (bash via Git Bash/WSL) and `.ps1` (PowerShell) versions
-- **Linux users**: Use `.sh` (bash) versions
 
 ## Available Scripts
 
-Each script is available in three versions for maximum compatibility:
-
-- `.sh` - Bash version (Linux, macOS, Git Bash, WSL)
-- `.zsh` - Zsh version (macOS default shell since Catalina)
-- `.ps1` - PowerShell version (Windows PowerShell, PowerShell Core)
+All scripts are available in all three platform directories:
 
 ### 1. `demo_trigger_cpu_spike.sh`
 
@@ -128,76 +125,116 @@ Automated verification of end-to-end message flow through all agents.
 
 ---
 
-## Quick Start
+### 5. `clear_redis_data.sh`
 
-### Bash (Linux, macOS, Git Bash, WSL)
+Clears all HemoStat data from Redis for a fresh start between test runs.
+
+**Usage:**
 
 ```bash
-# 1. Start all HemoStat services
-docker-compose up -d
-
-# 2. Wait for services to be ready (~30 seconds)
-sleep 30
-
-# 3. Verify system is working
-./scripts/verify_message_flow.sh
-
-# 4. Run demo scenarios
-./scripts/demo_trigger_cpu_spike.sh
-./scripts/demo_trigger_high_memory.sh
-./scripts/demo_trigger_cleanup.sh
-
-# 5. View Dashboard
-# macOS
-open http://localhost:8501
-
-# Linux
-xdg-open http://localhost:8501
-
-# Windows
-start http://localhost:8501
+./clear_redis_data.sh   # Bash
+./clear_redis_data.zsh  # Zsh
 ```
-
-### Zsh (macOS)
-
-```zsh
-# 1. Start all HemoStat services
-docker-compose up -d
-
-# 2. Wait for services to be ready (~30 seconds)
-sleep 30
-
-# 3. Verify system is working
-./scripts/verify_message_flow.zsh
-
-# 4. Run demo scenarios
-./scripts/demo_trigger_cpu_spike.zsh
-./scripts/demo_trigger_high_memory.zsh
-./scripts/demo_trigger_cleanup.zsh
-
-# 5. View Dashboard
-open http://localhost:8501
-```
-
-### PowerShell (Windows)
 
 ```powershell
-# 1. Start all HemoStat services
-docker-compose up -d
+.\scripts\clear_redis_data.ps1  # PowerShell
+```
 
-# 2. Wait for services to be ready (~30 seconds)
+**What gets cleared:**
+
+- All events (timeline, history)
+- Remediation state and cooldowns
+- Circuit breaker state
+- Alert history
+- Audit logs
+
+**Note:** Prompts for confirmation before clearing data.
+
+---
+
+### 6. `backup_redis_data.sh`
+
+Exports all HemoStat data to a JSON file for later analysis or archival.
+
+**Usage:**
+
+```bash
+# Default timestamped file
+./backup_redis_data.sh
+
+# Custom filename
+./backup_redis_data.sh my_backup.json
+```
+
+```powershell
+# Default timestamped file
+.\scripts\backup_redis_data.ps1
+
+# Custom filename
+.\scripts\backup_redis_data.ps1 -OutputFile "my_backup.json"
+```
+
+**Output:**
+
+- Timestamped JSON file (e.g., `hemostat_backup_20251103_052000.json`)
+- Includes all events, state, and metadata
+- Can be used for debugging or demo replay
+
+---
+
+## Quick Start
+
+### Linux (Bash)
+
+```bash
+cd scripts/linux
+chmod +x *.sh  # Make executable (first time only)
+
+# 1. Start HemoStat
+docker-compose up -d
+sleep 30
+
+# 2. Verify system
+./verify_message_flow.sh
+
+# 3. Run demos
+./demo_trigger_cpu_spike.sh
+./demo_trigger_high_memory.sh
+```
+
+### macOS (Zsh)
+
+```zsh
+cd scripts/macos
+chmod +x *.zsh  # Make executable (first time only)
+
+# 1. Start HemoStat
+docker-compose up -d
+sleep 30
+
+# 2. Verify system
+./verify_message_flow.zsh
+
+# 3. Run demos
+./demo_trigger_cpu_spike.zsh
+./demo_trigger_high_memory.zsh
+```
+
+### Windows (PowerShell)
+
+```powershell
+cd scripts\windows
+
+# 1. Start HemoStat
+docker-compose up -d
 Start-Sleep -Seconds 30
 
-# 3. Verify system is working
-.\scripts\verify_message_flow.ps1
+# 2. Verify system
+.\verify_message_flow.ps1
 
-# 4. Run demo scenarios
-.\scripts\demo_trigger_cpu_spike.ps1
-.\scripts\demo_trigger_high_memory.ps1
-.\scripts\demo_trigger_cleanup.ps1
-
-# 5. View Dashboard
-start http://localhost:8501
+# 3. Run demos
+.\demo_trigger_cpu_spike.ps1
+.\demo_trigger_high_memory.ps1
 ```
 
 ## Monitoring Tips
