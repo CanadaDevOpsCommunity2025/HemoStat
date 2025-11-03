@@ -13,15 +13,15 @@ Import paths supported:
 import logging
 import os
 import sys
+from typing import TYPE_CHECKING
+
 from dotenv import load_dotenv
 
-from agents.hemostat_alert import AlertNotifier
 from agents.agent_base import HemoStatConnectionError
+from agents.hemostat_alert import AlertNotifier
 
-try:
-    import requests
-except ImportError:
-    requests = None
+if TYPE_CHECKING:
+    pass
 
 
 def main():

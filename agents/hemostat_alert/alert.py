@@ -1,11 +1,12 @@
+import hashlib
 import json
 import os
 import time
-import hashlib
-from typing import Dict, Any
-from datetime import datetime
+from datetime import UTC, datetime
+from typing import Any
 
 import requests
+from requests import exceptions as requests_exceptions
 
 from agents.agent_base import HemoStatAgent
 
@@ -43,9 +44,7 @@ class AlertNotifier(HemoStatAgent):
         self.subscribe_to_channel("hemostat:false_alarm", self._handle_false_alarm)
 
         # Log initialization
-        slack_status = (
-            "enabled" if (self.alert_enabled and self.slack_webhook_url) else "disabled"
-        )
+        slack_status = "enabled" if (self.alert_enabled and self.slack_webhook_url) else "disabled"
         self.logger.info(
             f"Alert Agent initialized - Slack: {slack_status}, "
             f"Event TTL: {self.event_ttl}s, Max Events: {self.max_events}, "
@@ -61,7 +60,7 @@ class AlertNotifier(HemoStatAgent):
             self.logger.error(f"Error in listening loop: {e}", exc_info=True)
             raise
 
-    def _handle_remediation_complete(self, message: Dict[str, Any]) -> None:
+    def _handle_remediation_complete(self, message: dict[str, Any]) -> None:
         """Handle remediation completion event from Responder Agent."""
         try:
             # Extract the inner payload from the envelope
@@ -82,11 +81,9 @@ class AlertNotifier(HemoStatAgent):
                 )
 
         except Exception as e:
-            self.logger.error(
-                f"Error handling remediation_complete event: {e}", exc_info=True
-            )
+            self.logger.error(f"Error handling remediation_complete event: {e}", exc_info=True)
 
-    def _handle_false_alarm(self, message: Dict[str, Any]) -> None:
+    def _handle_false_alarm(self, message: dict[str, Any]) -> None:
         """Handle false alarm event from Analyzer Agent."""
         try:
             # Extract the inner payload from the envelope
@@ -102,16 +99,20 @@ class AlertNotifier(HemoStatAgent):
 
             # Send Slack notification if enabled
             if self.alert_enabled:
-                self._send_slack_notification(payload, event_type="false_alarm", event_timestamp=source_timestamp)
+                self._send_slack_notification(
+                    payload, event_type="false_alarm", event_timestamp=source_timestamp
+                )
 
         except Exception as e:
             self.logger.error(f"Error handling false_alarm event: {e}", exc_info=True)
 
-    def _store_event(self, event_type: str, payload: Dict[str, Any], source_timestamp: str = None) -> None:
+    def _store_event(
+        self, event_type: str, payload: dict[str, Any], source_timestamp: str | None = None
+    ) -> None:
         """Store event in Redis list for dashboard consumption."""
         try:
             # Use source timestamp if available, otherwise use current time
-            timestamp = source_timestamp or datetime.utcnow().isoformat()
+            timestamp = source_timestamp or datetime.now(UTC).isoformat()
 
             # Build event entry with metadata
             event_entry = {
@@ -141,7 +142,7 @@ class AlertNotifier(HemoStatAgent):
             self.logger.error(f"Error storing event in Redis: {e}", exc_info=True)
 
     def _send_slack_notification(
-        self, message: Dict[str, Any], event_type: str, event_timestamp: str = None
+        self, message: dict[str, Any], event_type: str, event_timestamp: str | None = None
     ) -> None:
         """Send formatted notification to Slack webhook."""
         try:
@@ -164,14 +165,15 @@ class AlertNotifier(HemoStatAgent):
                 self.logger.warning(f"Unknown event type: {event_type}")
                 return
 
-            # Send with retry logic
-            self._send_webhook_with_retry(payload, message, event_type)
+            # Send with retry logic (only if payload was successfully formatted)
+            if payload:
+                self._send_webhook_with_retry(payload, message, event_type)
 
         except Exception as e:
             self.logger.error(f"Error sending Slack notification: {e}", exc_info=True)
 
     def _send_webhook_with_retry(
-        self, payload: Dict[str, Any], message: Dict[str, Any], event_type: str
+        self, payload: dict[str, Any], message: dict[str, Any], event_type: str | None = None
     ) -> None:
         """Send webhook with exponential backoff retry logic."""
         max_retries = 3
@@ -179,27 +181,20 @@ class AlertNotifier(HemoStatAgent):
 
         for attempt in range(max_retries):
             try:
-                response = requests.post(
-                    self.slack_webhook_url, json=payload, timeout=10
-                )
+                response = requests.post(self.slack_webhook_url, json=payload, timeout=10)
 
                 if response.status_code == 200:
                     # Mark as sent in deduplication cache
-                    event_hash = self._get_event_hash(message)
-                    self.redis.setex(
-                        f"hemostat:alert_sent:{event_hash}", self.dedupe_ttl, "1"
-                    )
-                    self.logger.info(
-                        f"Slack notification sent successfully for {event_type}"
-                    )
+                    if event_type:
+                        event_hash = self._get_event_hash(event_type, event_timestamp=None)
+                        self.redis.setex(f"hemostat:alert_sent:{event_hash}", self.dedupe_ttl, "1")
+                    self.logger.info(f"Slack notification sent successfully for {event_type}")
                     return
 
                 elif response.status_code == 429:
                     # Rate limit - use longer backoff
                     if attempt < max_retries - 1:
-                        delay = (
-                            base_delay * (2**attempt) * 2
-                        )  # Longer backoff for rate limits
+                        delay = base_delay * (2**attempt) * 2  # Longer backoff for rate limits
                         self.logger.warning(
                             f"Slack rate limit (429), retrying in {delay}s (attempt {attempt + 1}/{max_retries})"
                         )
@@ -219,15 +214,13 @@ class AlertNotifier(HemoStatAgent):
                         )
                         time.sleep(delay)
 
-            except requests.exceptions.Timeout:
-                self.logger.warning(
-                    f"Slack webhook timeout (attempt {attempt + 1}/{max_retries})"
-                )
+            except requests_exceptions.Timeout:
+                self.logger.warning(f"Slack webhook timeout (attempt {attempt + 1}/{max_retries})")
                 if attempt < max_retries - 1:
                     delay = base_delay * (2**attempt)
                     time.sleep(delay)
 
-            except requests.exceptions.RequestException as e:
+            except requests_exceptions.RequestException as e:
                 self.logger.warning(
                     f"Slack webhook request error: {e} (attempt {attempt + 1}/{max_retries})"
                 )
@@ -235,9 +228,7 @@ class AlertNotifier(HemoStatAgent):
                     delay = base_delay * (2**attempt)
                     time.sleep(delay)
 
-    def _format_remediation_notification(
-        self, message: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _format_remediation_notification(self, message: dict[str, Any]) -> dict[str, Any] | None:
         """Format remediation completion event as Slack message."""
         container = message.get("container", "unknown")
         action = message.get("action", "unknown")
@@ -247,7 +238,9 @@ class AlertNotifier(HemoStatAgent):
 
         # Extract result object and get status
         result_obj = message.get("result", {})
-        status = result_obj.get("status", "unknown") if isinstance(result_obj, dict) else str(result_obj)
+        status = (
+            result_obj.get("status", "unknown") if isinstance(result_obj, dict) else str(result_obj)
+        )
         error_details = result_obj.get("error", "") if isinstance(result_obj, dict) else ""
         rejection_reason = result_obj.get("reason", "") if isinstance(result_obj, dict) else ""
 
@@ -266,7 +259,7 @@ class AlertNotifier(HemoStatAgent):
             status_text = "Rejected"
         else:
             color = "#cccccc"
-            emoji = "ℹ️"
+            emoji = "i"
             status_text = "Not Applicable"
 
         # Build fields
@@ -283,9 +276,7 @@ class AlertNotifier(HemoStatAgent):
             fields.append({"title": "Rejection Reason", "value": rejection_reason, "short": False})
 
         if confidence > 0:
-            fields.append(
-                {"title": "Confidence", "value": f"{confidence:.1%}", "short": True}
-            )
+            fields.append({"title": "Confidence", "value": f"{confidence:.1%}", "short": True})
 
         if dry_run:
             fields.append({"title": "Dry Run", "value": "Yes", "short": True})
@@ -300,14 +291,12 @@ class AlertNotifier(HemoStatAgent):
             "title": f"{emoji} Container Remediation: {status_text}",
             "fields": fields,
             "footer": "HemoStat Alert Agent",
-            "ts": int(datetime.utcnow().timestamp()),
+            "ts": int(datetime.now(UTC).timestamp()),
         }
 
         return {"attachments": [attachment]}
 
-    def _format_false_alarm_notification(
-        self, message: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _format_false_alarm_notification(self, message: dict[str, Any]) -> dict[str, Any] | None:
         """Format false alarm event as Slack message."""
         container = message.get("container", "unknown")
         reason = message.get("reason", "")
@@ -324,9 +313,7 @@ class AlertNotifier(HemoStatAgent):
             fields.append({"title": "Reason", "value": reason, "short": False})
 
         if confidence > 0:
-            fields.append(
-                {"title": "Confidence", "value": f"{confidence:.1%}", "short": True}
-            )
+            fields.append({"title": "Confidence", "value": f"{confidence:.1%}", "short": True})
 
         # Build attachment
         attachment = {
@@ -335,37 +322,29 @@ class AlertNotifier(HemoStatAgent):
             "title": "⚠️ False Alarm Detected",
             "fields": fields,
             "footer": "HemoStat Alert Agent",
-            "ts": int(datetime.utcnow().timestamp()),
+            "ts": int(datetime.now(UTC).timestamp()),
         }
 
         return {"attachments": [attachment]}
 
-    def _is_duplicate_event(self, event_type: str, event_timestamp: str = None) -> bool:
+    def _is_duplicate_event(self, event_type: str, event_timestamp: str | None = None) -> bool:
         """Check if event was recently sent to avoid duplicate notifications."""
         event_hash = self._get_event_hash(event_type, event_timestamp)
         cache_key = f"hemostat:alert_sent:{event_hash}"
+        return bool(self.redis.get(cache_key))
 
-        if self.redis.get(cache_key):
-            return True
-
-        return False
-
-    def _get_event_hash(self, event_type: str, event_timestamp: str = None) -> str:
+    def _get_event_hash(self, event_type: str, event_timestamp: str | None = None) -> str:
         """Generate deterministic hash for event deduplication."""
         # Use provided timestamp or current time, rounded to minute
-        timestamp = event_timestamp or datetime.utcnow().isoformat()
+        timestamp = event_timestamp or datetime.now(UTC).isoformat()
         if isinstance(timestamp, str):
             try:
                 dt = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
                 minute_timestamp = dt.replace(second=0, microsecond=0).isoformat()
             except (ValueError, AttributeError):
-                minute_timestamp = (
-                    datetime.utcnow().replace(second=0, microsecond=0).isoformat()
-                )
+                minute_timestamp = datetime.now(UTC).replace(second=0, microsecond=0).isoformat()
         else:
-            minute_timestamp = (
-                datetime.utcnow().replace(second=0, microsecond=0).isoformat()
-            )
+            minute_timestamp = datetime.now(UTC).replace(second=0, microsecond=0).isoformat()
 
         # Create hash from event_type and timestamp
         hash_input = f"{event_type}:{minute_timestamp}"

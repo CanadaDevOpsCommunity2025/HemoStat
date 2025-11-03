@@ -13,7 +13,7 @@ Import paths supported:
 import logging
 import sys
 
-import docker
+from docker.errors import DockerException
 from dotenv import load_dotenv
 
 from agents.agent_base import HemoStatConnectionError
@@ -24,32 +24,32 @@ def main():
     """Main entry point for the Responder Agent."""
     # Load environment variables
     load_dotenv()
-    
+
     # Set up logging
     log_level = logging.INFO
     logger = logging.getLogger("hemostat.responder")
     logger.setLevel(log_level)
-    
+
     responder = None
     try:
         # Log startup banner
         logger.info("=" * 60)
         logger.info("HemoStat Responder Agent - Starting")
         logger.info("=" * 60)
-        
+
         # Instantiate responder
         responder = ContainerResponder()
-        
+
         logger.info("Responder Agent initialized successfully")
         logger.info("Listening for remediation requests on hemostat:remediation_needed")
-        
+
         # Start listening loop
         responder.run()
-        
+
     except HemoStatConnectionError as e:
         logger.error(f"Redis connection failed: {e}")
         sys.exit(1)
-    except docker.errors.DockerException as e:
+    except DockerException as e:
         logger.error(f"Docker connection failed: {e}")
         sys.exit(1)
     except KeyboardInterrupt:

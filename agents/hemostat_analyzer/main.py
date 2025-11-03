@@ -47,10 +47,7 @@ def main() -> None:
         logger.error(f"Redis connection failed: {e}")
         sys.exit(1)
     except ImportError as e:
-        logger.error(
-            f"Missing required dependencies: {e}. "
-            "Install with: uv sync --extra agents"
-        )
+        logger.error(f"Missing required dependencies: {e}. Install with: uv sync --extra agents")
         sys.exit(1)
     except Exception as e:
         logger.error(f"Unexpected error: {e}", exc_info=True)

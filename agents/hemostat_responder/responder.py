@@ -9,8 +9,8 @@ import json
 import logging
 import os
 import time
-from datetime import datetime
-from typing import Any, Dict, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 import docker
 from docker.errors import APIError, DockerException, NotFound
@@ -36,18 +36,14 @@ class ContainerResponder(HemoStatAgent):
 
         # Load safety configuration from environment
         self.cooldown_seconds = int(os.getenv("RESPONDER_COOLDOWN_SECONDS", "3600"))
-        self.max_retries_per_hour = int(
-            os.getenv("RESPONDER_MAX_RETRIES_PER_HOUR", "3")
-        )
+        self.max_retries_per_hour = int(os.getenv("RESPONDER_MAX_RETRIES_PER_HOUR", "3"))
         self.dry_run = os.getenv("RESPONDER_DRY_RUN", "false").lower() == "true"
         self.enforce_exec_allowlist = (
             os.getenv("RESPONDER_ENFORCE_EXEC_ALLOWLIST", "false").lower() == "true"
         )
 
         # Subscribe to remediation channel
-        self.subscribe_to_channel(
-            "hemostat:remediation_needed", self._handle_remediation_request
-        )
+        self.subscribe_to_channel("hemostat:remediation_needed", self._handle_remediation_request)
 
         self.logger.info(
             f"Responder Agent initialized - "
@@ -72,6 +68,7 @@ class ContainerResponder(HemoStatAgent):
         docker_host = os.getenv("DOCKER_HOST", "unix:///var/run/docker.sock")
 
         retry_delays = [initial_delay * (2**i) for i in range(max_retries)]
+        last_error: DockerException | None = None
 
         for attempt in range(max_retries):
             try:
@@ -79,19 +76,24 @@ class ContainerResponder(HemoStatAgent):
                 self.logger.info(f"Docker client initialized: {docker_host}")
                 return client
             except DockerException as e:
+                last_error = e
                 if attempt < max_retries - 1:
                     wait_time = retry_delays[attempt]
                     self.logger.warning(
                         f"Failed to connect to Docker (attempt {attempt + 1}/{max_retries}). "
-                        f"Retrying in {wait_time}s... Error: {str(e)}"
+                        f"Retrying in {wait_time}s... Error: {e!s}"
                     )
                     time.sleep(wait_time)
                 else:
                     self.logger.error(
                         f"Failed to connect to Docker after {max_retries} attempts. "
-                        f"Last error: {str(e)}"
+                        f"Last error: {e!s}"
                     )
                     raise
+
+        # This should never be reached, but satisfies type checker
+        msg = f"Failed to connect to Docker after {max_retries} attempts"
+        raise DockerException(msg) from last_error
 
     def run(self) -> None:
         """Start the message listening loop."""
@@ -102,7 +104,7 @@ class ContainerResponder(HemoStatAgent):
             self.logger.error(f"Error in listening loop: {e}", exc_info=True)
             raise
 
-    def _handle_remediation_request(self, message: Dict[str, Any]) -> None:
+    def _handle_remediation_request(self, message: dict[str, Any]) -> None:
         """
         Callback invoked when remediation request is received from Analyzer Agent.
 
@@ -112,14 +114,12 @@ class ContainerResponder(HemoStatAgent):
         try:
             # Extract request payload from message wrapper
             request_data = message.get("data", {})
-            self.logger.info(
-                f"Received remediation request: {json.dumps(request_data)}"
-            )
+            self.logger.info(f"Received remediation request: {json.dumps(request_data)}")
             self._execute_remediation(request_data)
         except Exception as e:
             self.logger.error(f"Error handling remediation request: {e}", exc_info=True)
 
-    def _execute_remediation(self, request_data: Dict[str, Any]) -> None:
+    def _execute_remediation(self, request_data: dict[str, Any]) -> None:
         """
         Main remediation orchestration method.
 
@@ -133,9 +133,7 @@ class ContainerResponder(HemoStatAgent):
         action = request_data.get("action")
 
         if not container or not action:
-            self.logger.error(
-                "Invalid remediation request: missing container or action"
-            )
+            self.logger.error("Invalid remediation request: missing container or action")
             return
 
         # Safety Check 1: Cooldown period
@@ -155,9 +153,7 @@ class ContainerResponder(HemoStatAgent):
         if not self._check_circuit_breaker(container):
             cb_state = self.get_shared_state(f"circuit_breaker:{container}") or {}
             retry_count = cb_state.get("retry_count", 0)
-            self.logger.warning(
-                f"Circuit breaker open for {container}: {retry_count} retries"
-            )
+            self.logger.warning(f"Circuit breaker open for {container}: {retry_count} retries")
             self._publish_circuit_breaker_active(container, action, retry_count)
             self._log_audit_trail(
                 container,
@@ -189,9 +185,7 @@ class ContainerResponder(HemoStatAgent):
                 self.logger.error(f"Unknown remediation action: {action}")
         except Exception as e:
             result = {"status": "failed", "error": str(e)}
-            self.logger.error(
-                f"Error executing {action} on {container}: {e}", exc_info=True
-            )
+            self.logger.error(f"Error executing {action} on {container}: {e}", exc_info=True)
 
         # Update state based on result (treat not_applicable as non-failure)
         success = result.get("status") in ("success", "not_applicable")
@@ -230,7 +224,7 @@ class ContainerResponder(HemoStatAgent):
 
         try:
             last_time = datetime.fromisoformat(last_timestamp)
-            elapsed = (datetime.utcnow() - last_time).total_seconds()
+            elapsed = (datetime.now(UTC) - last_time).total_seconds()
 
             if elapsed < self.cooldown_seconds:
                 self.logger.debug(
@@ -255,7 +249,7 @@ class ContainerResponder(HemoStatAgent):
 
         try:
             last_time = datetime.fromisoformat(last_timestamp)
-            elapsed = (datetime.utcnow() - last_time).total_seconds()
+            elapsed = (datetime.now(UTC) - last_time).total_seconds()
             remaining = max(0, int(self.cooldown_seconds - elapsed))
             return remaining
         except Exception:
@@ -282,12 +276,10 @@ class ContainerResponder(HemoStatAgent):
         if opened_timestamp:
             try:
                 opened_time = datetime.fromisoformat(opened_timestamp)
-                elapsed = (datetime.utcnow() - opened_time).total_seconds()
+                elapsed = (datetime.now(UTC) - opened_time).total_seconds()
 
                 if elapsed >= 3600:  # 1 hour
-                    self.logger.info(
-                        f"Circuit breaker hour window elapsed for {container}"
-                    )
+                    self.logger.info(f"Circuit breaker hour window elapsed for {container}")
                     return True
             except Exception as e:
                 self.logger.error(f"Error checking circuit breaker window: {e}")
@@ -296,15 +288,14 @@ class ContainerResponder(HemoStatAgent):
         is_open = cb_state.get("is_open", False)
         if is_open:
             self.logger.warning(
-                f"Circuit breaker open for {container}: "
-                f"{cb_state.get('retry_count', 0)} retries"
+                f"Circuit breaker open for {container}: {cb_state.get('retry_count', 0)} retries"
             )
             return False
 
         self.logger.debug(f"Circuit breaker closed for {container}")
         return True
 
-    def _restart_container(self, container: str) -> Dict[str, Any]:
+    def _restart_container(self, container: str) -> dict[str, Any]:
         """
         Restart a container gracefully.
 
@@ -326,9 +317,7 @@ class ContainerResponder(HemoStatAgent):
             while time.time() - start_time < max_wait:
                 container_obj.reload()
                 if container_obj.status == "running":
-                    self.logger.warning(
-                        f"Container restarted successfully: {container}"
-                    )
+                    self.logger.warning(f"Container restarted successfully: {container}")
                     return {
                         "status": "success",
                         "action": "restart",
@@ -351,7 +340,7 @@ class ContainerResponder(HemoStatAgent):
             self.logger.error(error_msg)
             return {"status": "failed", "error": error_msg}
 
-    def _scale_container(self, container: str) -> Dict[str, Any]:
+    def _scale_container(self, container: str) -> dict[str, Any]:
         """
         Scale container replicas (Docker Swarm services).
 
@@ -428,7 +417,7 @@ class ContainerResponder(HemoStatAgent):
             self.logger.error(error_msg)
             return {"status": "failed", "error": error_msg}
 
-    def _cleanup_container(self, container: str) -> Dict[str, Any]:
+    def _cleanup_container(self, container: str) -> dict[str, Any]:
         """
         Clean up stopped containers and prune unused resources strictly scoped to target container.
 
@@ -451,7 +440,7 @@ class ContainerResponder(HemoStatAgent):
                 self.logger.error(error_msg)
                 return {"status": "failed", "error": error_msg}
 
-            cleanup_stats = {
+            cleanup_stats: dict[str, int | list[str]] = {
                 "containers_removed": 0,
                 "volumes_removed": 0,
                 "space_reclaimed_bytes": 0,
@@ -467,9 +456,7 @@ class ContainerResponder(HemoStatAgent):
                 # Build label filters for Compose project and optionally service
                 label_filters = [f"com.docker.compose.project={compose_project}"]
                 if compose_service:
-                    label_filters.append(
-                        f"com.docker.compose.service={compose_service}"
-                    )
+                    label_filters.append(f"com.docker.compose.service={compose_service}")
                 filters["label"] = label_filters
                 self.logger.debug(
                     f"Using Compose filters: project={compose_project}, service={compose_service}"
@@ -480,9 +467,7 @@ class ContainerResponder(HemoStatAgent):
                 self.logger.debug(f"Using image filter: ancestor={image_id}")
 
             # List and remove scoped stopped containers
-            stopped_containers = self.docker_client.containers.list(
-                all=True, filters=filters
-            )
+            stopped_containers = self.docker_client.containers.list(all=True, filters=filters)
             removed_container_ids = []
 
             for stopped_container in stopped_containers:
@@ -490,21 +475,16 @@ class ContainerResponder(HemoStatAgent):
                     # Double-check status before removal
                     stopped_container.reload()
                     if stopped_container.status == "running":
-                        self.logger.warning(
-                            f"Skipping running container: {stopped_container.name}"
-                        )
+                        self.logger.warning(f"Skipping running container: {stopped_container.name}")
                         continue
 
-                    self.logger.info(
-                        f"Removing stopped container: {stopped_container.name}"
-                    )
+                    self.logger.info(f"Removing stopped container: {stopped_container.name}")
                     stopped_container.remove(v=True)  # Remove with volumes
-                    cleanup_stats["containers_removed"] += 1
+                    if isinstance(cleanup_stats["containers_removed"], int):
+                        cleanup_stats["containers_removed"] += 1
                     removed_container_ids.append(stopped_container.id)
                 except APIError as e:
-                    self.logger.warning(
-                        f"Failed to remove container {stopped_container.name}: {e}"
-                    )
+                    self.logger.warning(f"Failed to remove container {stopped_container.name}: {e}")
 
             # Prune volumes strictly scoped
             try:
@@ -513,25 +493,17 @@ class ContainerResponder(HemoStatAgent):
 
                 if compose_project:
                     # Prune volumes with Compose project label filter
-                    volume_filters = {
-                        "label": [f"com.docker.compose.project={compose_project}"]
-                    }
+                    volume_filters = {"label": [f"com.docker.compose.project={compose_project}"]}
                     if compose_service:
                         volume_filters["label"].append(
                             f"com.docker.compose.service={compose_service}"
                         )
 
                     self.logger.debug(f"Pruning volumes with filters: {volume_filters}")
-                    volumes_result = self.docker_client.volumes.prune(
-                        filters=volume_filters
-                    )
-                    volumes_removed_count = len(
-                        volumes_result.get("VolumesDeleted", [])
-                    )
+                    volumes_result = self.docker_client.volumes.prune(filters=volume_filters)
+                    volumes_removed_count = len(volumes_result.get("VolumesDeleted", []))
                     space_reclaimed = volumes_result.get("SpaceReclaimed", 0)
-                    self.logger.info(
-                        f"Pruned {volumes_removed_count} Compose-scoped volumes"
-                    )
+                    self.logger.info(f"Pruned {volumes_removed_count} Compose-scoped volumes")
                 else:
                     # No Compose labels: enumerate dangling volumes and match to removed containers
                     if removed_container_ids:
@@ -543,31 +515,28 @@ class ContainerResponder(HemoStatAgent):
                                 # Check if volume is referenced by removed containers or has matching labels
                                 vol_labels = vol.attrs.get("Labels", {})
                                 if vol_labels.get("com.docker.compose.project") or any(
-                                    cid in str(vol.attrs)
-                                    for cid in removed_container_ids
+                                    cid in str(vol.attrs) for cid in removed_container_ids
                                 ):
-                                    self.logger.info(
-                                        f"Removing dangling volume: {vol.name}"
-                                    )
+                                    self.logger.info(f"Removing dangling volume: {vol.name}")
                                     vol.remove()
                                     volumes_removed_count += 1
                             except APIError as e:
-                                self.logger.warning(
-                                    f"Failed to remove volume {vol.name}: {e}"
-                                )
+                                self.logger.warning(f"Failed to remove volume {vol.name}: {e}")
                     else:
-                        cleanup_stats["notes"].append(
-                            "No containers removed; skipping volume pruning"
-                        )
-                        self.logger.info(
-                            "No containers removed; skipping volume pruning"
-                        )
+                        if isinstance(cleanup_stats["notes"], list):
+                            cleanup_stats["notes"].append(
+                                "No containers removed; skipping volume pruning"
+                            )
+                        self.logger.info("No containers removed; skipping volume pruning")
 
-                cleanup_stats["volumes_removed"] = volumes_removed_count
-                cleanup_stats["space_reclaimed_bytes"] = space_reclaimed
+                if isinstance(cleanup_stats["volumes_removed"], int):
+                    cleanup_stats["volumes_removed"] = volumes_removed_count
+                if isinstance(cleanup_stats["space_reclaimed_bytes"], int):
+                    cleanup_stats["space_reclaimed_bytes"] = space_reclaimed
             except APIError as e:
                 self.logger.warning(f"Failed to prune volumes: {e}")
-                cleanup_stats["notes"].append(f"Volume pruning failed: {e}")
+                if isinstance(cleanup_stats["notes"], list):
+                    cleanup_stats["notes"].append(f"Volume pruning failed: {e}")
 
             self.logger.info(
                 f"Cleanup complete: {cleanup_stats['containers_removed']} containers removed, "
@@ -586,7 +555,7 @@ class ContainerResponder(HemoStatAgent):
             self.logger.error(error_msg)
             return {"status": "failed", "error": error_msg}
 
-    def _exec_container(self, container: str, command: Optional[str]) -> Dict[str, Any]:
+    def _exec_container(self, container: str, command: str | None) -> dict[str, Any]:
         """
         Execute diagnostic command inside container.
 
@@ -620,9 +589,7 @@ class ContainerResponder(HemoStatAgent):
                 "uname",
             ]
 
-            command_allowed = any(
-                command.startswith(safe_cmd) for safe_cmd in safe_commands
-            )
+            command_allowed = any(command.startswith(safe_cmd) for safe_cmd in safe_commands)
 
             if not command_allowed:
                 if self.enforce_exec_allowlist:
@@ -630,9 +597,7 @@ class ContainerResponder(HemoStatAgent):
                     self.logger.error(error_msg)
                     return {"status": "rejected", "error": error_msg}
                 else:
-                    self.logger.warning(
-                        f"Command not in whitelist, executing anyway: {command}"
-                    )
+                    self.logger.warning(f"Command not in whitelist, executing anyway: {command}")
 
             container_obj = self.docker_client.containers.get(container)
 
@@ -669,9 +634,7 @@ class ContainerResponder(HemoStatAgent):
             self.logger.error(error_msg)
             return {"status": "failed", "error": error_msg}
 
-    def _dry_run_action(
-        self, container: str, action: str, request_data: Dict[str, Any]
-    ) -> None:
+    def _dry_run_action(self, container: str, action: str, request_data: dict[str, Any]) -> None:
         """
         Simulate remediation action without executing.
 
@@ -699,7 +662,7 @@ class ContainerResponder(HemoStatAgent):
         self._log_audit_trail(container, action, result, request_data, dry_run=True)
 
     def _update_remediation_history(
-        self, container: str, action: str, result: Dict[str, Any]
+        self, container: str, action: str, result: dict[str, Any]
     ) -> None:
         """
         Update remediation history in Redis.
@@ -713,7 +676,7 @@ class ContainerResponder(HemoStatAgent):
             history = self.get_shared_state(f"remediation_history:{container}") or {}
 
             # Update last action timestamp
-            history["last_action_timestamp"] = datetime.utcnow().isoformat()
+            history["last_action_timestamp"] = datetime.now(UTC).isoformat()
             history["last_action"] = action
             history["last_result_status"] = result.get("status")
 
@@ -722,9 +685,7 @@ class ContainerResponder(HemoStatAgent):
                 history["retry_count"] = 0
             else:
                 last_retry_hour = history.get("last_retry_hour")
-                current_hour = datetime.utcnow().replace(
-                    minute=0, second=0, microsecond=0
-                )
+                current_hour = datetime.now(UTC).replace(minute=0, second=0, microsecond=0)
 
                 if last_retry_hour:
                     try:
@@ -760,7 +721,7 @@ class ContainerResponder(HemoStatAgent):
         """
         try:
             cb_state = self.get_shared_state(f"circuit_breaker:{container}") or {}
-            current_time = datetime.utcnow()
+            current_time = datetime.now(UTC)
 
             # Check if 1-hour window has elapsed and reset if needed
             opened_timestamp_str = cb_state.get("opened_timestamp")
@@ -796,8 +757,7 @@ class ContainerResponder(HemoStatAgent):
                     cb_state["is_open"] = True
                     cb_state["opened_timestamp"] = current_time.isoformat()
                     self.logger.warning(
-                        f"Circuit breaker opened for {container}: "
-                        f"{failure_count} failures"
+                        f"Circuit breaker opened for {container}: {failure_count} failures"
                     )
                 else:
                     cb_state["retry_count"] = failure_count
@@ -812,8 +772,8 @@ class ContainerResponder(HemoStatAgent):
 
     def _publish_remediation_complete(
         self,
-        request_data: Dict[str, Any],
-        result: Dict[str, Any],
+        request_data: dict[str, Any],
+        result: dict[str, Any],
         dry_run: bool = False,
     ) -> None:
         """
@@ -835,9 +795,7 @@ class ContainerResponder(HemoStatAgent):
                 "confidence": request_data.get("confidence"),
             }
 
-            self.publish_event(
-                "hemostat:remediation_complete", "remediation_complete", data
-            )
+            self.publish_event("hemostat:remediation_complete", "remediation_complete", data)
 
             log_level = "INFO" if result.get("status") == "success" else "ERROR"
             self.logger.log(
@@ -851,8 +809,8 @@ class ContainerResponder(HemoStatAgent):
         self,
         container: str,
         action: str,
-        result: Dict[str, Any],
-        request_data: Dict[str, Any],
+        result: dict[str, Any],
+        request_data: dict[str, Any],
         dry_run: bool = False,
     ) -> None:
         """
@@ -867,7 +825,7 @@ class ContainerResponder(HemoStatAgent):
         """
         try:
             audit_entry = {
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "container": container,
                 "action": action,
                 "result_status": result.get("status"),
@@ -892,9 +850,7 @@ class ContainerResponder(HemoStatAgent):
         except Exception as e:
             self.logger.error(f"Error logging audit trail: {e}")
 
-    def _publish_cooldown_active(
-        self, container: str, action: str, remaining_seconds: int
-    ) -> None:
+    def _publish_cooldown_active(self, container: str, action: str, remaining_seconds: int) -> None:
         """
         Publish cooldown active event.
 
@@ -915,12 +871,8 @@ class ContainerResponder(HemoStatAgent):
                 },
             }
 
-            self.publish_event(
-                "hemostat:remediation_complete", "remediation_complete", data
-            )
-            self.logger.info(
-                f"Cooldown active for {container}: {remaining_seconds}s remaining"
-            )
+            self.publish_event("hemostat:remediation_complete", "remediation_complete", data)
+            self.logger.info(f"Cooldown active for {container}: {remaining_seconds}s remaining")
         except Exception as e:
             self.logger.error(f"Error publishing cooldown_active: {e}")
 
@@ -947,11 +899,7 @@ class ContainerResponder(HemoStatAgent):
                 },
             }
 
-            self.publish_event(
-                "hemostat:remediation_complete", "remediation_complete", data
-            )
-            self.logger.warning(
-                f"Circuit breaker open for {container}: {retry_count} retries"
-            )
+            self.publish_event("hemostat:remediation_complete", "remediation_complete", data)
+            self.logger.warning(f"Circuit breaker open for {container}: {retry_count} retries")
         except Exception as e:
             self.logger.error(f"Error publishing circuit_breaker_active: {e}")

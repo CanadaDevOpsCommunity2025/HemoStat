@@ -13,7 +13,7 @@ Import paths supported:
 import logging
 import sys
 
-import docker
+from docker.errors import DockerException
 from dotenv import load_dotenv
 
 from agents.agent_base import HemoStatConnectionError
@@ -23,18 +23,18 @@ from agents.hemostat_monitor import ContainerMonitor
 def main() -> None:
     """
     Main entry point for the Monitor Agent.
-    
+
     Initializes the agent and starts the monitoring loop with graceful shutdown handling.
     """
     # Load environment variables
     load_dotenv()
-    
+
     # Set up logging
     logger = logging.getLogger("hemostat.monitor")
     logger.info("=" * 60)
     logger.info("HemoStat Monitor Agent Starting")
     logger.info("=" * 60)
-    
+
     monitor = None
     try:
         # Instantiate and run the monitor
@@ -47,7 +47,7 @@ def main() -> None:
     except HemoStatConnectionError as e:
         logger.error(f"Redis connection failed: {e}")
         sys.exit(1)
-    except docker.errors.DockerException as e:
+    except DockerException as e:
         logger.error(f"Docker connection failed: {e}")
         sys.exit(1)
     except Exception as e:

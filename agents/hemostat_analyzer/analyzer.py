@@ -10,7 +10,7 @@ import json
 import os
 import re
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from agents.agent_base import HemoStatAgent
 
@@ -38,12 +38,8 @@ class HealthAnalyzer(HemoStatAgent):
         # Load AI configuration
         self.ai_model = os.getenv("AI_MODEL", "gpt-4")
         # AI_FALLBACK_ENABLED forces rule-based analysis (disables AI)
-        self.force_rule_based = (
-            os.getenv("AI_FALLBACK_ENABLED", "false").lower() == "true"
-        )
-        self.confidence_threshold = float(
-            os.getenv("ANALYZER_CONFIDENCE_THRESHOLD", 0.7)
-        )
+        self.force_rule_based = os.getenv("AI_FALLBACK_ENABLED", "false").lower() == "true"
+        self.confidence_threshold = float(os.getenv("ANALYZER_CONFIDENCE_THRESHOLD", 0.7))
         self.history_size = int(os.getenv("ANALYZER_HISTORY_SIZE", 10))
         self.history_ttl = int(os.getenv("ANALYZER_HISTORY_TTL", 3600))
 
@@ -58,7 +54,7 @@ class HealthAnalyzer(HemoStatAgent):
             extra={"agent": self.agent_name},
         )
 
-    def _initialize_llm(self) -> Optional[Any]:
+    def _initialize_llm(self) -> Any | None:
         """
         Initialize LangChain LLM based on AI_MODEL configuration.
 
@@ -96,9 +92,7 @@ class HealthAnalyzer(HemoStatAgent):
                     )
                     return None
 
-                self.logger.info(
-                    f"Initializing ChatAnthropic with model: {self.ai_model}"
-                )
+                self.logger.info(f"Initializing ChatAnthropic with model: {self.ai_model}")
                 return ChatAnthropic(
                     model=self.ai_model,
                     temperature=0.3,
@@ -106,15 +100,12 @@ class HealthAnalyzer(HemoStatAgent):
                 )
 
             else:
-                self.logger.warning(
-                    f"Unknown AI model: {self.ai_model}; using rule-based fallback"
-                )
+                self.logger.warning(f"Unknown AI model: {self.ai_model}; using rule-based fallback")
                 return None
 
         except ImportError as e:
             self.logger.error(
-                f"Failed to import LangChain libraries: {e}. "
-                "Install with: uv sync --extra agents"
+                f"Failed to import LangChain libraries: {e}. Install with: uv sync --extra agents"
             )
             return None
         except Exception as e:
@@ -132,7 +123,7 @@ class HealthAnalyzer(HemoStatAgent):
         except Exception as e:
             self.logger.error(f"Error in listening loop: {e}", exc_info=True)
 
-    def _handle_health_alert(self, message: Dict[str, Any]) -> None:
+    def _handle_health_alert(self, message: dict[str, Any]) -> None:
         """
         Callback invoked when a health alert is received from Monitor Agent.
 
@@ -155,7 +146,7 @@ class HealthAnalyzer(HemoStatAgent):
         except Exception as e:
             self.logger.error(f"Error handling health alert: {e}", exc_info=True)
 
-    def _analyze_health_issue(self, alert_data: Dict[str, Any]) -> None:
+    def _analyze_health_issue(self, alert_data: dict[str, Any]) -> None:
         """
         Main analysis orchestration method.
 
@@ -202,9 +193,7 @@ class HealthAnalyzer(HemoStatAgent):
                 f"Error analyzing health issue for {container_name}: {e}", exc_info=True
             )
 
-    def _ai_analyze(
-        self, alert_data: Dict[str, Any], history: List[Dict]
-    ) -> Optional[Dict[str, Any]]:
+    def _ai_analyze(self, alert_data: dict[str, Any], history: list[dict]) -> dict[str, Any] | None:
         """
         Perform AI-powered analysis using LangChain.
 
@@ -273,6 +262,10 @@ Be concise and focus on actionable insights."""
                         HumanMessage(content=prompt_text),
                     ]
 
+                    if not self.llm:
+                        self.logger.error("LLM not initialized")
+                        return None
+
                     response = self.llm.invoke(messages)
                     response_text = response.content
 
@@ -335,8 +328,8 @@ Be concise and focus on actionable insights."""
             return None
 
     def _rule_based_analyze(
-        self, alert_data: Dict[str, Any], history: List[Dict]
-    ) -> Dict[str, Any]:
+        self, alert_data: dict[str, Any], history: list[dict]
+    ) -> dict[str, Any]:
         """
         Fallback analysis using deterministic rules.
 
@@ -439,7 +432,7 @@ Be concise and focus on actionable insights."""
             "analysis_method": "rule_based",
         }
 
-    def _detect_metric_trend(self, history: List[Dict], metric_key: str) -> str:
+    def _detect_metric_trend(self, history: list[dict], metric_key: str) -> str:
         """
         Helper method to detect trends in historical metrics.
 
@@ -481,7 +474,7 @@ Be concise and focus on actionable insights."""
             return "unknown"
 
     def _publish_remediation_needed(
-        self, alert_data: Dict[str, Any], analysis: Dict[str, Any]
+        self, alert_data: dict[str, Any], analysis: dict[str, Any]
     ) -> None:
         """
         Publish a remediation needed event.
@@ -509,9 +502,7 @@ Be concise and focus on actionable insights."""
             extra={"agent": self.agent_name},
         )
 
-    def _publish_false_alarm(
-        self, alert_data: Dict[str, Any], analysis: Dict[str, Any]
-    ) -> None:
+    def _publish_false_alarm(self, alert_data: dict[str, Any], analysis: dict[str, Any]) -> None:
         """
         Publish a false alarm event.
 
@@ -536,9 +527,7 @@ Be concise and focus on actionable insights."""
             extra={"agent": self.agent_name},
         )
 
-    def _update_alert_history(
-        self, container_name: str, alert_data: Dict[str, Any]
-    ) -> None:
+    def _update_alert_history(self, container_name: str, alert_data: dict[str, Any]) -> None:
         """
         Update alert history in Redis for pattern detection.
 
@@ -562,9 +551,7 @@ Be concise and focus on actionable insights."""
             history_data = {"alerts": alerts, "container": container_name}
             self.set_shared_state(history_key, history_data, ttl=self.history_ttl)
 
-            self.logger.debug(
-                f"Updated alert history for {container_name} ({len(alerts)} alerts)"
-            )
+            self.logger.debug(f"Updated alert history for {container_name} ({len(alerts)} alerts)")
 
         except Exception as e:
             self.logger.error(f"Error updating alert history for {container_name}: {e}")

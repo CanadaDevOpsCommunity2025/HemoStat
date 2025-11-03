@@ -10,8 +10,9 @@ import logging
 import os
 import signal
 import time
-from datetime import datetime, timezone
-from typing import Any, Callable, Dict, Optional
+from collections.abc import Callable
+from datetime import UTC, datetime
+from typing import Any
 
 import redis
 from dotenv import load_dotenv
@@ -37,8 +38,8 @@ class HemoStatAgent:
     def __init__(
         self,
         agent_name: str,
-        redis_host: Optional[str] = None,
-        redis_port: Optional[int] = None,
+        redis_host: str | None = None,
+        redis_port: int | None = None,
         redis_db: int = 0,
     ):
         """
@@ -55,7 +56,7 @@ class HemoStatAgent:
         """
         self.agent_name = agent_name
         self._running = False
-        self._subscriptions: Dict[str, Callable] = {}
+        self._subscriptions: dict[str, Callable] = {}
 
         # Load Redis config from environment or use defaults
         if redis_host is None:
@@ -109,9 +110,7 @@ class HemoStatAgent:
                         rename_fields={"levelname": "level", "name": "logger"},
                     )
                 except ImportError:
-                    logger.warning(
-                        "python-json-logger not installed; falling back to text format"
-                    )
+                    logger.warning("python-json-logger not installed; falling back to text format")
                     formatter = logging.Formatter(
                         f"[{self.agent_name}] %(asctime)s - %(levelname)s - %(message)s"
                     )
@@ -145,7 +144,7 @@ class HemoStatAgent:
 
         for attempt in range(max_retries):
             try:
-                redis_kwargs = {
+                redis_kwargs: dict[str, Any] = {
                     "host": self.redis_host,
                     "port": self.redis_port,
                     "db": self.redis_db,
@@ -156,32 +155,32 @@ class HemoStatAgent:
                 if redis_password:
                     redis_kwargs["password"] = redis_password
 
-                client = redis.Redis(**redis_kwargs)
+                client = redis.Redis(**redis_kwargs)  # type: ignore[arg-type]
                 # Test connection
                 client.ping()
-                self.logger.info(
-                    f"Connected to Redis at {self.redis_host}:{self.redis_port}"
-                )
+                self.logger.info(f"Connected to Redis at {self.redis_host}:{self.redis_port}")
                 return client
             except (redis.ConnectionError, redis.TimeoutError) as e:
                 if attempt < max_retries - 1:
                     wait_time = retry_delays[attempt]
                     self.logger.warning(
                         f"Redis connection failed (attempt {attempt + 1}/{max_retries}). "
-                        f"Retrying in {wait_time}s... Error: {str(e)}"
+                        f"Retrying in {wait_time}s... Error: {e!s}"
                     )
                     time.sleep(wait_time)
                 else:
                     error_msg = (
                         f"Failed to connect to Redis after {max_retries} attempts. "
-                        f"Last error: {str(e)}"
+                        f"Last error: {e!s}"
                     )
                     self.logger.error(error_msg)
-                    raise HemoStatConnectionError(error_msg)
+                    raise HemoStatConnectionError(error_msg) from e
 
-    def publish_event(
-        self, channel: str, event_type: str, data: Dict[str, Any]
-    ) -> bool:
+        # This should never be reached, but satisfies type checker
+        msg = f"Failed to connect to Redis after {max_retries} attempts"
+        raise HemoStatConnectionError(msg)
+
+    def publish_event(self, channel: str, event_type: str, data: dict[str, Any]) -> bool:
         """
         Publish a structured event to a Redis channel.
 
@@ -201,7 +200,7 @@ class HemoStatAgent:
 
         event_payload = {
             "event_type": event_type,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "agent": self.agent_name,
             "data": data,
         }
@@ -216,25 +215,27 @@ class HemoStatAgent:
                 )
                 return True
             except (TypeError, ValueError) as e:
-                self.logger.error(f"Failed to serialize event payload: {str(e)}")
+                self.logger.error(f"Failed to serialize event payload: {e!s}")
                 return False
             except redis.RedisError as e:
                 if attempt < max_retries - 1:
                     wait_time = retry_delays[attempt]
                     self.logger.warning(
                         f"Failed to publish event (attempt {attempt + 1}/{max_retries}). "
-                        f"Retrying in {wait_time}s... Error: {str(e)}"
+                        f"Retrying in {wait_time}s... Error: {e!s}"
                     )
                     time.sleep(wait_time)
                 else:
                     self.logger.error(
-                        f"Failed to publish event after {max_retries} attempts. "
-                        f"Last error: {str(e)}"
+                        f"Failed to publish event after {max_retries} attempts. Last error: {e!s}"
                     )
                     return False
 
+        # This should never be reached, but satisfies type checker
+        return False
+
     def subscribe_to_channel(
-        self, channel: str, callback: Callable[[Dict[str, Any]], None]
+        self, channel: str, callback: Callable[[dict[str, Any]], None]
     ) -> None:
         """
         Subscribe to a Redis channel and register a message handler.
@@ -249,7 +250,7 @@ class HemoStatAgent:
             self._subscriptions[channel] = callback
             self.logger.info(f"Subscribed to channel '{channel}'")
         except redis.RedisError as e:
-            self.logger.error(f"Failed to subscribe to channel '{channel}': {str(e)}")
+            self.logger.error(f"Failed to subscribe to channel '{channel}': {e!s}")
 
     def start_listening(self) -> None:
         """
@@ -277,17 +278,15 @@ class HemoStatAgent:
                         if callback:
                             callback(payload)
                     except json.JSONDecodeError as e:
-                        self.logger.error(f"Failed to deserialize message: {str(e)}")
+                        self.logger.error(f"Failed to deserialize message: {e!s}")
                     except Exception as e:
-                        self.logger.error(
-                            f"Error processing message: {str(e)}", exc_info=True
-                        )
+                        self.logger.error(f"Error processing message: {e!s}", exc_info=True)
         except Exception as e:
-            self.logger.error(f"Listening loop error: {str(e)}", exc_info=True)
+            self.logger.error(f"Listening loop error: {e!s}", exc_info=True)
         finally:
             self.logger.info("Message listening loop stopped")
 
-    def get_shared_state(self, key: str) -> Optional[Dict[str, Any]]:
+    def get_shared_state(self, key: str) -> dict[str, Any] | None:
         """
         Retrieve shared state from Redis.
 
@@ -311,15 +310,13 @@ class HemoStatAgent:
 
             return json.loads(value)
         except redis.RedisError as e:
-            self.logger.error(f"Failed to get shared state '{key}': {str(e)}")
+            self.logger.error(f"Failed to get shared state '{key}': {e!s}")
             return None
         except json.JSONDecodeError as e:
-            self.logger.error(f"Failed to deserialize shared state '{key}': {str(e)}")
+            self.logger.error(f"Failed to deserialize shared state '{key}': {e!s}")
             return None
 
-    def set_shared_state(
-        self, key: str, value: Dict[str, Any], ttl: Optional[int] = None
-    ) -> bool:
+    def set_shared_state(self, key: str, value: dict[str, Any], ttl: int | None = None) -> bool:
         """
         Store shared state in Redis with optional TTL.
 
@@ -339,15 +336,13 @@ class HemoStatAgent:
             if ttl is not None:
                 self.redis.expire(full_key, ttl)
 
-            self.logger.debug(
-                f"Set shared state '{key}'" + (f" with TTL {ttl}s" if ttl else "")
-            )
+            self.logger.debug(f"Set shared state '{key}'" + (f" with TTL {ttl}s" if ttl else ""))
             return True
         except (TypeError, ValueError) as e:
-            self.logger.error(f"Failed to serialize shared state '{key}': {str(e)}")
+            self.logger.error(f"Failed to serialize shared state '{key}': {e!s}")
             return False
         except redis.RedisError as e:
-            self.logger.error(f"Failed to set shared state '{key}': {str(e)}")
+            self.logger.error(f"Failed to set shared state '{key}': {e!s}")
             return False
 
     def stop(self) -> None:
@@ -363,13 +358,13 @@ class HemoStatAgent:
             self.pubsub.unsubscribe()
             self.logger.debug("Unsubscribed from all channels")
         except Exception as e:
-            self.logger.error(f"Error unsubscribing: {str(e)}")
+            self.logger.error(f"Error unsubscribing: {e!s}")
 
         try:
             self.redis.close()
             self.logger.debug("Closed Redis connection")
         except Exception as e:
-            self.logger.error(f"Error closing Redis connection: {str(e)}")
+            self.logger.error(f"Error closing Redis connection: {e!s}")
 
         self.logger.info("Agent stopped successfully")
 
