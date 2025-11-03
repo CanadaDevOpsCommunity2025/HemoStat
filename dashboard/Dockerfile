@@ -2,7 +2,7 @@
 # Stage 1: Builder - Install dependencies with UV
 FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim AS builder
 
-WORKDIR /build
+WORKDIR /app
 
 # Install build dependencies for pyarrow and other compiled packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -17,17 +17,20 @@ COPY README.md pyproject.toml uv.lock* ./
 COPY agents/ ./agents/
 COPY dashboard/ ./dashboard/
 
-# Install dependencies with UV (all extras for complete setup)
-RUN uv sync --extra all --no-dev
-RUN ls -la /build/ && ls -la /build/.venv/bin/ || echo "ERROR: .venv not found!"
+# Install dependencies with UV
+# Create .venv at /app/.venv so shebangs are correct in runtime stage
+RUN uv sync --extra dashboard --extra agents
+RUN ls -la /app/.venv/bin/ && \
+    /app/.venv/bin/streamlit --version || \
+    (echo "ERROR: streamlit not installed!" && exit 1)
 
 # Stage 2: Runtime - Minimal image with only runtime dependencies
 FROM python:3.11-slim-bookworm
 
 WORKDIR /app
 
-# Copy virtual environment from builder
-COPY --from=builder /build/.venv /app/.venv
+# Copy virtual environment from builder (same path so shebangs work)
+COPY --from=builder /app/.venv /app/.venv
 
 # Copy source code
 COPY agents/ ./agents/
