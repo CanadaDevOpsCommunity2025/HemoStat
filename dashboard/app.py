@@ -38,7 +38,6 @@ logger = HemoStatLogger.get_logger("dashboard")
 # Page configuration
 st.set_page_config(
     page_title="HemoStat Dashboard",
-    page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded",
 )
