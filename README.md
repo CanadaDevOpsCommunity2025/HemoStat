@@ -9,6 +9,7 @@ HemoStat is a multi-agent system that autonomously monitors, analyzes, and remed
 - **Safe Remediation**: Automated container recovery with safety constraints and cooldown periods
 - **Slack Alerts**: Real-time notifications for critical events
 - **Live Dashboard**: Streamlit-based monitoring interface
+- **Metrics & Observability**: Prometheus metrics and Grafana dashboards for historical analysis
 - **Demo Scripts**: Automated scenarios for testing and hackathon presentations
 
 ## Documentation
@@ -45,6 +46,8 @@ make docs-serve
 - **Docker & Docker Compose**: Container orchestration
 - **LangChain**: LLM orchestration for AI analysis
 - **Streamlit**: Web-based dashboard
+- **Prometheus**: Time-series metrics collection and alerting
+- **Grafana**: Metrics visualization and monitoring dashboards
 - **Sphinx**: Documentation generation with autodoc from docstrings
 
 ## Architecture

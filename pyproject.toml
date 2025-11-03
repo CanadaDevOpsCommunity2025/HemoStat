@@ -47,6 +47,7 @@ agents = [
     "openai==2.6.1",                # OpenAI GPT-4 integration
     "anthropic>=0.72.0",            # Anthropic Claude integration (compatible with langchain-anthropic)
     "requests==2.32.5",             # HTTP client for Alert agent (Slack webhooks)
+    "prometheus-client==0.21.0",    # Prometheus metrics exporter for observability
 ]
 
 # Phase 3 - Dashboard
@@ -84,6 +85,7 @@ all = [
     "openai==2.6.1",
     "anthropic>=0.72.0",
     "requests==2.32.5",
+    "prometheus-client==0.21.0",
     "streamlit==1.51.0",
     "pytest==8.4.2",
     "pytest-asyncio==1.2.0",
