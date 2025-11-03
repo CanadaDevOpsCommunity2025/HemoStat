@@ -216,22 +216,35 @@ st.markdown("""
         background: linear-gradient(135deg, #f8fafc 0%, #f0f4f8 100%);
     }
     
+    /* Hide the jumbled icon text completely */
     [data-testid="stExpander"] summary > span {
-        display: inline-block !important;
+        position: relative;
+        padding-left: 24px;
     }
     
     [data-testid="stExpander"] summary > span > span {
         font-size: 0 !important;
+        display: none !important;
     }
     
+    /* Create custom arrow using CSS */
     [data-testid="stExpander"] summary > span::before {
-        content: "▼ " !important;
-        font-size: 14px !important;
-        display: inline-block !important;
+        content: "" !important;
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%) rotate(90deg);
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 8px solid #0066cc;
+        transition: transform 0.2s ease;
     }
     
+    /* Rotate arrow when collapsed */
     [data-testid="stExpander"]:not([open]) summary > span::before {
-        content: "▶ " !important;
+        transform: translateY(-50%) rotate(0deg) !important;
     }
     
     [data-testid="stExpander"] summary {
@@ -316,25 +329,23 @@ st.markdown("""
         border: 1px solid rgba(0, 102, 204, 0.12);
     }
     
-    /* Chart axis labels - horizontal orientation */
-    svg.marks text {
-        transform: rotate(0deg) !important;
-        text-anchor: middle !important;
+    
+    /* Hide Vega-Lite and Altair action buttons */
+    .vega-embed summary,
+    .vega-embed details,
+    .vega-actions,
+    .vega-bindings,
+    [data-testid="stVegaLiteChart"] details,
+    [data-testid="stVegaLiteChart"] summary {
+        display: none !important;
     }
     
-    .vega-embed .mark-text text {
-        transform: rotate(0deg) !important;
-    }
-    
-    /* Fix chart label overlapping */
-    [data-testid="stVegaLiteChart"] text {
-        font-size: 11px !important;
-    }
-    
-    /* Ensure chart has enough padding */
-    [data-testid="stVegaLiteChart"] {
-        padding: 10px;
-    }
+    # /* Hide Streamlit element toolbar buttons (fullscreen, etc.) */
+    # [data-testid="stBaseButton-elementToolbar"],
+    # [data-testid="stElementToolbar"],
+    # button[kind="elementToolbar"] {
+    #     display: none !important;
+    # }
     
     /* Dividers - subtle blue gradient */
     hr {

@@ -165,6 +165,10 @@ services:
       dockerfile: dashboard/Dockerfile
     ports:
       - "8501:8501"
+    volumes:
+      - ./dashboard:/app/dashboard:ro
+      - ./agents:/app/agents:ro
+      - ./.streamlit:/app/.streamlit:ro
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379

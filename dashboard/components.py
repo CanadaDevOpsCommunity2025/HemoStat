@@ -348,7 +348,7 @@ def render_timeline(events: list[dict], max_events: int = 100) -> None:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         df = pd.DataFrame(list(event_type_counts.items()), columns=["Event Type", "Count"])
-        st.bar_chart(df.set_index("Event Type"), use_container_width=True)
+        st.bar_chart(df.set_index("Event Type"), width="stretch")
     with col3:
         st.metric("Total Events", len(sorted_events))
 
