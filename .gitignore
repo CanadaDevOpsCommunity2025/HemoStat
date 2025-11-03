@@ -4,60 +4,59 @@ plans/
 # ============================================================================
 # Environment and Secrets
 # ============================================================================
-.env                      # Actual environment file with secrets
-.env.local                # Local development environment (auto-detected)
-*.env.local               # Local environment overrides
-.env.*.local              # Environment-specific local files
-.env.docker.*             # Docker-specific environment files (use as needed)
+.env                      
+.env.local                
+*.env.local               
+.env.*.local              
 
 # ============================================================================
 # Python & UV
 # ============================================================================
-__pycache__/              # Python cache directories
+__pycache__/              
 # Agent-specific cache
 agents/**/__pycache__/
 agents/*/__pycache__/
 dashboard/__pycache__/
-*.py[cod]                 # Python compiled files (.pyc, .pyo, .pyd)
-*$py.class                # Python class files
-*.so                      # C extensions
-.Python                   # Python installation marker
-venv/                     # Virtual environment
-env/                      # Alternative virtual environment
-.venv/                    # Alternative virtual environment
-.uv/                      # UV cache directory
-uv.lock                   # UV lock file (optional - can be committed for reproducibility)
-pip-log.txt               # Pip log file
-pip-delete-this-directory.txt  # Pip marker file
-.pytest_cache/            # Pytest cache
-.coverage                 # Coverage report
-htmlcov/                  # HTML coverage report
-*.egg-info/               # Egg info directories
-dist/                     # Distribution packages
-build/                    # Build artifacts
+*.py[cod]                 
+*$py.class                
+*.so                      
+.Python                   
+venv/                     
+env/                      
+.venv/                    
+.uv/                      
+uv.lock                   
+pip-log.txt               
+pip-delete-this-directory.txt  
+.pytest_cache/            
+.coverage                 
+htmlcov/                  
+*.egg-info/               
+dist/                     
+build/                    
 
 # ============================================================================
 # Docker
 # ============================================================================
-docker-compose.override.yml  # Local Docker Compose overrides
+docker-compose.override.yml
 
 # ============================================================================
 # IDE
 # ============================================================================
-.vscode/                  # VS Code settings
-.idea/                    # JetBrains IDE settings
-*.swp                     # Vim swap files
-*.swo                     # Vim swap files
-.DS_Store                 # macOS system files
+.vscode/                  
+.idea/                    
+*.swp                     
+*.swo                     
+.DS_Store                 
 
 # ============================================================================
 # Logs
 # ============================================================================
-*.log                     # Log files
-logs/                     # Log directory
+*.log
+logs/                     
 
 # ============================================================================
 # Redis
 # ============================================================================
-dump.rdb                  # Redis dump file
-appendonly.aof            # Redis append-only file
+dump.rdb                  
+appendonly.aof
