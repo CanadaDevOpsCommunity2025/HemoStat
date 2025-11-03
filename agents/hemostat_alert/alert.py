@@ -12,11 +12,13 @@ import os
 import time
 from datetime import UTC, datetime
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import requests
 from requests import exceptions as requests_exceptions
 
 from agents.agent_base import HemoStatAgent
+from agents.platform_utils import get_platform_display
 
 
 class AlertNotifier(HemoStatAgent):
@@ -348,9 +350,12 @@ class AlertNotifier(HemoStatAgent):
 
         # Build fields
         fields = [
+            {"title": "Event Type", "value": "Remediation Complete", "short": True},
+            {"title": "Source Agent", "value": "Responder", "short": True},
             {"title": "Container", "value": container, "short": True},
             {"title": "Action", "value": action, "short": True},
             {"title": "Status", "value": status_text, "short": True},
+            {"title": "Environment", "value": get_platform_display(), "short": True},
         ]
 
         if reason:
@@ -368,14 +373,34 @@ class AlertNotifier(HemoStatAgent):
         if error_details and status == "failed":
             fields.append({"title": "Error", "value": error_details, "short": False})
 
-        # Build attachment
+        # Get timestamp from message or use current time
+        timestamp_str = message.get("timestamp", datetime.now(UTC).isoformat())
+        try:
+            timestamp = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
+            ts = int(timestamp.timestamp())
+            # Convert to Eastern Time for display
+            eastern = ZoneInfo("America/New_York")
+            timestamp_et = timestamp.astimezone(eastern)
+            tz_abbr = timestamp_et.strftime("%Z")  # EST or EDT
+            time_display = timestamp_et.strftime(f"%I:%M:%S %p {tz_abbr}")
+        except (ValueError, AttributeError):
+            ts = int(datetime.now(UTC).timestamp())
+            now_et = datetime.now(ZoneInfo("America/New_York"))
+            tz_abbr = now_et.strftime("%Z")
+            time_display = now_et.strftime(f"%I:%M:%S %p {tz_abbr}")
+
+        # Add timestamp field
+        fields.append({"title": "Timestamp", "value": time_display, "short": True})
+
+        # Build attachment with enhanced metadata
         attachment = {
-            "fallback": f"{emoji} Container Remediation: {status_text}",
+            "fallback": f"{emoji} Container Remediation: {status_text} - {container}",
             "color": color,
+            "pretext": "🤖 *Responder Agent* → Remediation Complete",
             "title": f"{emoji} Container Remediation: {status_text}",
             "fields": fields,
-            "footer": "HemoStat Alert Agent",
-            "ts": int(datetime.now(UTC).timestamp()),
+            "footer": "HemoStat • Alert Agent • Remediation Event",
+            "ts": ts,
         }
 
         return {"attachments": [attachment]}
@@ -400,8 +425,11 @@ class AlertNotifier(HemoStatAgent):
 
         # Build fields
         fields = [
+            {"title": "Event Type", "value": "False Alarm", "short": True},
+            {"title": "Source Agent", "value": "Analyzer", "short": True},
             {"title": "Container", "value": container, "short": True},
             {"title": "Analysis Method", "value": analysis_method, "short": True},
+            {"title": "Environment", "value": get_platform_display(), "short": True},
         ]
 
         if reason:
@@ -410,14 +438,34 @@ class AlertNotifier(HemoStatAgent):
         if confidence > 0:
             fields.append({"title": "Confidence", "value": f"{confidence:.1%}", "short": True})
 
-        # Build attachment
+        # Get timestamp from message or use current time
+        timestamp_str = message.get("timestamp", datetime.now(UTC).isoformat())
+        try:
+            timestamp = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
+            ts = int(timestamp.timestamp())
+            # Convert to Eastern Time for display
+            eastern = ZoneInfo("America/New_York")
+            timestamp_et = timestamp.astimezone(eastern)
+            tz_abbr = timestamp_et.strftime("%Z")  # EST or EDT
+            time_display = timestamp_et.strftime(f"%I:%M:%S %p {tz_abbr}")
+        except (ValueError, AttributeError):
+            ts = int(datetime.now(UTC).timestamp())
+            now_et = datetime.now(ZoneInfo("America/New_York"))
+            tz_abbr = now_et.strftime("%Z")
+            time_display = now_et.strftime(f"%I:%M:%S %p {tz_abbr}")
+
+        # Add timestamp field
+        fields.append({"title": "Timestamp", "value": time_display, "short": True})
+
+        # Build attachment with enhanced metadata
         attachment = {
-            "fallback": "⚠️ False Alarm Detected",
+            "fallback": f"⚠️ False Alarm: {container} - No action needed",
             "color": "#ffcc00",
-            "title": "⚠️ False Alarm Detected",
+            "pretext": "🔍 *Analyzer Agent* → False Alarm",
+            "title": "⚠️ False Alarm: No Remediation Required",
             "fields": fields,
-            "footer": "HemoStat Alert Agent",
-            "ts": int(datetime.now(UTC).timestamp()),
+            "footer": "HemoStat • Alert Agent • Analysis Event",
+            "ts": ts,
         }
 
         return {"attachments": [attachment]}
