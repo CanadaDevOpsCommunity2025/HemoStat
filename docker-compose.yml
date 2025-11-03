@@ -45,16 +45,35 @@ services:
     networks:
       - hemostat-network
 
-  # Placeholder for Analyzer Agent (Phase 2)
-  # analyzer:
-  #   build:
-  #     context: .
-  #     dockerfile: agents/hemostat_analyzer/Dockerfile
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
-  #   networks:
-  #     - hemostat-network
+  # Analyzer Agent - Performs AI-powered root cause analysis of health issues
+  analyzer:
+    container_name: hemostat-analyzer
+    build:
+      context: .
+      dockerfile: agents/hemostat_analyzer/Dockerfile
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      AI_MODEL: ${AI_MODEL:-gpt-4}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      AI_FALLBACK_ENABLED: ${AI_FALLBACK_ENABLED:-true}
+      ANALYZER_CONFIDENCE_THRESHOLD: ${ANALYZER_CONFIDENCE_THRESHOLD:-0.7}
+      ANALYZER_HISTORY_SIZE: ${ANALYZER_HISTORY_SIZE:-10}
+      ANALYZER_HISTORY_TTL: ${ANALYZER_HISTORY_TTL:-3600}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import redis; redis.Redis(host='redis').ping()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hemostat-network
 
   # Placeholder for Responder Agent (Phase 2)
   # responder:

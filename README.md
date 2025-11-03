@@ -54,7 +54,7 @@ All agents communicate via Redis pub/sub and share state through Redis KV store
 ### Agent Roles
 
 - **Monitor Agent**: Continuously polls container metrics and publishes health events
-- **Analyzer Agent**: Consumes health events, performs AI analysis, and suggests remediation
+- **Analyzer Agent**: Consumes health events, performs AI-powered root cause analysis using GPT-4 or Claude, distinguishes real issues from false alarms with confidence scoring, and publishes remediation recommendations or false alarm notifications
 - **Responder Agent**: Executes remediation actions with safety constraints and cooldowns
 - **Alert Agent**: Sends notifications to external systems (Slack, email, etc.)
 
@@ -88,9 +88,12 @@ All agents inherit from the shared `HemoStatAgent` base class, which provides Re
 
    ```bash
    # Edit .env and set:
-   # - OPENAI_API_KEY (for Analyzer agent)
-   # - SLACK_WEBHOOK_URL (for Alert agent)
+   # - OPENAI_API_KEY (required for GPT-4 analysis)
+   # - ANTHROPIC_API_KEY (required for Claude analysis)
+   # - SLACK_WEBHOOK_URL (for Alert agent - Phase 2d)
    # - Other optional settings
+   
+   # Note: If AI API keys are not set, the Analyzer Agent will fall back to rule-based analysis.
    ```
 
 4. **Start Redis**
@@ -118,14 +121,14 @@ All agents inherit from the shared `HemoStatAgent` base class, which provides Re
 
 ### Running Agents (Phase 2+)
 
-Monitor Agent is now available. Run it with:
+Monitor and Analyzer Agents are now available. Run them with:
 
 ```bash
 # Terminal 1: Start Monitor Agent
 python -m agents.hemostat_monitor.main
 
-# Terminal 2: Start Analyzer Agent (coming soon)
-# python -m agents.hemostat_analyzer.main
+# Terminal 2: Start Analyzer Agent
+python -m agents.hemostat_analyzer.main
 
 # Terminal 3: Start Responder Agent (coming soon)
 # python -m agents.hemostat_responder.main
@@ -155,9 +158,9 @@ HemoStat-test/
 │   ├── __init__.py
 │   ├── agent_base.py               # Base class for all agents
 │   ├── hemostat_monitor/           # Monitor agent ✅
-│   ├── hemostat_analyzer/          # Analyzer agent (Phase 2)
-│   ├── hemostat_responder/         # Responder agent (Phase 2)
-│   └── hemostat_alert/             # Alert agent (Phase 2)
+│   ├── hemostat_analyzer/          # Analyzer agent ✅
+│   ├── hemostat_responder/         # Responder agent (Phase 2c)
+│   └── hemostat_alert/             # Alert agent (Phase 2d)
 ├── dashboard/                       # Streamlit UI (Phase 3)
 ├── scripts/                         # Demo and test scripts (Phase 3)
 ├── tests/                           # Test suite (Phase 4)
@@ -181,8 +184,8 @@ HemoStat-test/
 ### Phase 2: Agent Implementations (In Progress)
 
 - ✅ Monitor Agent: Container health polling
-- ⏳ Analyzer Agent: AI-powered root cause analysis (Next)
-- ⏳ Responder Agent: Safe remediation execution
+- ✅ Analyzer Agent: AI-powered root cause analysis
+- ⏳ Responder Agent: Safe remediation execution (Next)
 - ⏳ Alert Agent: Multi-channel notifications
 
 ### Phase 3: Dashboard & Visualization
