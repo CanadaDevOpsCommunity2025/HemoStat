@@ -5,6 +5,7 @@ Continuously polls Docker containers to detect health issues, resource anomalies
 Publishes structured health alerts to Redis for consumption by the Analyzer Agent.
 """
 
+import fnmatch
 import os
 import time
 from datetime import datetime, UTC
@@ -55,10 +56,18 @@ class ContainerMonitor(HemoStatAgent):
         self.threshold_cpu = int(os.getenv("THRESHOLD_CPU_PERCENT", 85))
         self.threshold_memory = int(os.getenv("THRESHOLD_MEMORY_PERCENT", 80))
 
+        # Load container filtering configuration
+        # MONITOR_CONTAINER_BLACKLIST: comma-separated list of container name patterns to EXCLUDE
+        # Patterns support wildcards: hemostat-* will match hemostat-monitor, hemostat-analyzer, etc.
+        blacklist_str = os.getenv("MONITOR_CONTAINER_BLACKLIST", "hemostat-*").strip()
+        self.blacklist = [p.strip() for p in blacklist_str.split(",") if p.strip()]
+        
         self.logger.info(
             f"Monitor Agent initialized with thresholds: "
             f"CPU={self.threshold_cpu}%, Memory={self.threshold_memory}%"
         )
+        if self.blacklist:
+            self.logger.info(f"Container blacklist enabled: {self.blacklist}")
 
     def run(self) -> None:
         """
@@ -101,6 +110,11 @@ class ContainerMonitor(HemoStatAgent):
 
             for container in containers:
                 try:
+                    # Skip containers based on whitelist/blacklist
+                    if not self._should_monitor_container(container.name):
+                        self.logger.debug(f"Skipping filtered container: {container.name}")
+                        continue
+                    
                     # Refresh container state to avoid stale status
                     container.reload()
                     self._check_container_health(container)
@@ -112,6 +126,29 @@ class ContainerMonitor(HemoStatAgent):
             self.logger.error(f"Docker API error during container listing: {e}")
         except DockerException as e:
             self.logger.error(f"Docker error during polling: {e}")
+
+    def _should_monitor_container(self, container_name: str) -> bool:
+        """
+        Determine if a container should be monitored based on blacklist.
+        
+        Logic:
+        - If blacklist is defined: container must NOT match any blacklist pattern
+        
+        Args:
+            container_name: Name of the container to check
+            
+        Returns:
+            True if container should be monitored, False otherwise
+        """
+        # If blacklist is defined, container must NOT match any pattern
+        if self.blacklist:
+            matches_blacklist = any(
+                fnmatch.fnmatch(container_name, pattern) for pattern in self.blacklist
+            )
+            if matches_blacklist:
+                return False
+        
+        return True
 
     def _check_container_health(self, container) -> None:
         """
