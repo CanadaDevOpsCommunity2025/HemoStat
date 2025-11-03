@@ -8,6 +8,7 @@ with auto-refresh every 5 seconds.
 
 import os
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -87,7 +88,8 @@ def render_sidebar() -> None:
     st.sidebar.write(f"**Redis**: {status_indicator}")
 
     if st.session_state.last_refresh:
-        st.sidebar.write(f"**Last Refresh**: {st.session_state.last_refresh.strftime('%H:%M:%S')}")
+        tz_abbr = st.session_state.last_refresh.strftime("%Z")  # EST or EDT
+        st.sidebar.write(f"**Last Refresh**: {st.session_state.last_refresh.strftime(f'%I:%M:%S %p {tz_abbr}')}")
 
     st.sidebar.write(f"**Refresh Interval**: {st.session_state.refresh_interval}s")
 
@@ -132,8 +134,11 @@ def render_header() -> None:
     Displays main title, subtitle with current timestamp, and
     connection status indicator.
     """
+    eastern = ZoneInfo("America/New_York")
+    now_et = datetime.now(eastern)
+    tz_abbr = now_et.strftime("%Z")  # EST or EDT
     st.title("🏥 HemoStat: Container Health Monitoring")
-    st.markdown(f"Real-time monitoring dashboard | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    st.markdown(f"Real-time monitoring dashboard | {now_et.strftime(f'%Y-%m-%d %I:%M:%S %p {tz_abbr}')}")
 
     # Connection status
     redis_connected = check_redis_connection()
@@ -159,7 +164,8 @@ def render_live_content() -> None:
     # Fetch data with fragment for auto-refresh
     @st.fragment(run_every=st.session_state.refresh_interval)  # type: ignore[attr-defined]
     def fetch_data() -> tuple:
-        st.session_state.last_refresh = datetime.now()
+        eastern = ZoneInfo("America/New_York")
+        st.session_state.last_refresh = datetime.now(eastern)
         
         try:
             with st.spinner("Loading data from Redis..."):
@@ -223,7 +229,8 @@ def render_footer() -> None:
 
     with col3:
         if st.session_state.last_refresh:
-            st.caption(f"Last updated: {st.session_state.last_refresh.strftime('%H:%M:%S')}")
+            tz_abbr = st.session_state.last_refresh.strftime("%Z")
+            st.caption(f"Last updated: {st.session_state.last_refresh.strftime(f'%I:%M:%S %p {tz_abbr}')}")
 
 
 def main() -> None:

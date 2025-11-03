@@ -7,6 +7,7 @@ Includes metrics cards, health grids, issue feeds, history tables, and timelines
 
 from datetime import UTC, datetime, timedelta
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import streamlit as st
 
@@ -328,32 +329,37 @@ def render_timeline(events: list[dict], max_events: int = 100) -> None:
 
 def format_timestamp(iso_timestamp: str) -> str:
     """
-    Format ISO timestamp to relative or absolute time string.
+    Format ISO timestamp to relative or absolute time string in Eastern Time (GMT-5).
 
     Converts ISO timestamps to relative time for recent events
     ("2 minutes ago", "1 hour ago") and absolute time for older events
-    ("Jan 3, 10:30 AM").
+    ("Jan 3, 10:30 AM EST").
 
     Args:
         iso_timestamp: ISO format timestamp string
 
     Returns:
-        str: Formatted timestamp string or "Unknown" if invalid
+        str: Formatted timestamp string in Eastern Time or "Unknown" if invalid
     """
     if not iso_timestamp:
         return "Unknown"
 
     try:
-        event_time = datetime.fromisoformat(iso_timestamp.replace("Z", "+00:00"))
-        now = datetime.now(UTC)
-
-        # Make both timezone-naive for comparison
-        if event_time.tzinfo:
-            event_time = event_time.replace(tzinfo=None)
-        if now.tzinfo:
-            now = now.replace(tzinfo=None)
-
-        delta = now - event_time
+        # Parse timestamp and convert to Eastern Time
+        eastern = ZoneInfo("America/New_York")
+        event_time_utc = datetime.fromisoformat(iso_timestamp.replace("Z", "+00:00"))
+        
+        # Convert to Eastern Time
+        if event_time_utc.tzinfo:
+            event_time_et = event_time_utc.astimezone(eastern)
+        else:
+            # Assume UTC if no timezone
+            event_time_et = event_time_utc.replace(tzinfo=UTC).astimezone(eastern)
+        
+        now_et = datetime.now(eastern)
+        
+        # Calculate delta using timezone-aware datetimes
+        delta = now_et - event_time_et
 
         # Relative time for recent events
         if delta < timedelta(minutes=1):
@@ -368,9 +374,10 @@ def format_timestamp(iso_timestamp: str) -> str:
             days = int(delta.total_seconds() / 86400)
             return f"{days} day{'s' if days != 1 else ''} ago"
         else:
-            # Absolute time for older events
-            return event_time.strftime("%b %d, %I:%M %p")
-    except (ValueError, AttributeError):
+            # Absolute time for older events with timezone abbreviation
+            tz_abbr = event_time_et.strftime("%Z")  # EST or EDT
+            return event_time_et.strftime(f"%b %d, %I:%M %p {tz_abbr}")
+    except (ValueError, AttributeError) as e:
         return "Unknown"
 
 
