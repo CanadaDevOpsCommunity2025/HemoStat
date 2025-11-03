@@ -321,6 +321,7 @@ class AlertNotifier(HemoStatAgent):
         dry_run = message.get("dry_run", False)
         reason = message.get("reason", "")
         confidence = message.get("confidence", 0)
+        analysis_method = message.get("analysis_method", "unknown")
 
         # Extract result object and get status
         result_obj = message.get("result", {})
@@ -348,6 +349,14 @@ class AlertNotifier(HemoStatAgent):
             emoji = "i"
             status_text = "Not Applicable"
 
+        # Format analysis method with indicator
+        if analysis_method == "ai":
+            ai_indicator = "🤖 AI-Powered"
+        elif analysis_method == "rule_based":
+            ai_indicator = "📋 Rule-Based"
+        else:
+            ai_indicator = analysis_method
+
         # Build fields
         fields = [
             {"title": "Event Type", "value": "Remediation Complete", "short": True},
@@ -355,6 +364,7 @@ class AlertNotifier(HemoStatAgent):
             {"title": "Container", "value": container, "short": True},
             {"title": "Action", "value": action, "short": True},
             {"title": "Status", "value": status_text, "short": True},
+            {"title": "Analysis", "value": ai_indicator, "short": True},
             {"title": "Environment", "value": get_platform_display(), "short": True},
         ]
 
@@ -423,12 +433,20 @@ class AlertNotifier(HemoStatAgent):
         confidence = message.get("confidence", 0)
         analysis_method = message.get("analysis_method", "unknown")
 
+        # Format analysis method with indicator
+        if analysis_method == "ai":
+            ai_indicator = "🤖 AI-Powered"
+        elif analysis_method == "rule_based":
+            ai_indicator = "📋 Rule-Based"
+        else:
+            ai_indicator = analysis_method
+
         # Build fields
         fields = [
             {"title": "Event Type", "value": "False Alarm", "short": True},
             {"title": "Source Agent", "value": "Analyzer", "short": True},
             {"title": "Container", "value": container, "short": True},
-            {"title": "Analysis Method", "value": analysis_method, "short": True},
+            {"title": "Analysis", "value": ai_indicator, "short": True},
             {"title": "Environment", "value": get_platform_display(), "short": True},
         ]
 
