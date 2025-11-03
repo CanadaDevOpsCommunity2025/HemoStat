@@ -155,8 +155,8 @@ The system automatically detects your platform and configures Docker sockets app
 **On Windows (Docker Desktop):**
 
 ```bash
-# Start all services (auto-detects Windows named pipe)
-docker compose --env-file .env.docker.windows up -d
+# Start all services with Windows Docker socket override
+docker compose -f docker-compose.yml -f docker-compose.windows.yml --env-file .env.docker.windows up -d
 
 # View logs
 docker compose logs -f dashboard
@@ -167,8 +167,8 @@ docker compose logs -f dashboard
 **On Linux:**
 
 ```bash
-# Start all services (auto-detects Linux Unix socket)
-docker compose --env-file .env.docker.linux up -d
+# Start all services with Linux Docker socket override
+docker compose -f docker-compose.yml -f docker-compose.linux.yml --env-file .env.docker.linux up -d
 
 # View logs
 docker compose logs -f dashboard
@@ -179,8 +179,8 @@ docker compose logs -f dashboard
 **On macOS:**
 
 ```bash
-# Start all services (auto-detects macOS Unix socket)
-docker compose --env-file .env.docker.macos up -d
+# Start all services with macOS Docker socket override
+docker compose -f docker-compose.yml -f docker-compose.macos.yml --env-file .env.docker.macos up -d
 
 # View logs
 docker compose logs -f dashboard

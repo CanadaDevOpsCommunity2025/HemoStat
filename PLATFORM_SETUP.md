@@ -28,19 +28,19 @@ The system will automatically detect your OS and use the correct Docker socket!
 **Windows:**
 
 ```bash
-docker compose --env-file .env.docker.windows up -d
+docker compose -f docker-compose.yml -f docker-compose.windows.yml --env-file .env.docker.windows up -d
 ```
 
 **Linux:**
 
 ```bash
-docker compose --env-file .env.docker.linux up -d
+docker compose -f docker-compose.yml -f docker-compose.linux.yml --env-file .env.docker.linux up -d
 ```
 
 **macOS:**
 
 ```bash
-docker compose --env-file .env.docker.macos up -d
+docker compose -f docker-compose.yml -f docker-compose.macos.yml --env-file .env.docker.macos up -d
 ```
 
 ## How It Works

@@ -35,13 +35,21 @@ class ContainerResponder(HemoStatAgent):
         environment variables, and subscribes to remediation_needed channel.
 
         Raises:
-            DockerException: If Docker connection fails after retries
             HemoStatConnectionError: If Redis connection fails
         """
         super().__init__(agent_name="responder")
 
         # Initialize Docker client with exponential backoff retry logic
-        self.docker_client = self._connect_docker()
+        try:
+            self.docker_client = self._connect_docker()
+            self.docker_available = True
+        except DockerException as e:
+            self.logger.warning(
+                f"Docker client unavailable (running in Docker without socket mount): {e}. "
+                f"Responder will continue via Redis events only."
+            )
+            self.docker_client = None
+            self.docker_available = False
 
         # Load safety configuration from environment
         self.cooldown_seconds = int(os.getenv("RESPONDER_COOLDOWN_SECONDS", "3600"))
@@ -96,15 +104,9 @@ class ContainerResponder(HemoStatAgent):
                         f"Retrying in {wait_time}s... Error: {e!s}"
                     )
                     time.sleep(wait_time)
-                else:
-                    self.logger.error(
-                        f"Failed to connect to Docker after {max_retries} attempts. "
-                        f"Last error: {e!s}"
-                    )
-                    raise
 
-        # This should never be reached, but satisfies type checker
-        msg = f"Failed to connect to Docker after {max_retries} attempts"
+        # All retries exhausted - raise the error
+        msg = f"Failed to connect to Docker after {max_retries} attempts. Last error: {last_error!s}"
         raise DockerException(msg) from last_error
 
     def run(self) -> None:

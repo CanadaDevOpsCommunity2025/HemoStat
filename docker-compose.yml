@@ -18,8 +18,6 @@ services:
       - hemostat-network
 
   # Monitor Agent - Continuously polls Docker containers for health issues
-  # Note: On Windows Docker Desktop, Docker socket mounting has permission issues.
-  # Monitor will gracefully degrade and continue via Redis events.
   monitor:
     container_name: hemostat-monitor
     build:
@@ -77,8 +75,6 @@ services:
       - hemostat-network
 
   # Responder Agent - Executes safe container remediation with safety constraints
-  # Note: On Windows Docker Desktop, Docker socket mounting has permission issues.
-  # Responder will gracefully degrade and continue via Redis events.
   responder:
     container_name: hemostat-responder
     build:

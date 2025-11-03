@@ -17,9 +17,9 @@ COPY README.md pyproject.toml uv.lock* ./
 COPY agents/ ./agents/
 COPY dashboard/ ./dashboard/
 
-# Install dependencies with UV (dashboard extra includes streamlit)
-RUN uv sync --extra dashboard --no-dev && \
-    ls -la /build/.venv/bin/
+# Install dependencies with UV (all extras for complete setup)
+RUN uv sync --extra all --no-dev
+RUN ls -la /build/ && ls -la /build/.venv/bin/ || echo "ERROR: .venv not found!"
 
 # Stage 2: Runtime - Minimal image with only runtime dependencies
 FROM python:3.11-slim-bookworm

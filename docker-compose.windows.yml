@@ -1,0 +1,11 @@
+# Docker Compose overrides for Windows Docker Desktop
+# Use with: docker compose -f docker-compose.yml -f docker-compose.windows.yml up -d
+
+services:
+  monitor:
+    volumes:
+      - /var/run/docker.sock.raw:/var/run/docker.sock
+
+  responder:
+    volumes:
+      - /var/run/docker.sock.raw:/var/run/docker.sock

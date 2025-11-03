@@ -40,9 +40,14 @@ class ContainerMonitor(HemoStatAgent):
             docker_host = os.getenv("DOCKER_HOST") or get_docker_host()
             self.docker_client = docker.from_env()
             self.logger.info(f"Docker client initialized successfully: {docker_host}")
+            self.docker_available = True
         except DockerException as e:
-            self.logger.error(f"Failed to initialize Docker client: {e}")
-            raise
+            self.logger.warning(
+                f"Docker client unavailable (running in Docker without socket mount): {e}. "
+                f"Monitor will continue via Redis events only."
+            )
+            self.docker_client = None
+            self.docker_available = False
 
         # Load configuration from environment
         self.poll_interval = int(os.getenv("AGENT_POLL_INTERVAL", 30))
@@ -82,7 +87,11 @@ class ContainerMonitor(HemoStatAgent):
 
         Includes both running and exited containers to detect non-zero exit codes.
         Handles Docker API errors gracefully without breaking the loop.
+        Skips polling if Docker is unavailable.
         """
+        if not self.docker_available:
+            return
+
         try:
             containers = self.docker_client.containers.list(
                 all=True, filters={"status": ["running", "exited"]}
