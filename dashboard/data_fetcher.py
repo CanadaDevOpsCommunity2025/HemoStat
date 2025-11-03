@@ -56,7 +56,7 @@ def get_redis_client() -> redis.Redis:
 
 
 @st.cache_data(ttl=5)
-def get_all_events(limit: int = 100) -> list[dict]:
+def get_all_events(limit: int = 1000) -> list[dict]:
     """
     Fetch all events from Redis with 5-second cache.
 
@@ -65,7 +65,7 @@ def get_all_events(limit: int = 100) -> list[dict]:
     and malformed JSON gracefully.
 
     Args:
-        limit: Maximum number of events to retrieve (default: 100)
+        limit: Maximum number of events to retrieve (default: 1000)
 
     Returns:
         list[dict]: List of event dictionaries sorted by timestamp (newest first)
@@ -94,7 +94,7 @@ def get_all_events(limit: int = 100) -> list[dict]:
 
 
 @st.cache_data(ttl=5)
-def get_events_by_type(event_type: str, limit: int = 100) -> list[dict]:
+def get_events_by_type(event_type: str, limit: int = 1000) -> list[dict]:
     """
     Fetch events of a specific type from Redis with 5-second cache.
 
@@ -103,7 +103,7 @@ def get_events_by_type(event_type: str, limit: int = 100) -> list[dict]:
 
     Args:
         event_type: Type of events to fetch (e.g., 'remediation_complete', 'false_alarm')
-        limit: Maximum number of events to retrieve (default: 100)
+        limit: Maximum number of events to retrieve (default: 1000)
 
     Returns:
         list[dict]: List of event dictionaries of the specified type

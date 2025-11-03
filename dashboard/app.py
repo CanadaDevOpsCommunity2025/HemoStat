@@ -51,7 +51,7 @@ if "auto_refresh_enabled" not in st.session_state:
 if "refresh_interval" not in st.session_state:
     st.session_state.refresh_interval = int(os.getenv("DASHBOARD_REFRESH_INTERVAL", 5))
 if "max_events" not in st.session_state:
-    st.session_state.max_events = int(os.getenv("DASHBOARD_MAX_EVENTS", 100))
+    st.session_state.max_events = int(os.getenv("DASHBOARD_MAX_EVENTS", 1000))
 if "last_refresh" not in st.session_state:
     st.session_state.last_refresh = None
 if "manual_refresh_trigger" not in st.session_state:

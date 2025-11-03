@@ -191,7 +191,7 @@ def render_remediation_history(events: list[dict]) -> None:
 
     Displays all remediation events with columns for timestamp, container,
     action, status, reason, and confidence. Includes filters for status,
-    container, and time range.
+    container, and time range. Reasons can be expanded to view full text.
 
     Args:
         events: List of remediation event dictionaries from Redis
@@ -266,10 +266,20 @@ def render_remediation_history(events: list[dict]) -> None:
 
     # Build dataframe
     history_data = []
-    for event in filtered_events:
+    for idx, event in enumerate(filtered_events):
         # Extract data from nested structure
         data = event.get("data", {})
         result = data.get("result", {})
+        
+        # Get reason from result (remediation reason) or data (AI analysis reason)
+        full_reason = result.get("reason") or data.get("reason") or "N/A"
+        
+        # Truncate for display with ellipsis if too long
+        max_display_length = 40
+        if len(str(full_reason)) > max_display_length:
+            display_reason = str(full_reason)[:max_display_length] + "..."
+        else:
+            display_reason = str(full_reason)
         
         history_data.append(
             {
@@ -277,8 +287,10 @@ def render_remediation_history(events: list[dict]) -> None:
                 "Container": data.get("container", "Unknown"),
                 "Action": data.get("action", "Unknown"),
                 "Status": result.get("status", "unknown").upper(),
-                "Reason": result.get("reason", "N/A")[:50],  # Truncate for display
+                "Reason": display_reason,
                 "Confidence": f"{data.get('confidence', 0):.1%}",
+                "_full_reason": full_reason,  # Hidden column for expander
+                "_event_idx": idx,  # Hidden column for unique key
             }
         )
 
@@ -286,7 +298,25 @@ def render_remediation_history(events: list[dict]) -> None:
         history_data,
         width="stretch",
         hide_index=True,
+        column_config={
+            "Reason": st.column_config.TextColumn(
+                "Reason",
+                help="Click on a reason with '...' to see the full text",
+            ),
+            "_full_reason": st.column_config.Column(disabled=True),
+            "_event_idx": st.column_config.Column(disabled=True),
+        },
     )
+    
+    # Add expandable sections for full reasons
+    st.markdown("---")
+    st.subheader("Full Reasoning Details")
+    
+    for item in history_data:
+        if "..." in item["Reason"]:
+            with st.expander(f"📋 {item['Container']} - {item['Timestamp']}", expanded=False):
+                st.write(f"**Full Reason:**")
+                st.write(item["_full_reason"])
 
 
 def render_timeline(events: list[dict], max_events: int = 100) -> None:

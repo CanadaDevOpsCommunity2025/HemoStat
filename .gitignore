@@ -10,7 +10,8 @@ plans/
 .env.*.local
 .env.docker.windows
 .env.docker.linux
-.env.docker.macos  
+.env.docker.macos
+.env.*
 
 # ============================================================================
 # Python & UV
