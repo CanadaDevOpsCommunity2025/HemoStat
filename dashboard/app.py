@@ -220,20 +220,6 @@ st.markdown("""
         display: inline-block !important;
     }
     
-    [data-testid="stExpander"] summary > span > span {
-        font-size: 0 !important;
-    }
-    
-    [data-testid="stExpander"] summary > span::before {
-        content: "▼ " !important;
-        font-size: 14px !important;
-        display: inline-block !important;
-    }
-    
-    [data-testid="stExpander"]:not([open]) summary > span::before {
-        content: "▶ " !important;
-    }
-    
     [data-testid="stExpander"] summary {
         color: #003d99;
         font-weight: 600;

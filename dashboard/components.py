@@ -347,8 +347,18 @@ def render_timeline(events: list[dict], max_events: int = 100) -> None:
     st.markdown("**Event Type Distribution**")
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
+        import altair as alt
         df = pd.DataFrame(list(event_type_counts.items()), columns=["Event Type", "Count"])
-        st.bar_chart(df.set_index("Event Type"), width="stretch")
+        chart = alt.Chart(df).mark_bar().encode(
+            x=alt.X("Event Type:N", axis=alt.Axis(labelAngle=0)),
+            y=alt.Y("Count:Q"),
+            color=alt.value("#1f77b4"),
+            tooltip=["Event Type", "Count"]
+        ).properties(
+            width="container",
+            height=300
+        )
+        st.altair_chart(chart, use_container_width=True)
     with col3:
         st.metric("Total Events", len(sorted_events))
 
