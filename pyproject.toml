@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "hemostat"
 version = "0.1.0"
 description = "Autonomous Container Health Monitoring System - Multi-agent system for Docker container health monitoring and remediation"
-readme = "README_PHASE1.md"
+readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "Team 1", email = "team@hemostat.local" }]
@@ -39,13 +39,13 @@ dependencies = [
 [project.optional-dependencies]
 # Phase 2 - Agent Implementations
 agents = [
-    "docker==7.0.0",           # Monitor/Responder agents for container management
-    "langchain==0.1.0",        # LLM orchestration for Analyzer agent
-    "langchain-openai==0.0.5", # OpenAI provider integration for LangChain
+    "docker==7.0.0",              # Monitor/Responder agents for container management
+    "langchain==0.1.0",           # LLM orchestration for Analyzer agent
+    "langchain-openai==0.0.5",    # OpenAI provider integration for LangChain
     "langchain-anthropic==0.1.0", # Anthropic provider integration for LangChain
-    "openai==1.10.0",          # OpenAI GPT-4 integration
-    "anthropic==0.8.0",        # Anthropic Claude integration
-    "requests==2.31.0",        # HTTP client for Alert agent (Slack webhooks)
+    "openai==1.10.0",             # OpenAI GPT-4 integration
+    "anthropic>=0.16.0",          # Anthropic Claude integration (compatible with langchain-anthropic)
+    "requests==2.31.0",           # HTTP client for Alert agent (Slack webhooks)
 ]
 
 # Phase 3 - Dashboard
@@ -58,6 +58,9 @@ dev = [
     "pytest==7.4.0",          # Unit testing framework
     "pytest-asyncio==0.21.0", # Async test support
     "pytest-cov==4.1.0",      # Code coverage reporting
+    "ruff==0.2.0",            # Fast Python linter and formatter
+    "ty==0.0.1a25",           # Fast type checker from Astral (written in Rust)
+    "pre-commit==3.6.0",      # Git hooks for code quality
 ]
 
 # All optional dependencies
@@ -67,12 +70,15 @@ all = [
     "langchain-openai==0.0.5",
     "langchain-anthropic==0.1.0",
     "openai==1.10.0",
-    "anthropic==0.8.0",
+    "anthropic>=0.16.0",
     "requests==2.31.0",
     "streamlit==1.29.0",
     "pytest==7.4.0",
     "pytest-asyncio==0.21.0",
     "pytest-cov==4.1.0",
+    "ruff==0.2.0",
+    "ty==0.0.1a25",
+    "pre-commit==3.6.0",
 ]
 
 [project.urls]
@@ -88,6 +94,9 @@ dev-dependencies = [
     "pytest==7.4.0",
     "pytest-asyncio==0.21.0",
     "pytest-cov==4.1.0",
+    "ruff==0.2.0",
+    "pre-commit==3.6.0",
+    "ty==0.0.1a25",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -111,3 +120,61 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
+
+[tool.typos.default]
+check-filenames = true
+check-files = true
+
+[tool.typos.default.extend-ignore-identifiers]
+# Identifiers that may contain false positive typos
+hemostat = "hemostat"
+pubsub = "pubsub"
+redis = "redis"
+remediaton = "remediaton" # Custom spelling for internal use
+
+[tool.typos.default.extend-words]
+# Words to recognize as correct
+aerosol = "aerosol"
+
+[tool.typos.files]
+ignore-files = [".git", ".venv", "htmlcov", "dist", "build", "*.egg-info"]
+
+[tool.ruff]
+# Fast Python linter configuration
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort - import sorting
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "ARG", # flake8-unused-arguments
+    "SIM", # flake8-simplify
+    "RUF", # Ruff-specific rules
+]
+ignore = [
+    "E501",   # Line too long (handled by formatter)
+    "ARG001", # Unused function argument (can be intentional)
+    "ARG002", # Unused method argument (can be intentional)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["agents"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "double"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[tool.ty]
+# Fast type checker configuration (from Astral, written in Rust)
+# ty automatically discovers packages in the active virtual environment
