@@ -24,25 +24,29 @@ cp .env.example .env
 ### Running Services
 ```bash
 # Start Redis (required for all agents)
-docker-compose up -d redis
+docker compose up -d redis
 
-# Start all agents and Redis together
-docker-compose up -d
+# Start all services (agents, dashboard, Redis)
+docker compose up -d
 
 # View logs for a specific service
-docker-compose logs -f monitor    # or analyzer, responder, alert
-docker-compose logs -f             # all services
+docker compose logs -f monitor      # or analyzer, responder, alert, dashboard
+docker compose logs -f              # all services
+
+# Rebuild and restart a specific service (e.g., after code changes)
+docker compose build dashboard --no-cache
+docker compose up -d dashboard
 
 # Stop all services
-docker-compose down
+docker compose down
 
 # Stop and remove volumes (clean slate)
-docker-compose down -v
+docker compose down -v
 ```
 
-### Running Individual Agents Locally
+### Running Individual Agents and Dashboard Locally
 ```bash
-# Using make (preferred):
+# Agents (using make):
 make monitor
 make analyzer
 make responder
@@ -53,6 +57,10 @@ python -m agents.hemostat_monitor.main
 python -m agents.hemostat_analyzer.main
 python -m agents.hemostat_responder.main
 python -m agents.hemostat_alert.main
+
+# Dashboard:
+streamlit run dashboard/app.py
+# Access at http://localhost:8501
 ```
 
 ### Testing
@@ -159,11 +167,18 @@ HemoStat-test/
 │       ├── alert.py                # Alert implementation
 │       └── Dockerfile
 │
-├── dashboard/                       # Phase 3 (Streamlit UI - planned)
+├── dashboard/                       # Phase 3 ✅ Streamlit monitoring UI
+│   ├── app.py                      # Main dashboard application
+│   ├── components/                 # Reusable UI components
+│   ├── utils/                      # Helper functions
+│   └── Dockerfile                  # Multi-stage build with uv
+│
 ├── docs/                            # Documentation
 │   ├── ARCHITECTURE.md
 │   ├── API_PROTOCOL.md
-│   └── DEPLOYMENT.md
+│   ├── DEPLOYMENT.md
+│   └── WARP.md                     # This file
+│
 ├── tests/                           # Phase 4 (pytest suite - planned)
 ├── docker-compose.yml               # Orchestrates all services
 ├── pyproject.toml                   # Python project config (uv)
@@ -198,6 +213,11 @@ Key variables in `.env.example`:
 **Alerts (Alert Agent)**
 - `SLACK_WEBHOOK_URL`: Slack incoming webhook (get from https://api.slack.com/messaging/webhooks)
 - `ALERT_ENABLED`: Master switch for all notifications
+
+**Dashboard (Streamlit UI)**
+- `DASHBOARD_REFRESH_INTERVAL`: Auto-refresh interval in seconds (default: 5)
+- `DASHBOARD_MAX_EVENTS`: Max events to display (default: 100)
+- `DASHBOARD_AUTO_REFRESH`: Enable/disable auto-refresh (default: true)
 
 ## Development Workflow
 
@@ -245,9 +265,25 @@ Key variables in `.env.example`:
 - Verify cooldown period hasn't blocked action: Check Redis key `hemostat:state:responder:last_action:{container_id}`
 - Set `RESPONDER_DRY_RUN=false` to actually execute (default is `false`)
 
+**Dashboard Not Starting**
+- Check container logs: `docker compose logs dashboard`
+- Verify streamlit is installed: `docker exec hemostat-dashboard /app/.venv/bin/streamlit --version`
+- Rebuild from scratch: `docker compose build dashboard --no-cache`
+- Ensure Redis is running: Dashboard requires Redis for event streaming
+
 ## Phase Roadmap
 
 - ✅ **Phase 1**: Infrastructure (Redis, base agent class, Docker Compose)
 - ✅ **Phase 2**: All four agents (Monitor, Analyzer, Responder, Alert)
-- ⏳ **Phase 3**: Streamlit dashboard with real-time event streaming
+- ✅ **Phase 3**: Streamlit dashboard with real-time event streaming and container health monitoring
 - ⏳ **Phase 4**: Comprehensive test suite and production deployment guide
+
+## Dashboard Features (Phase 3)
+
+- **Real-time Event Streaming**: Auto-refreshing event feed from Redis
+- **Container Health Grid**: Visual status of all monitored containers
+- **Metrics Cards**: Live CPU, memory, and container count statistics
+- **Active Issues Feed**: Current health problems requiring attention
+- **Remediation History**: Audit trail of automated actions
+- **Event Timeline**: Filterable view of all system events
+- **Multi-stage Docker Build**: Optimized build using UV package manager with correct shebang paths

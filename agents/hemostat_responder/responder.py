@@ -159,7 +159,7 @@ class ContainerResponder(HemoStatAgent):
         if not self._check_cooldown(container):
             remaining = self._get_cooldown_remaining(container)
             self.logger.info(f"Cooldown active for {container}: {remaining}s remaining")
-            self._publish_cooldown_active(container, action, remaining)
+            self._publish_cooldown_active(container, action, remaining, request_data.get("confidence", 0))
             self._log_audit_trail(
                 container,
                 action,
@@ -173,7 +173,7 @@ class ContainerResponder(HemoStatAgent):
             cb_state = self.get_shared_state(f"circuit_breaker:{container}") or {}
             retry_count = cb_state.get("retry_count", 0)
             self.logger.warning(f"Circuit breaker open for {container}: {retry_count} retries")
-            self._publish_circuit_breaker_active(container, action, retry_count)
+            self._publish_circuit_breaker_active(container, action, retry_count, request_data.get("confidence", 0))
             self._log_audit_trail(
                 container,
                 action,
@@ -882,7 +882,7 @@ class ContainerResponder(HemoStatAgent):
         except Exception as e:
             self.logger.error(f"Error logging audit trail: {e}")
 
-    def _publish_cooldown_active(self, container: str, action: str, remaining_seconds: int) -> None:
+    def _publish_cooldown_active(self, container: str, action: str, remaining_seconds: int, confidence: float = 0.0) -> None:
         """
         Publish cooldown active event.
 
@@ -890,6 +890,7 @@ class ContainerResponder(HemoStatAgent):
             container: Container name
             action: Original remediation action
             remaining_seconds: Seconds remaining in cooldown
+            confidence: Confidence level from original request
         """
         try:
             # Structure rejection events with result object
@@ -901,6 +902,7 @@ class ContainerResponder(HemoStatAgent):
                     "reason": "cooldown_active",
                     "remaining_seconds": remaining_seconds,
                 },
+                "confidence": confidence,
             }
 
             self.publish_event("hemostat:remediation_complete", "remediation_complete", data)
@@ -909,7 +911,7 @@ class ContainerResponder(HemoStatAgent):
             self.logger.error(f"Error publishing cooldown_active: {e}")
 
     def _publish_circuit_breaker_active(
-        self, container: str, action: str, retry_count: int
+        self, container: str, action: str, retry_count: int, confidence: float = 0.0
     ) -> None:
         """
         Publish circuit breaker open event.
@@ -918,6 +920,7 @@ class ContainerResponder(HemoStatAgent):
             container: Container name
             action: Original remediation action
             retry_count: Current retry count
+            confidence: Confidence level from original request
         """
         try:
             # Structure rejection events with result object
@@ -929,6 +932,7 @@ class ContainerResponder(HemoStatAgent):
                     "reason": "circuit_breaker_open",
                     "retry_count": retry_count,
                 },
+                "confidence": confidence,
             }
 
             self.publish_event("hemostat:remediation_complete", "remediation_complete", data)

@@ -7,6 +7,7 @@ Publishes structured health alerts to Redis for consumption by the Analyzer Agen
 
 import os
 import time
+from datetime import datetime, UTC
 from typing import Any
 
 import docker
@@ -134,6 +135,22 @@ class ContainerMonitor(HemoStatAgent):
 
             # Detect anomalies
             anomalies = self._detect_anomalies(container, stats, health_info)
+
+            # Store container state to Redis (for dashboard health grid)
+            # This stores data for ALL containers, not just unhealthy ones
+            container_id = container.short_id
+            container_state = {
+                "container_id": container_id,
+                "container_name": container_name,
+                "status": container.status,
+                "cpu_percent": stats.get("cpu_percent", 0),
+                "memory_percent": stats.get("memory_percent", 0),
+                "memory_usage": stats.get("memory_usage", 0),
+                "memory_limit": stats.get("memory_limit", 0),
+                "health_status": health_info["health_status"],
+                "timestamp": datetime.now(UTC).isoformat(),
+            }
+            self.set_shared_state(f"container:{container_id}", container_state, ttl=300)
 
             # Publish alert if anomalies detected
             if anomalies:

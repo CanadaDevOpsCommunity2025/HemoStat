@@ -8,6 +8,7 @@ with auto-refresh every 5 seconds.
 
 import os
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -88,7 +89,8 @@ def render_sidebar() -> None:
     st.sidebar.markdown(f"**Status**: {status_text}")
 
     if st.session_state.last_refresh:
-        st.sidebar.caption(f"Last refresh: {st.session_state.last_refresh.strftime('%H:%M:%S')}")
+        tz_abbr = st.session_state.last_refresh.strftime("%Z")  # EST or EDT
+        st.sidebar.write(f"**Last Refresh**: {st.session_state.last_refresh.strftime(f'%I:%M:%S %p {tz_abbr}')}")
 
     st.sidebar.markdown("---")
 
@@ -135,6 +137,11 @@ def render_header() -> None:
     connection status indicator.
     """
     col1, col2 = st.columns([3, 1])
+    eastern = ZoneInfo("America/New_York")
+    now_et = datetime.now(eastern)
+    tz_abbr = now_et.strftime("%Z")  # EST or EDT
+    st.title("🏥 HemoStat: Container Health Monitoring")
+    st.markdown(f"Real-time monitoring dashboard | {now_et.strftime(f'%Y-%m-%d %I:%M:%S %p {tz_abbr}')}")
 
     with col1:
         st.title("HemoStat")
@@ -160,65 +167,62 @@ def render_live_content() -> None:
 
     Uses st.fragment with dynamic run_every interval tied to session state.
     Fetches data from Redis and renders all dashboard tabs.
+    Tabs are outside fragment to preserve selection across refreshes.
     """
+    
+    if not st.session_state.auto_refresh_enabled:
+        st.info("Auto-refresh is disabled. Click 'Refresh Now' to update.")
+        return
 
-    # Use fragment with conditional auto-refresh
-    # Pass the manual_refresh_trigger to force re-render when button clicked
-    refresh_interval = st.session_state.refresh_interval if st.session_state.auto_refresh_enabled else None
+    # Fetch data with fragment for auto-refresh
+    @st.fragment(run_every=st.session_state.refresh_interval)  # type: ignore[attr-defined]
+    def fetch_data() -> tuple:
+        eastern = ZoneInfo("America/New_York")
+        st.session_state.last_refresh = datetime.now(eastern)
+        
+        try:
+            with st.spinner("Loading data from Redis..."):
+                all_events = get_all_events(limit=st.session_state.max_events)
+                remediation_events = get_events_by_type(
+                    "remediation_complete", limit=st.session_state.max_events
+                )
+                false_alarm_count = get_false_alarm_count()
+                active_containers = len(get_active_containers())
+                remediation_stats = get_remediation_stats()
+            
+            return all_events, remediation_events, false_alarm_count, active_containers, remediation_stats
+        except Exception as e:
+            logger.error(f"Error fetching dashboard data: {e}")
+            st.error(f"Error loading dashboard data: {e}")
+            return [], [], 0, 0, {"success_rate": 0.0, "total_remediations": 0, "false_alarms": 0}
 
-    @st.fragment(run_every=refresh_interval)  # type: ignore[attr-defined]
-    def content_fragment() -> None:
-        # This will cause re-render when manual_refresh_trigger changes
-        _ = st.session_state.manual_refresh_trigger
-        st.session_state.last_refresh = datetime.now()
-        render_dashboard_content()
+    # Fetch data (will auto-refresh)
+    all_events, remediation_events, false_alarm_count, active_containers, remediation_stats = fetch_data()
 
-    content_fragment()
+    # Metrics section (outside fragment)
+    st.subheader("Key Metrics")
+    render_metrics_cards(remediation_stats, false_alarm_count, active_containers)
 
+    # Tabs for different views (outside fragment to preserve tab state)
+    tab1, tab2, tab3, tab4 = st.tabs(
+        ["🏥 Health Grid", "⚠️ Active Issues", "📊 History", "📈 Timeline"]
+    )
 
-def render_dashboard_content() -> None:
-    """
-    Render the main dashboard content (metrics, tabs, etc).
+    with tab1:
+        st.subheader("Container Health Grid")
+        render_health_grid(all_events)
 
-    Separated from render_live_content to allow reuse with and without auto-refresh.
-    """
-    try:
-        # Fetch data
-        with st.spinner("Loading data from Redis..."):
-            all_events = get_all_events(limit=st.session_state.max_events)
-            remediation_events = get_events_by_type(
-                "remediation_complete", limit=st.session_state.max_events
-            )
-            false_alarm_count = get_false_alarm_count()
-            active_containers = len(get_active_containers())
-            remediation_stats = get_remediation_stats()
+    with tab2:
+        st.subheader("Active Issues")
+        render_active_issues(all_events)
 
-        # Metrics section
-        render_metrics_cards(remediation_stats, false_alarm_count, active_containers)
+    with tab3:
+        st.subheader("Remediation History")
+        render_remediation_history(remediation_events)
 
-        # Add spacing
-        st.markdown("<br>", unsafe_allow_html=True)
-
-        # Tabs for different views
-        tab1, tab2, tab3, tab4 = st.tabs(
-            ["Health Grid", "Active Issues", "History", "Timeline"]
-        )
-
-        with tab1:
-            render_health_grid(all_events)
-
-        with tab2:
-            render_active_issues(all_events)
-
-        with tab3:
-            render_remediation_history(remediation_events)
-
-        with tab4:
-            render_timeline(all_events, max_events=st.session_state.max_events)
-
-    except Exception as e:
-        logger.error(f"Error rendering dashboard content: {e}")
-        st.error(f"Error loading dashboard data: {e}")
+    with tab4:
+        st.subheader("Event Timeline")
+        render_timeline(all_events, max_events=st.session_state.max_events)
 
 
 def render_footer() -> None:
@@ -231,11 +235,15 @@ def render_footer() -> None:
     col1, col2 = st.columns(2)
 
     with col1:
-        st.caption("HemoStat v1.0.0")
+        st.caption("HemoStat v0.1.0")
 
     with col2:
+        st.caption("Phase 4: Testing & Integration")
+
+    with col3:
         if st.session_state.last_refresh:
-            st.caption(f"Last updated: {st.session_state.last_refresh.strftime('%H:%M:%S')}")
+            tz_abbr = st.session_state.last_refresh.strftime("%Z")
+            st.caption(f"Last updated: {st.session_state.last_refresh.strftime(f'%I:%M:%S %p {tz_abbr}')}")
 
 
 def main() -> None:

@@ -20,6 +20,7 @@ services:
   # Monitor Agent - Continuously polls Docker containers for health issues
   monitor:
     container_name: hemostat-monitor
+    user: root
     build:
       context: .
       dockerfile: agents/hemostat_monitor/Dockerfile
@@ -77,6 +78,7 @@ services:
   # Responder Agent - Executes safe container remediation with safety constraints
   responder:
     container_name: hemostat-responder
+    user: root
     build:
       context: .
       dockerfile: agents/hemostat_responder/Dockerfile
@@ -158,16 +160,62 @@ services:
     networks:
       - hemostat-network
 
-  # Placeholder for Test Services (Phase 4)
-  # test:
-  #   build:
-  #     context: .
-  #     dockerfile: tests/Dockerfile
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
-  #   networks:
-  #     - hemostat-network
+  # Test Services (Phase 4) - For demo and integration testing
+  
+  # Test API - HTTP service with controllable resource usage
+  test-api:
+    container_name: hemostat-test-api
+    image: python:3.11-slim
+    command: python /app/test_api.py
+    volumes:
+      - ./scripts/test_api.py:/app/test_api.py:ro
+      - ./agents:/app/agents:ro
+    environment:
+      PYTHONUNBUFFERED: 1
+      FLASK_APP: test_api.py
+    ports:
+      - "5000:5000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hemostat-network
+    labels:
+      hemostat.test: "true"
+      hemostat.service: "test-api"
+  
+  # Test Worker - Background worker with periodic resource spikes
+  test-worker:
+    container_name: hemostat-test-worker
+    image: python:3.11-slim
+    command: python /app/test_worker.py
+    volumes:
+      - ./scripts/test_worker.py:/app/test_worker.py:ro
+      - ./agents:/app/agents:ro
+    environment:
+      PYTHONUNBUFFERED: 1
+      WORKER_INTERVAL: ${WORKER_INTERVAL:-60}
+      WORKER_SPIKE_PROBABILITY: ${WORKER_SPIKE_PROBABILITY:-0.1}
+      WORKER_SPIKE_DURATION: ${WORKER_SPIKE_DURATION:-30}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hemostat-network
+    labels:
+      hemostat.test: "true"
+      hemostat.service: "test-worker"
 
 networks:
   hemostat-network:
