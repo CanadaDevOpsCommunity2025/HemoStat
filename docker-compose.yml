@@ -267,7 +267,7 @@ services:
       zap:
         condition: service_healthy
       juice-shop:
-        condition: service_healthy
+        condition: service_started
     restart: unless-stopped
     healthcheck:
       test:
