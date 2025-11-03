@@ -43,6 +43,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+
 # Initialize session state
 if "auto_refresh_enabled" not in st.session_state:
     auto_refresh_env = os.getenv("DASHBOARD_AUTO_REFRESH", "true").lower() == "true"
@@ -53,6 +54,8 @@ if "max_events" not in st.session_state:
     st.session_state.max_events = int(os.getenv("DASHBOARD_MAX_EVENTS", 100))
 if "last_refresh" not in st.session_state:
     st.session_state.last_refresh = None
+if "manual_refresh_trigger" not in st.session_state:
+    st.session_state.manual_refresh_trigger = 0
 
 
 def check_redis_connection() -> bool:
@@ -80,49 +83,48 @@ def render_sidebar() -> None:
     """
     st.sidebar.title("HemoStat")
 
-    # System status section
-    st.sidebar.subheader("System Status")
+    # System status
     redis_connected = check_redis_connection()
-    status_indicator = "Connected" if redis_connected else "Disconnected"
-    st.sidebar.write(f"**Redis**: {status_indicator}")
+    status_text = "Connected" if redis_connected else "Disconnected"
+    st.sidebar.markdown(f"**Status**: {status_text}")
 
     if st.session_state.last_refresh:
-        st.sidebar.write(f"**Last Refresh**: {st.session_state.last_refresh.strftime('%H:%M:%S')}")
+        st.sidebar.caption(f"Last refresh: {st.session_state.last_refresh.strftime('%H:%M:%S')}")
 
-    st.sidebar.write(f"**Refresh Interval**: {st.session_state.refresh_interval}s")
+    st.sidebar.markdown("---")
 
     # Manual refresh button
     if st.sidebar.button("Refresh Now", use_container_width=True):
-        st.session_state.last_refresh = datetime.now()
-        st.rerun()
+        st.session_state.manual_refresh_trigger += 1
+        st.cache_data.clear()
 
-    # Settings section
-    st.sidebar.subheader("Settings")
+    st.sidebar.markdown("---")
+
+    # Settings
+    st.sidebar.markdown("**Settings**")
     st.session_state.auto_refresh_enabled = st.sidebar.checkbox(
-        "Auto-refresh enabled",
+        "Auto-refresh",
         value=st.session_state.auto_refresh_enabled,
     )
 
     st.session_state.refresh_interval = st.sidebar.slider(
-        "Refresh interval (seconds)",
+        "Interval (seconds)",
         min_value=1,
         max_value=60,
         value=st.session_state.refresh_interval,
         step=1,
     )
 
-    st.sidebar.info(
-        "Auto-refresh updates the dashboard every N seconds. Lower intervals increase Redis load."
-    )
+    st.sidebar.markdown("---")
 
-    # Links section
-    st.sidebar.subheader("Resources")
+    # Links
+    st.sidebar.markdown("**Resources**")
     st.sidebar.markdown(
         """
-    - [Documentation](https://github.com/jondmarien/HemoStat)
-    - [GitHub Repository](https://github.com/jondmarien/HemoStat)
-    - [API Protocol](./docs/API_PROTOCOL.md)
-    """
+        - [Documentation](https://github.com/jondmarien/HemoStat)
+        - [GitHub](https://github.com/jondmarien/HemoStat)
+        - [API Docs](./docs/API_PROTOCOL.md)
+        """
     )
 
 
@@ -133,15 +135,24 @@ def render_header() -> None:
     Displays main title, subtitle with current timestamp, and
     connection status indicator.
     """
-    st.title("HemoStat: Container Health Monitoring")
-    st.markdown(f"Real-time monitoring dashboard | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    col1, col2 = st.columns([3, 1])
 
-    # Connection status
-    redis_connected = check_redis_connection()
-    if redis_connected:
-        st.success("Connected to Redis")
-    else:
-        st.error("Cannot connect to Redis")
+    with col1:
+        st.title("HemoStat")
+        st.caption(f"Container Health Monitoring • {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+    with col2:
+        redis_connected = check_redis_connection()
+        status_text = "Redis Connected" if redis_connected else "Redis Disconnected"
+        bg_color = "#d4edda" if redis_connected else "#f8d7da"
+        text_color = "#155724" if redis_connected else "#721c24"
+        st.markdown(
+            f"<div style='text-align: right; margin-top: 1.5rem;'>"
+            f"<span style='background-color: {bg_color}; color: {text_color}; "
+            f"padding: 4px 12px; border-radius: 4px; font-weight: 600; font-size: 14px;'>"
+            f"{status_text}</span></div>",
+            unsafe_allow_html=True
+        )
 
 
 def render_live_content() -> None:
@@ -152,17 +163,16 @@ def render_live_content() -> None:
     Fetches data from Redis and renders all dashboard tabs.
     """
 
-    # Create fragment with conditional auto-refresh
-    if st.session_state.auto_refresh_enabled:
-        @st.fragment(run_every=st.session_state.refresh_interval)  # type: ignore[attr-defined]
-        def content_fragment() -> None:
-            st.session_state.last_refresh = datetime.now()
-            render_dashboard_content()
-    else:
-        def content_fragment() -> None:
-            if not st.session_state.last_refresh:
-                st.session_state.last_refresh = datetime.now()
-            render_dashboard_content()
+    # Use fragment with conditional auto-refresh
+    # Pass the manual_refresh_trigger to force re-render when button clicked
+    refresh_interval = st.session_state.refresh_interval if st.session_state.auto_refresh_enabled else None
+
+    @st.fragment(run_every=refresh_interval)  # type: ignore[attr-defined]
+    def content_fragment() -> None:
+        # This will cause re-render when manual_refresh_trigger changes
+        _ = st.session_state.manual_refresh_trigger
+        st.session_state.last_refresh = datetime.now()
+        render_dashboard_content()
 
     content_fragment()
 
@@ -185,8 +195,10 @@ def render_dashboard_content() -> None:
             remediation_stats = get_remediation_stats()
 
         # Metrics section
-        st.subheader("Key Metrics")
         render_metrics_cards(remediation_stats, false_alarm_count, active_containers)
+
+        # Add spacing
+        st.markdown("<br>", unsafe_allow_html=True)
 
         # Tabs for different views
         tab1, tab2, tab3, tab4 = st.tabs(
@@ -194,19 +206,15 @@ def render_dashboard_content() -> None:
         )
 
         with tab1:
-            st.subheader("Container Health Grid")
             render_health_grid(all_events)
 
         with tab2:
-            st.subheader("Active Issues")
             render_active_issues(all_events)
 
         with tab3:
-            st.subheader("Remediation History")
             render_remediation_history(remediation_events)
 
         with tab4:
-            st.subheader("Event Timeline")
             render_timeline(all_events, max_events=st.session_state.max_events)
 
     except Exception as e:
@@ -218,18 +226,15 @@ def render_footer() -> None:
     """
     Render dashboard footer with version and status information.
 
-    Displays HemoStat version, agent status summary, and last update timestamp.
+    Displays HemoStat version and last update timestamp.
     """
     st.divider()
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
 
     with col1:
         st.caption("HemoStat v1.0.0")
 
     with col2:
-        st.caption("Phase 3: Dashboard & Visualization")
-
-    with col3:
         if st.session_state.last_refresh:
             st.caption(f"Last updated: {st.session_state.last_refresh.strftime('%H:%M:%S')}")
 
