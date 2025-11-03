@@ -216,10 +216,10 @@ def render_footer() -> None:
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.caption("HemoStat v1.0.0")
+        st.caption("HemoStat v0.1.0")
 
     with col2:
-        st.caption("Phase 3: Dashboard & Visualization")
+        st.caption("Phase 4: Testing & Integration")
 
     with col3:
         if st.session_state.last_refresh:
