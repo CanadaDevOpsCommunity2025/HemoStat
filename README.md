@@ -128,7 +128,7 @@ docker-compose up -d
 
 ### Test Services
 
-- **hemostat-test-api**: HTTP API with controllable resource usage (port 5000)
+- **hemostat-test-api**: HTTP API with controllable resource usage (port 5001)
 - **hemostat-test-worker**: Background worker with periodic spikes
 
 See `scripts/README.md` for detailed documentation.

@@ -272,7 +272,7 @@ docker exec hemostat-redis redis-cli LRANGE hemostat:events:remediation_complete
 
 ```bash
 # View test-api metrics
-curl http://localhost:5000/metrics
+curl http://localhost:5001/metrics
 
 # View Docker stats
 docker stats hemostat-test-api
@@ -359,7 +359,7 @@ chmod +x scripts/*.sh
 
 HTTP API with stress test endpoints.
 
-- **Endpoint**: `http://localhost:5000`
+- **Endpoint**: `http://localhost:5001`
 - **Health check**: `GET /health`
 - **Trigger CPU spike**: `POST /stress/cpu`
 - **Trigger memory spike**: `POST /stress/memory`
@@ -370,15 +370,15 @@ HTTP API with stress test endpoints.
 
 ```bash
 # Trigger CPU spike
-curl -X POST http://localhost:5000/stress/cpu \
+curl -X POST http://localhost:5001/stress/cpu \
   -H "Content-Type: application/json" \
   -d '{"duration": 60, "intensity": 0.9}'
 
 # Check metrics
-curl http://localhost:5000/metrics
+curl http://localhost:5001/metrics
 
 # Stop stress
-curl -X POST http://localhost:5000/stress/stop
+curl -X POST http://localhost:5001/stress/stop
 ```
 
 ### test-worker

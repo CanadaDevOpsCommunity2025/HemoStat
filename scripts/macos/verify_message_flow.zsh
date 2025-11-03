@@ -74,7 +74,7 @@ echo "Step 4: Triggering Test Scenario"
 echo "---------------------------------"
 echo "Triggering CPU spike (45 seconds, 90% intensity)..."
 
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:5000/stress/cpu \
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:5001/stress/cpu \
     -H "Content-Type: application/json" \
     -d '{"duration": 45, "intensity": 0.9}' 2>/dev/null)
 
@@ -194,7 +194,7 @@ echo ""
 
 # Cleanup - stop stress test
 echo "Cleaning up..."
-curl -s -X POST http://localhost:5000/stress/stop > /dev/null 2>&1 || true
+curl -s -X POST http://localhost:5001/stress/stop > /dev/null 2>&1 || true
 
 echo ""
 echo "Verification complete!"

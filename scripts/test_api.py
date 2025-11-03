@@ -288,7 +288,7 @@ if __name__ == '__main__':
     signal.signal(signal.SIGTERM, cleanup_on_exit)
     signal.signal(signal.SIGINT, cleanup_on_exit)
     
-    logger.info("Starting HemoStat Test API on port 5000...")
+    logger.info("Starting HemoStat Test API on port 5001...")
     
     # Run Flask app
-    app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
+    app.run(host='0.0.0.0', port=5001, debug=False, threaded=True)

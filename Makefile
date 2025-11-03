@@ -118,7 +118,7 @@ docker-clean:
 windows: windows-build windows-up
 	@echo "✓ Windows services built and started"
 	@echo "  Dashboard: http://localhost:8501"
-	@echo "  Test API:  http://localhost:5000"
+	@echo "  Test API:  http://localhost:5001"
 
 windows-build:
 	docker compose -f docker-compose.yml -f docker-compose.windows.yml --env-file .env.docker.windows build
@@ -144,7 +144,7 @@ windows-test:
 linux: linux-build linux-up
 	@echo "✓ Linux services built and started"
 	@echo "  Dashboard: http://localhost:8501"
-	@echo "  Test API:  http://localhost:5000"
+	@echo "  Test API:  http://localhost:5001"
 
 linux-build:
 	docker compose -f docker-compose.yml -f docker-compose.linux.yml --env-file .env.docker.linux build
@@ -170,7 +170,7 @@ linux-test:
 macos: macos-build macos-up
 	@echo "✓ macOS services built and started"
 	@echo "  Dashboard: http://localhost:8501"
-	@echo "  Test API:  http://localhost:5000"
+	@echo "  Test API:  http://localhost:5001"
 
 macos-build:
 	docker compose -f docker-compose.yml -f docker-compose.macos.yml --env-file .env.docker.macos build
