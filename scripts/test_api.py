@@ -98,8 +98,8 @@ def run_memory_stress(duration: int, size_mb: int):
     try:
         logger.info(f"Starting memory stress: {size_mb}MB for {duration}s")
         
-        # Allocate memory (list of integers, ~8 bytes each)
-        data = [0] * (size_mb * 1024 * 1024 // 8)
+        # Allocate memory using bytearray for accurate size allocation
+        data = bytearray(size_mb * 1024 * 1024)
         
         with active_tests_lock:
             active_tests['memory'] = {
