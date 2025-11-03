@@ -60,6 +60,7 @@ def main() -> None:
         logger.info("Subscribed to channels:")
         logger.info("  - hemostat:remediation_complete")
         logger.info("  - hemostat:false_alarm")
+        logger.info("  - hemostat:alerts")
 
         # Start listening loop
         logger.info("Starting message listening loop...")

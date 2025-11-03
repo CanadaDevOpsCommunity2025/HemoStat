@@ -57,11 +57,12 @@ class AlertNotifier(HemoStatAgent):
                 f"Invalid Slack webhook URL format: {self.slack_webhook_url[:50]}..."
             )
 
-        # Subscribe to both channels
+        # Subscribe to all channels
         self.subscribe_to_channel(
             "hemostat:remediation_complete", self._handle_remediation_complete
         )
         self.subscribe_to_channel("hemostat:false_alarm", self._handle_false_alarm)
+        self.subscribe_to_channel("hemostat:alerts", self._handle_vulnerability_alert)
 
         # Log initialization
         slack_status = "enabled" if (self.alert_enabled and self.slack_webhook_url) else "disabled"
@@ -146,6 +147,41 @@ class AlertNotifier(HemoStatAgent):
         except Exception as e:
             self.logger.error(f"Error handling false_alarm event: {e}", exc_info=True)
 
+    def _handle_vulnerability_alert(self, message: dict[str, Any]) -> None:
+        """
+        Handle vulnerability alert event from Vulnerability Scanner Agent.
+
+        Extracts payload and timestamp from message envelope, stores event in Redis,
+        and sends Slack notification if enabled.
+
+        Args:
+            message: Full message wrapper with event_type, timestamp, agent, and data fields
+        """
+        try:
+            # Extract the inner payload from the envelope
+            payload = message.get("data", {})
+            source_timestamp = message.get("timestamp")
+            event_type = message.get("event_type", "unknown")
+
+            target_url = payload.get("target_url", "unknown")
+            critical_count = payload.get("critical_count", 0)
+            
+            self.logger.info(
+                f"Received vulnerability alert for {target_url}: {critical_count} critical vulnerabilities"
+            )
+
+            # Store event in Redis
+            self._store_event("vulnerability_alert", payload, source_timestamp)
+
+            # Send Slack notification if enabled
+            if self.alert_enabled:
+                self._send_slack_notification(
+                    payload, event_type="vulnerability_alert", event_timestamp=source_timestamp
+                )
+
+        except Exception as e:
+            self.logger.error(f"Error handling vulnerability_alert event: {e}", exc_info=True)
+
     def _store_event(
         self, event_type: str, payload: dict[str, Any], source_timestamp: str | None = None
     ) -> None:
@@ -222,6 +258,8 @@ class AlertNotifier(HemoStatAgent):
                 payload = self._format_remediation_notification(message)
             elif event_type == "false_alarm":
                 payload = self._format_false_alarm_notification(message)
+            elif event_type == "vulnerability_alert":
+                payload = self._format_vulnerability_notification(message)
             else:
                 self.logger.warning(f"Unknown event type: {event_type}")
                 return
@@ -483,6 +521,89 @@ class AlertNotifier(HemoStatAgent):
             "title": "⚠️ False Alarm: No Remediation Required",
             "fields": fields,
             "footer": "HemoStat • Alert Agent • Analysis Event",
+            "ts": ts,
+        }
+
+        return {"attachments": [attachment]}
+
+    def _format_vulnerability_notification(self, message: dict[str, Any]) -> dict[str, Any] | None:
+        """
+        Format vulnerability alert event as Slack message.
+
+        Creates a formatted Slack attachment with red color coding for critical vulnerabilities.
+        Includes vulnerability counts, target information, and critical vulnerability details.
+
+        Args:
+            message: Vulnerability alert data with target_url, critical_count, critical_vulns, etc.
+
+        Returns:
+            Dictionary with Slack attachment format, or None if formatting fails
+        """
+        target_url = message.get("target_url", "unknown")
+        critical_count = message.get("critical_count", 0)
+        total_count = message.get("total_count", 0)
+        critical_vulns = message.get("critical_vulns", [])
+
+        # Build fields
+        fields = [
+            {"title": "Event Type", "value": "🚨 Critical Vulnerabilities Found", "short": True},
+            {"title": "Target", "value": target_url, "short": True},
+            {"title": "Critical Vulnerabilities", "value": str(critical_count), "short": True},
+            {"title": "Total Vulnerabilities", "value": str(total_count), "short": True},
+        ]
+
+        # Add critical vulnerability details (limit to top 3 for Slack readability)
+        if critical_vulns:
+            vuln_details = []
+            for i, vuln in enumerate(critical_vulns[:3], 1):
+                vuln_name = vuln.get("name", "Unknown")
+                vuln_url = vuln.get("url", "")
+                vuln_param = vuln.get("param", "")
+                
+                detail = f"{i}. **{vuln_name}**"
+                if vuln_url:
+                    detail += f"\n   URL: `{vuln_url}`"
+                if vuln_param:
+                    detail += f"\n   Parameter: `{vuln_param}`"
+                
+                vuln_details.append(detail)
+            
+            if len(critical_vulns) > 3:
+                vuln_details.append(f"... and {len(critical_vulns) - 3} more critical vulnerabilities")
+            
+            fields.append({
+                "title": "Critical Vulnerability Details",
+                "value": "\n\n".join(vuln_details),
+                "short": False
+            })
+
+        # Add timestamp field
+        timestamp_str = message.get("timestamp")
+        try:
+            timestamp = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
+            ts = int(timestamp.timestamp())
+            # Convert to Eastern Time for display
+            eastern = ZoneInfo("America/New_York")
+            timestamp_et = timestamp.astimezone(eastern)
+            tz_abbr = timestamp_et.strftime("%Z")  # EST or EDT
+            time_display = timestamp_et.strftime(f"%I:%M:%S %p {tz_abbr}")
+        except (ValueError, AttributeError):
+            ts = int(datetime.now(UTC).timestamp())
+            now_et = datetime.now(ZoneInfo("America/New_York"))
+            tz_abbr = now_et.strftime("%Z")
+            time_display = now_et.strftime(f"%I:%M:%S %p {tz_abbr}")
+
+        fields.append({"title": "Scan Time", "value": time_display, "short": True})
+
+        # Build attachment with critical vulnerability styling
+        attachment = {
+            "fallback": f"🚨 CRITICAL: {critical_count} vulnerabilities found in {target_url}",
+            "color": "#ff0000",  # Red for critical security alerts
+            "pretext": "🔒 *Vulnerability Scanner* → Critical Security Alert",
+            "title": f"🚨 {critical_count} Critical Vulnerabilities Detected",
+            "title_link": target_url if target_url.startswith("http") else None,
+            "fields": fields,
+            "footer": "HemoStat • Alert Agent • Security Scan",
             "ts": ts,
         }
 

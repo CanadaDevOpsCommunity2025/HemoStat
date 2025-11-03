@@ -245,6 +245,45 @@ services:
     networks:
       - hemostat-network
 
+  # Vulnerability Scanner Agent - OWASP ZAP integration for security scanning
+  vulnscanner:
+    container_name: hemostat-vulnscanner
+    build:
+      context: .
+      dockerfile: agents/hemostat_vulnscanner/Dockerfile
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      ZAP_HOST: zap
+      ZAP_PORT: 8080
+      VULNSCANNER_INTERVAL: ${VULNSCANNER_INTERVAL:-3600}
+      VULNSCANNER_TIMEOUT: ${VULNSCANNER_TIMEOUT:-1800}
+      VULNSCANNER_MAX_TIME: ${VULNSCANNER_MAX_TIME:-3600}
+      VULNSCANNER_TARGETS: ${VULNSCANNER_TARGETS:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+      zap:
+        condition: service_healthy
+      juice-shop:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import redis; redis.Redis(host='redis').ping()",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hemostat-network
+
   # Dashboard - Real-time Streamlit monitoring UI (Phase 3)
   dashboard:
     container_name: hemostat-dashboard
@@ -280,6 +319,47 @@ services:
       - hemostat-network
 
   # Test Services (Phase 4) - For demo and integration testing
+
+  # Juice Shop - Vulnerable web application for security testing
+  juice-shop:
+    container_name: hemostat-juice-shop
+    image: bkimminich/juice-shop
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hemostat-network
+    labels:
+      hemostat.test: "true"
+      hemostat.service: "juice-shop"
+      hemostat.vuln-target: "true"
+
+  # OWASP ZAP - Security vulnerability scanner
+  zap:
+    container_name: hemostat-zap
+    image: zaproxy/zap-weekly
+    command: zap.sh -daemon -port 8080 -host 0.0.0.0 -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true
+    ports:
+      - "8080:8080" # ZAP API exposed here
+    restart: unless-stopped
+    healthcheck:
+      test:
+        ["CMD", "curl", "-f", "http://localhost:8080/JSON/core/view/version/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - hemostat-network
+    labels:
+      hemostat.service: "zap"
+      hemostat.security: "true"
 
   # Test API - HTTP service with controllable resource usage
   test-api:
