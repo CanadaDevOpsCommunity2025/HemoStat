@@ -1,0 +1,314 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quick Start Guide &mdash; HemoStat Documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="System Architecture" href="architecture.html" />
+    <link rel="prev" title="HemoStat: Autonomous Container Health Monitoring System" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            HemoStat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#clone-the-repository">1. Clone the Repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configure-environment">2. Configure Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#install-dependencies">3. Install Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#start-redis">4. Start Redis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-the-system">5. Run the System</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-test">Quick Test</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#verify-system-status">Verify System Status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#view-the-dashboards">View the Dashboards</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-demo-scenarios">Run Demo Scenarios</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#next-steps">Next Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stopping-services">Stopping Services</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#common-commands">Common Commands</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">System Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring &amp; Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_protocol.html">API Protocol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deployment.html">Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html#base-classes">Base Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HemoStat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Quick Start Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/quickstart.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="quick-start-guide">
+<h1>Quick Start Guide<a class="headerlink" href="#quick-start-guide" title="Link to this heading"></a></h1>
+<p>Get HemoStat up and running in minutes.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Docker &amp; Docker Compose</p></li>
+<li><p>Python 3.11+</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">uv</span></code> package manager</p></li>
+</ul>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<section id="clone-the-repository">
+<h3>1. Clone the Repository<a class="headerlink" href="#clone-the-repository" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/jondmarien/HemoStat.git
+<span class="nb">cd</span><span class="w"> </span>HemoStat
+</pre></div>
+</div>
+</section>
+<section id="configure-environment">
+<h3>2. Configure Environment<a class="headerlink" href="#configure-environment" title="Link to this heading"></a></h3>
+<p>Copy the example environment file and configure your API keys:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cp<span class="w"> </span>.env.example<span class="w"> </span>.env
+</pre></div>
+</div>
+<p>Edit <code class="docutils literal notranslate"><span class="pre">.env</span></code> and add your API keys:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code> - For GPT-4 analysis (optional, use Claude instead)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ANTHROPIC_API_KEY</span></code> - For Claude analysis (recommended)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SLACK_WEBHOOK_URL</span></code> - For Slack notifications (optional)</p></li>
+</ul>
+</section>
+<section id="install-dependencies">
+<h3>3. Install Dependencies<a class="headerlink" href="#install-dependencies" title="Link to this heading"></a></h3>
+<p>Install all dependencies including agents, dashboard, and dev tools:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>sync<span class="w"> </span>--all-extras
+</pre></div>
+</div>
+<p>Or just the core dependencies:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>sync
+</pre></div>
+</div>
+</section>
+<section id="start-redis">
+<h3>4. Start Redis<a class="headerlink" href="#start-redis" title="Link to this heading"></a></h3>
+<p>Redis is required for all agents to communicate:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>redis
+</pre></div>
+</div>
+</section>
+<section id="run-the-system">
+<h3>5. Run the System<a class="headerlink" href="#run-the-system" title="Link to this heading"></a></h3>
+<p>Start all services (agents and dashboard):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</pre></div>
+</div>
+<p>View logs:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f
+</pre></div>
+</div>
+<p>View specific service logs:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>monitor<span class="w">      </span><span class="c1"># Monitor Agent</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>analyzer<span class="w">     </span><span class="c1"># Analyzer Agent</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>responder<span class="w">    </span><span class="c1"># Responder Agent</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>alert<span class="w">        </span><span class="c1"># Alert Agent</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>dashboard<span class="w">    </span><span class="c1"># Dashboard</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>metrics<span class="w">      </span><span class="c1"># Prometheus metrics exporter</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>prometheus<span class="w">   </span><span class="c1"># Time-series metrics database</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>grafana<span class="w">      </span><span class="c1"># Metrics visualization dashboards</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="quick-test">
+<h2>Quick Test<a class="headerlink" href="#quick-test" title="Link to this heading"></a></h2>
+<section id="verify-system-status">
+<h3>Verify System Status<a class="headerlink" href="#verify-system-status" title="Link to this heading"></a></h3>
+<p>Check that all services are running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>compose<span class="w"> </span>ps
+</pre></div>
+</div>
+<p>You should see:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">hemostat-redis</span></code> - Redis message broker</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hemostat-monitor</span></code> - Container health monitoring</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hemostat-analyzer</span></code> - AI-powered analysis</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hemostat-responder</span></code> - Automated remediation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hemostat-alert</span></code> - Notification system</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hemostat-metrics</span></code> - Prometheus metrics exporter</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hemostat-prometheus</span></code> - Time-series metrics database</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hemostat-grafana</span></code> - Metrics visualization dashboards</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hemostat-dashboard</span></code> - Streamlit UI</p></li>
+</ul>
+</section>
+<section id="view-the-dashboards">
+<h3>View the Dashboards<a class="headerlink" href="#view-the-dashboards" title="Link to this heading"></a></h3>
+<p>HemoStat provides two complementary dashboards:</p>
+<p><strong>Streamlit Dashboard (Real-time Monitoring)</strong></p>
+<ul class="simple">
+<li><p>URL: http://localhost:8501</p></li>
+<li><p>Live event streaming and container status</p></li>
+</ul>
+<p><strong>Grafana Dashboard (Historical Metrics)</strong></p>
+<ul class="simple">
+<li><p>URL: http://localhost:3000</p></li>
+<li><p>Username: <code class="docutils literal notranslate"><span class="pre">admin</span></code>, Password: <code class="docutils literal notranslate"><span class="pre">admin</span></code> (change on first login)</p></li>
+<li><p>Historical metrics, performance trends, and alerts</p></li>
+<li><p>Navigate to: Dashboards → HemoStat → HemoStat Overview</p></li>
+</ul>
+<p><strong>Prometheus Query UI</strong></p>
+<ul class="simple">
+<li><p>URL: http://localhost:9091</p></li>
+<li><p>Direct metric queries and alert status</p></li>
+</ul>
+<p>See the <a class="reference internal" href="monitoring.html"><span class="std std-doc">Monitoring documentation</span></a> for detailed information on metrics and dashboards.</p>
+</section>
+<section id="run-demo-scenarios">
+<h3>Run Demo Scenarios<a class="headerlink" href="#run-demo-scenarios" title="Link to this heading"></a></h3>
+<p>Test the system with automated demo scenarios:</p>
+<p><strong>Linux/macOS:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./scripts/linux/demo_trigger_cpu_spike.sh
+</pre></div>
+</div>
+<p><strong>Windows:</strong></p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="p">.\</span><span class="n">scripts</span><span class="p">\</span><span class="n">windows</span><span class="p">\</span><span class="n">demo_trigger_cpu_spike</span><span class="p">.</span><span class="n">ps1</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Monitoring</strong>: Explore <a class="reference internal" href="monitoring.html"><span class="std std-doc">Prometheus metrics and Grafana dashboards</span></a> for observability</p></li>
+<li><p><strong>Architecture</strong>: Learn about the <a class="reference internal" href="architecture.html"><span class="std std-doc">system architecture</span></a> and agent communication</p></li>
+<li><p><strong>API Reference</strong>: Explore the <a class="reference internal" href="api/index.html"><span class="std std-doc">complete API documentation</span></a> auto-generated from code docstrings</p></li>
+<li><p><strong>Deployment</strong>: See <a class="reference internal" href="deployment.html"><span class="std std-doc">production deployment guides</span></a></p></li>
+<li><p><strong>Troubleshooting</strong>: Check <a class="reference internal" href="troubleshooting.html"><span class="std std-doc">common issues and solutions</span></a></p></li>
+<li><p><strong>Development</strong>: Start <a class="reference internal" href="development.html"><span class="std std-doc">contributing to the project</span></a></p></li>
+</ul>
+</section>
+<section id="stopping-services">
+<h2>Stopping Services<a class="headerlink" href="#stopping-services" title="Link to this heading"></a></h2>
+<p>Stop all services:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>compose<span class="w"> </span>down
+</pre></div>
+</div>
+<p>Stop and remove volumes (clean slate):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>compose<span class="w"> </span>down<span class="w"> </span>-v
+</pre></div>
+</div>
+</section>
+<section id="common-commands">
+<h2>Common Commands<a class="headerlink" href="#common-commands" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Rebuild a service after code changes</span>
+docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w"> </span>analyzer<span class="w"> </span>--no-cache
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>analyzer
+
+<span class="c1"># View real-time logs</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f
+
+<span class="c1"># Run agents locally (requires Redis running)</span>
+make<span class="w"> </span>monitor
+make<span class="w"> </span>analyzer
+make<span class="w"> </span>responder
+make<span class="w"> </span>alert
+
+<span class="c1"># Run quality checks</span>
+make<span class="w"> </span>quality
+
+<span class="c1"># Run tests</span>
+make<span class="w"> </span><span class="nb">test</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="HemoStat: Autonomous Container Health Monitoring System" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="architecture.html" class="btn btn-neutral float-right" title="System Architecture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, The HemoStat Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

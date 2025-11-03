@@ -1,0 +1,386 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Protocol &mdash; HemoStat Documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Deployment Guide" href="deployment.html" />
+    <link rel="prev" title="Monitoring &amp; Observability" href="monitoring.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            HemoStat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">System Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring &amp; Observability</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Protocol</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#redis-pub-sub-channels">Redis Pub/Sub Channels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#health-alert-channel">Health Alert Channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#remediation-needed-channel">Remediation Needed Channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#remediation-complete-channel">Remediation Complete Channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#false-alarm-channel">False Alarm Channel</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#redis-key-structure">Redis Key Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#container-stats">Container Stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#remediation-history">Remediation History</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#event-log">Event Log</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#agent-base-class">Agent Base Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#error-handling">Error Handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#on-connection-loss">On Connection Loss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#on-invalid-message">On Invalid Message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#on-remediation-failure">On Remediation Failure</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#monitoring-communication">Monitoring Communication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#view-all-events">View All Events</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#view-specific-channel">View Specific Channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#check-event-backlog">Check Event Backlog</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-points">Integration Points</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#custom-analyzer">Custom Analyzer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#custom-responder">Custom Responder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#custom-dashboard">Custom Dashboard</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="deployment.html">Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html#base-classes">Base Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HemoStat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API Protocol</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api_protocol.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api-protocol">
+<h1>API Protocol<a class="headerlink" href="#api-protocol" title="Link to this heading"></a></h1>
+<p>HemoStat agents communicate through Redis pub/sub channels and shared state. This document describes the message formats and communication patterns.</p>
+<section id="redis-pub-sub-channels">
+<h2>Redis Pub/Sub Channels<a class="headerlink" href="#redis-pub-sub-channels" title="Link to this heading"></a></h2>
+<section id="health-alert-channel">
+<h3>Health Alert Channel<a class="headerlink" href="#health-alert-channel" title="Link to this heading"></a></h3>
+<p><strong>Channel:</strong> <code class="docutils literal notranslate"><span class="pre">hemostat:health_alert</span></code></p>
+<p><strong>Publisher:</strong> Monitor Agent</p>
+<p><strong>Subscriber:</strong> Analyzer Agent</p>
+<p>Message format:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-11-03T10:30:45.123456&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;agent&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HemoStat-Monitor&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;health_alert&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;container&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;hemostat-test-api&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;issues&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;High CPU: 92.5%&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;metrics&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;hemostat-test-api&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;running&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;memory_pct&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">45.2</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;cpu_pct&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">92.5</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-11-03T10:30:45&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="remediation-needed-channel">
+<h3>Remediation Needed Channel<a class="headerlink" href="#remediation-needed-channel" title="Link to this heading"></a></h3>
+<p><strong>Channel:</strong> <code class="docutils literal notranslate"><span class="pre">hemostat:remediation_needed</span></code></p>
+<p><strong>Publisher:</strong> Analyzer Agent</p>
+<p><strong>Subscriber:</strong> Responder Agent</p>
+<p>Message format:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-11-03T10:30:48.456789&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;agent&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HemoStat-Analyzer&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;remediation_needed&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;container&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;hemostat-test-api&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;restart&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CPU contention&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;confidence&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.9</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;metrics&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;hemostat-test-api&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;memory_pct&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">45.2</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;cpu_pct&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">92.5</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="remediation-complete-channel">
+<h3>Remediation Complete Channel<a class="headerlink" href="#remediation-complete-channel" title="Link to this heading"></a></h3>
+<p><strong>Channel:</strong> <code class="docutils literal notranslate"><span class="pre">hemostat:remediation_complete</span></code></p>
+<p><strong>Publisher:</strong> Responder Agent</p>
+<p><strong>Subscriber:</strong> Alert Agent</p>
+<p>Message format:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-11-03T10:30:53.789012&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;agent&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HemoStat-Responder&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;remediation_complete&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;container&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;hemostat-test-api&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;restart&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;result&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;success&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;restart&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;container&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;hemostat-test-api&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="false-alarm-channel">
+<h3>False Alarm Channel<a class="headerlink" href="#false-alarm-channel" title="Link to this heading"></a></h3>
+<p><strong>Channel:</strong> <code class="docutils literal notranslate"><span class="pre">hemostat:false_alarm</span></code></p>
+<p><strong>Publisher:</strong> Analyzer Agent</p>
+<p><strong>Subscriber:</strong> Alert Agent</p>
+<p>Message format:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-11-03T10:30:48.456789&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;agent&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HemoStat-Analyzer&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;false_alarm&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;container&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;hemostat-test-api&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Transient spike, back to normal&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="redis-key-structure">
+<h2>Redis Key Structure<a class="headerlink" href="#redis-key-structure" title="Link to this heading"></a></h2>
+<section id="container-stats">
+<h3>Container Stats<a class="headerlink" href="#container-stats" title="Link to this heading"></a></h3>
+<p><strong>Key:</strong> <code class="docutils literal notranslate"><span class="pre">hemostat:stats:&lt;container_name&gt;</span></code></p>
+<p><strong>TTL:</strong> 300 seconds</p>
+<p><strong>Type:</strong> JSON string</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;hemostat-test-api&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;running&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;memory_pct&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">45.2</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;cpu_pct&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">22.1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-11-03T10:30:45&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="remediation-history">
+<h3>Remediation History<a class="headerlink" href="#remediation-history" title="Link to this heading"></a></h3>
+<p><strong>Key:</strong> <code class="docutils literal notranslate"><span class="pre">hemostat:remediation:&lt;container_name&gt;</span></code></p>
+<p><strong>TTL:</strong> 3600 seconds</p>
+<p><strong>Type:</strong> JSON string</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;last_action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-11-03T10:30:53&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="event-log">
+<h3>Event Log<a class="headerlink" href="#event-log" title="Link to this heading"></a></h3>
+<p><strong>Key:</strong> <code class="docutils literal notranslate"><span class="pre">hemostat:events:&lt;event_type&gt;</span></code></p>
+<p><strong>TTL:</strong> 3600 seconds</p>
+<p><strong>Type:</strong> JSON array (max 100 events)</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-11-03T10:30:48&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;agent&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HemoStat-Analyzer&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;remediation_needed&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="agent-base-class">
+<h2>Agent Base Class<a class="headerlink" href="#agent-base-class" title="Link to this heading"></a></h2>
+<p>All agents inherit from <code class="docutils literal notranslate"><span class="pre">HemoStatAgent</span></code> which provides Redis pub/sub primitives and state management. See the <a class="reference internal" href="api/agents.html"><span class="std std-doc">API Reference</span></a> for complete documentation of:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">publish_event()</span></code> - Publish events to Redis channels</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subscribe_to_channel()</span></code> - Subscribe to Redis channels</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">start_listening()</span></code> - Start listening for events</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_shared_state()</span></code> - Read shared state from Redis</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">set_shared_state()</span></code> - Write shared state to Redis</p></li>
+</ul>
+</section>
+<section id="error-handling">
+<h2>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading"></a></h2>
+<section id="on-connection-loss">
+<h3>On Connection Loss<a class="headerlink" href="#on-connection-loss" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>All agents implement automatic retry logic</p></li>
+<li><p>Exponential backoff starting at 1 second</p></li>
+<li><p>Maximum 10 retries before failing</p></li>
+</ul>
+</section>
+<section id="on-invalid-message">
+<h3>On Invalid Message<a class="headerlink" href="#on-invalid-message" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Log error, skip message</p></li>
+<li><p>Continue processing next message</p></li>
+<li><p>No cascading failures</p></li>
+</ul>
+</section>
+<section id="on-remediation-failure">
+<h3>On Remediation Failure<a class="headerlink" href="#on-remediation-failure" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Log error details</p></li>
+<li><p>Don’t retry immediately (cooldown applies)</p></li>
+<li><p>Update status to “failed”</p></li>
+</ul>
+</section>
+</section>
+<section id="monitoring-communication">
+<h2>Monitoring Communication<a class="headerlink" href="#monitoring-communication" title="Link to this heading"></a></h2>
+<section id="view-all-events">
+<h3>View All Events<a class="headerlink" href="#view-all-events" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-redis<span class="w"> </span>redis-cli<span class="w"> </span>SUBSCRIBE<span class="w"> </span><span class="s2">&quot;hemostat:*&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="view-specific-channel">
+<h3>View Specific Channel<a class="headerlink" href="#view-specific-channel" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-redis<span class="w"> </span>redis-cli<span class="w"> </span>SUBSCRIBE<span class="w"> </span><span class="s2">&quot;hemostat:remediation_needed&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="check-event-backlog">
+<h3>Check Event Backlog<a class="headerlink" href="#check-event-backlog" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-redis<span class="w"> </span>redis-cli<span class="w"> </span>KEYS<span class="w"> </span><span class="s2">&quot;hemostat:events:*&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-redis<span class="w"> </span>redis-cli<span class="w"> </span>GET<span class="w"> </span><span class="s2">&quot;hemostat:events:remediation_complete&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="integration-points">
+<h2>Integration Points<a class="headerlink" href="#integration-points" title="Link to this heading"></a></h2>
+<section id="custom-analyzer">
+<h3>Custom Analyzer<a class="headerlink" href="#custom-analyzer" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Subscribe to <code class="docutils literal notranslate"><span class="pre">hemostat:health_alert</span></code></p></li>
+<li><p>Implement custom analysis logic</p></li>
+<li><p>Publish to <code class="docutils literal notranslate"><span class="pre">hemostat:remediation_needed</span></code> or <code class="docutils literal notranslate"><span class="pre">hemostat:false_alarm</span></code></p></li>
+</ol>
+<p>See the <a class="reference internal" href="api/agents.html"><span class="std std-doc">Analyzer Agent API documentation</span></a> for implementation details.</p>
+</section>
+<section id="custom-responder">
+<h3>Custom Responder<a class="headerlink" href="#custom-responder" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Subscribe to <code class="docutils literal notranslate"><span class="pre">hemostat:remediation_needed</span></code></p></li>
+<li><p>Implement custom remediation logic</p></li>
+<li><p>Publish to <code class="docutils literal notranslate"><span class="pre">hemostat:remediation_complete</span></code></p></li>
+</ol>
+<p>See the <a class="reference internal" href="api/agents.html"><span class="std std-doc">Responder Agent API documentation</span></a> for implementation details.</p>
+</section>
+<section id="custom-dashboard">
+<h3>Custom Dashboard<a class="headerlink" href="#custom-dashboard" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Read from <code class="docutils literal notranslate"><span class="pre">hemostat:stats:*</span></code> for current metrics</p></li>
+<li><p>Read from <code class="docutils literal notranslate"><span class="pre">hemostat:events:*</span></code> for history</p></li>
+<li><p>Subscribe to relevant channels for live updates</p></li>
+</ol>
+<p>See the <a class="reference internal" href="api/dashboard.html"><span class="std std-doc">Dashboard API documentation</span></a> for implementation details.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="monitoring.html" class="btn btn-neutral float-left" title="Monitoring &amp; Observability" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="deployment.html" class="btn btn-neutral float-right" title="Deployment Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, The HemoStat Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

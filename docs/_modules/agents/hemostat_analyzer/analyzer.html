@@ -1,0 +1,700 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>agents.hemostat_analyzer.analyzer &mdash; HemoStat Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+      <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+      <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            HemoStat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture.html">System Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_protocol.html">API Protocol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../deployment.html">Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html#base-classes">Base Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">HemoStat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">agents.hemostat_analyzer.analyzer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for agents.hemostat_analyzer.analyzer</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">HemoStat Analyzer Agent - Core Implementation</span>
+
+<span class="sd">Performs AI-powered root cause analysis of container health issues using LangChain with</span>
+<span class="sd">Claude/GPT-4, distinguishes real issues from false alarms, calculates confidence scores,</span>
+<span class="sd">and publishes remediation recommendations or false alarm notifications.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">agents.agent_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">HemoStatAgent</span>
+
+
+<div class="viewcode-block" id="HealthAnalyzer">
+<a class="viewcode-back" href="../../../api/agents.html#agents.hemostat_analyzer.analyzer.HealthAnalyzer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HealthAnalyzer</span><span class="p">(</span><span class="n">HemoStatAgent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    AI-powered health analyzer for container health issues.</span>
+
+<span class="sd">    Inherits from HemoStatAgent and implements intelligent analysis of container health</span>
+<span class="sd">    alerts using LangChain with Claude/GPT-4, with rule-based fallback for reliability.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="HealthAnalyzer.__init__">
+<a class="viewcode-back" href="../../../api/agents.html#agents.hemostat_analyzer.analyzer.HealthAnalyzer.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the Health Analyzer.</span>
+
+<span class="sd">        Loads configuration from environment variables, initializes LangChain LLM,</span>
+<span class="sd">        and subscribes to health alert channel.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HemoStatConnectionError: If Redis connection fails</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;analyzer&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Load AI configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ai_model</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;AI_MODEL&quot;</span><span class="p">,</span> <span class="s2">&quot;gpt-4&quot;</span><span class="p">)</span>
+        <span class="c1"># AI_FALLBACK_ENABLED forces rule-based analysis (disables AI)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_rule_based</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;AI_FALLBACK_ENABLED&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">confidence_threshold</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;ANALYZER_CONFIDENCE_THRESHOLD&quot;</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;ANALYZER_HISTORY_SIZE&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history_ttl</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;ANALYZER_HISTORY_TTL&quot;</span><span class="p">,</span> <span class="mi">3600</span><span class="p">))</span>
+
+        <span class="c1"># Initialize LLM (skip if force_rule_based is enabled)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">llm</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_rule_based</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_llm</span><span class="p">()</span>
+
+        <span class="c1"># Subscribe to health alerts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subscribe_to_channel</span><span class="p">(</span><span class="s2">&quot;hemostat:health_alert&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_health_alert</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Analyzer Agent initialized with AI model: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ai_model</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">llm</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;DISABLED (using rule-based fallback)&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;agent&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_name</span><span class="p">},</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_initialize_llm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize LangChain LLM based on AI_MODEL configuration.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Initialized LLM instance (ChatOpenAI or ChatAnthropic), or None if initialization fails</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ImportError: If required LangChain libraries are not installed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ai_model</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;gpt&quot;</span><span class="p">):</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatOpenAI</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;OPENAI_API_KEY not set; AI analysis disabled (using rule-based fallback)&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initializing ChatOpenAI with model: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ai_model</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">ChatOpenAI</span><span class="p">(</span>
+                    <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ai_model</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type]</span>
+                    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">ai_model</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;claude&quot;</span><span class="p">):</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">langchain_anthropic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatAnthropic</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;ANTHROPIC_API_KEY&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;ANTHROPIC_API_KEY not set; AI analysis disabled (using rule-based fallback)&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initializing ChatAnthropic with model: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ai_model</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">ChatAnthropic</span><span class="p">(</span>  
+                    <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ai_model</span><span class="p">,</span>
+                    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="k">elif</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ai_model</span><span class="p">:</span>  <span class="c1"># Hugging Face model (e.g., &quot;openai/gpt-oss-120b&quot;)</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">langchain_huggingface</span><span class="w"> </span><span class="kn">import</span> <span class="n">HuggingFaceEndpoint</span>
+
+                <span class="n">hf_token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;HUGGINGFACE_API_KEY&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;HF_TOKEN&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">hf_token</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;HUGGINGFACE_API_KEY or HF_TOKEN not set; AI analysis disabled (using rule-based fallback)&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initializing HuggingFaceEndpoint with model: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ai_model</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">HuggingFaceEndpoint</span><span class="p">(</span>
+                    <span class="n">repo_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ai_model</span><span class="p">,</span>
+                    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+                    <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+                    <span class="n">huggingfacehub_api_token</span><span class="o">=</span><span class="n">hf_token</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown AI model: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ai_model</span><span class="si">}</span><span class="s2">; using rule-based fallback&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to import LangChain libraries: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. Install with: uv sync --extra agents&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to initialize LLM: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="HealthAnalyzer.run">
+<a class="viewcode-back" href="../../../api/agents.html#agents.hemostat_analyzer.analyzer.HealthAnalyzer.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start the analyzer listening loop.</span>
+
+<span class="sd">        Blocks until stop() is called. Handles exceptions gracefully.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_listening</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error in listening loop: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_health_alert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Callback invoked when a health alert is received from Monitor Agent.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            message: Deserialized health alert message from Redis</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Extract alert data</span>
+            <span class="n">alert_data</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">container_name</span> <span class="o">=</span> <span class="n">alert_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;container_name&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Received health alert for container: </span><span class="si">{</span><span class="n">container_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;agent&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_name</span><span class="p">},</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Perform analysis</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_analyze_health_issue</span><span class="p">(</span><span class="n">alert_data</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error handling health alert: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_analyze_health_issue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alert_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Main analysis orchestration method.</span>
+
+<span class="sd">        Retrieves historical context, attempts AI analysis, falls back to rule-based</span>
+<span class="sd">        if needed, and routes to appropriate channel based on confidence.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            alert_data: Health alert data from Monitor Agent</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">container_name</span> <span class="o">=</span> <span class="n">alert_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;container_name&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Retrieve historical context</span>
+            <span class="n">history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_shared_state</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;alert_history:</span><span class="si">{</span><span class="n">container_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">history_list</span> <span class="o">=</span> <span class="n">history</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;alerts&quot;</span><span class="p">,</span> <span class="p">[])</span> <span class="k">if</span> <span class="n">history</span> <span class="k">else</span> <span class="p">[]</span>
+
+            <span class="c1"># Attempt AI analysis if LLM is available</span>
+            <span class="n">analysis</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">llm</span><span class="p">:</span>
+                <span class="n">analysis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ai_analyze</span><span class="p">(</span><span class="n">alert_data</span><span class="p">,</span> <span class="n">history_list</span><span class="p">)</span>
+
+            <span class="c1"># Fall back to rule-based if AI failed or not available</span>
+            <span class="k">if</span> <span class="n">analysis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">analysis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rule_based_analyze</span><span class="p">(</span><span class="n">alert_data</span><span class="p">,</span> <span class="n">history_list</span><span class="p">)</span>
+
+            <span class="c1"># Update alert history</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_alert_history</span><span class="p">(</span><span class="n">container_name</span><span class="p">,</span> <span class="n">alert_data</span><span class="p">)</span>
+
+            <span class="c1"># Route to appropriate channel based on confidence and action</span>
+            <span class="k">if</span> <span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_false_alarm&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_publish_false_alarm</span><span class="p">(</span><span class="n">alert_data</span><span class="p">,</span> <span class="n">analysis</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;confidence&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">confidence_threshold</span><span class="p">:</span>
+                <span class="c1"># Guard: only publish remediation if action is actionable (not &quot;none&quot;)</span>
+                <span class="k">if</span> <span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_publish_remediation_needed</span><span class="p">(</span><span class="n">alert_data</span><span class="p">,</span> <span class="n">analysis</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Action is &quot;none&quot; even with high confidence; treat as false alarm</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_publish_false_alarm</span><span class="p">(</span><span class="n">alert_data</span><span class="p">,</span> <span class="n">analysis</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_publish_false_alarm</span><span class="p">(</span><span class="n">alert_data</span><span class="p">,</span> <span class="n">analysis</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Error analyzing health issue for </span><span class="si">{</span><span class="n">container_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ai_analyze</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alert_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">history</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform AI-powered analysis using LangChain.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            alert_data: Current health alert data</span>
+<span class="sd">            history: List of historical alerts for pattern detection</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Analysis dict with keys: action, reason, confidence, is_false_alarm, analysis_method</span>
+<span class="sd">            Returns None if AI analysis fails (triggers fallback)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">HumanMessage</span><span class="p">,</span> <span class="n">SystemMessage</span>
+
+            <span class="n">container_name</span> <span class="o">=</span> <span class="n">alert_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;container_name&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
+            <span class="n">metrics</span> <span class="o">=</span> <span class="n">alert_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metrics&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">anomalies</span> <span class="o">=</span> <span class="n">alert_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;anomalies&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">health_status</span> <span class="o">=</span> <span class="n">alert_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;health_status&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Build context for the prompt</span>
+            <span class="n">history_summary</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">history</span><span class="p">:</span>
+                <span class="n">history_summary</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Recent alert history (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">history</span><span class="p">)</span><span class="si">}</span><span class="s2"> alerts):</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">history</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:],</span> <span class="mi">1</span><span class="p">):</span>  <span class="c1"># Last 3 alerts</span>
+                    <span class="n">h_metrics</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metrics&quot;</span><span class="p">,</span> <span class="p">{})</span>
+                    <span class="n">h_anomalies</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;anomalies&quot;</span><span class="p">,</span> <span class="p">[])</span>
+                    <span class="n">history_summary</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;  Alert </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: CPU=</span><span class="si">{</span><span class="n">h_metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cpu_percent&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;N/A&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">%, Memory=</span><span class="si">{</span><span class="n">h_metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;memory_percent&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;N/A&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">%, Anomalies=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">h_anomalies</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+            <span class="c1"># Build structured prompt</span>
+            <span class="n">prompt_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;You are an expert DevOps engineer analyzing container health issues.</span>
+
+<span class="s2">Container: </span><span class="si">{</span><span class="n">container_name</span><span class="si">}</span>
+<span class="s2">Health Status: </span><span class="si">{</span><span class="n">health_status</span><span class="si">}</span>
+
+<span class="s2">Current Metrics:</span>
+<span class="s2">- CPU: </span><span class="si">{</span><span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cpu_percent&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;N/A&quot;</span><span class="p">)</span><span class="si">}</span><span class="s2">%</span>
+<span class="s2">- Memory: </span><span class="si">{</span><span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;memory_percent&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;N/A&quot;</span><span class="p">)</span><span class="si">}</span><span class="s2">%</span>
+<span class="s2">- Network I/O: </span><span class="si">{</span><span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;network_io&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;N/A&quot;</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">- Disk I/O: </span><span class="si">{</span><span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;disk_io&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;N/A&quot;</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">- Exit Code: </span><span class="si">{</span><span class="n">alert_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;exit_code&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;N/A&quot;</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">- Restart Count: </span><span class="si">{</span><span class="n">alert_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;restart_count&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">}</span>
+
+<span class="s2">Detected Anomalies (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">anomalies</span><span class="p">)</span><span class="si">}</span><span class="s2">):</span>
+<span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">anomalies</span><span class="p">,</span><span class="w"> </span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">anomalies</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;None&quot;</span><span class="si">}</span>
+<span class="si">{</span><span class="n">history_summary</span><span class="si">}</span>
+
+<span class="s2">Respond with valid JSON only, no code fences or commentary. Provide your analysis in this format:</span>
+<span class="se">{{</span>
+<span class="s2">  &quot;root_cause&quot;: &quot;Brief description of the root cause&quot;,</span>
+<span class="s2">  &quot;action&quot;: &quot;restart|scale_up|cleanup|none&quot;,</span>
+<span class="s2">  &quot;reason&quot;: &quot;Explanation for the recommended action&quot;,</span>
+<span class="s2">  &quot;confidence&quot;: 0.0-1.0,</span>
+<span class="s2">  &quot;is_false_alarm&quot;: true|false</span>
+<span class="se">}}</span>
+
+<span class="s2">Be concise and focus on actionable insights.&quot;&quot;&quot;</span>
+
+            <span class="c1"># Invoke LLM with retry logic</span>
+            <span class="n">max_retries</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_retries</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">SystemMessage</span><span class="p">(</span>
+                            <span class="n">content</span><span class="o">=</span><span class="s2">&quot;You are an expert DevOps engineer analyzing container health issues.&quot;</span>
+                        <span class="p">),</span>
+                        <span class="n">HumanMessage</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">prompt_text</span><span class="p">),</span>
+                    <span class="p">]</span>
+
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">llm</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;LLM not initialized&quot;</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="kc">None</span>
+
+                    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+                    <span class="n">response_text</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span>
+
+                    <span class="c1"># Parse JSON response - strip code fences first</span>
+                    <span class="n">json_str</span> <span class="o">=</span> <span class="n">response_text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="c1"># Remove markdown code fences if present</span>
+                    <span class="n">json_str</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^```(?:json)?\s*&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">json_str</span><span class="p">)</span>
+                    <span class="n">json_str</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s*```$&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">json_str</span><span class="p">)</span>
+
+                    <span class="c1"># Try to extract JSON from response</span>
+                    <span class="n">json_start</span> <span class="o">=</span> <span class="n">json_str</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;{&quot;</span><span class="p">)</span>
+                    <span class="n">json_end</span> <span class="o">=</span> <span class="n">json_str</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s2">&quot;}&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">json_start</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">json_end</span> <span class="o">&gt;</span> <span class="n">json_start</span><span class="p">:</span>
+                        <span class="n">json_str</span> <span class="o">=</span> <span class="n">json_str</span><span class="p">[</span><span class="n">json_start</span><span class="p">:</span><span class="n">json_end</span><span class="p">]</span>
+
+                    <span class="c1"># Parse JSON</span>
+                    <span class="n">analysis_result</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_str</span><span class="p">)</span>
+
+                    <span class="c1"># Validate required fields</span>
+                    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span>
+                        <span class="n">k</span> <span class="ow">in</span> <span class="n">analysis_result</span>
+                        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span>
+                            <span class="s2">&quot;root_cause&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;action&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;reason&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;confidence&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;is_false_alarm&quot;</span><span class="p">,</span>
+                        <span class="p">]</span>
+                    <span class="p">):</span>
+                        <span class="n">analysis_result</span><span class="p">[</span><span class="s2">&quot;analysis_method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ai&quot;</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;AI analysis successful for </span><span class="si">{</span><span class="n">container_name</span><span class="si">}</span><span class="s2">: &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;action=</span><span class="si">{</span><span class="n">analysis_result</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, confidence=</span><span class="si">{</span><span class="n">analysis_result</span><span class="p">[</span><span class="s1">&#39;confidence&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                        <span class="k">return</span> <span class="n">analysis_result</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Invalid AI response format for </span><span class="si">{</span><span class="n">container_name</span><span class="si">}</span><span class="s2">, retrying...&quot;</span>
+                    <span class="p">)</span>
+
+                <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Failed to parse AI response (attempt </span><span class="si">{</span><span class="n">attempt</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">max_retries</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">attempt</span> <span class="o">&lt;</span> <span class="n">max_retries</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="c1"># Sleep between retries for non-JSON formats</span>
+                        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">attempt</span><span class="p">))</span>
+                    <span class="k">continue</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;AI analysis failed for </span><span class="si">{</span><span class="n">container_name</span><span class="si">}</span><span class="s2"> after </span><span class="si">{</span><span class="n">max_retries</span><span class="si">}</span><span class="s2"> attempts; falling back to rule-based&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;AI analysis error for </span><span class="si">{</span><span class="n">alert_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;container_name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;unknown&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_rule_based_analyze</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">alert_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">history</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fallback analysis using deterministic rules.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            alert_data: Current health alert data</span>
+<span class="sd">            history: List of historical alerts for pattern detection</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Analysis dict with keys: action, reason, confidence, is_false_alarm, analysis_method</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">alert_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metrics&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">anomalies</span> <span class="o">=</span> <span class="n">alert_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;anomalies&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">health_status</span> <span class="o">=</span> <span class="n">alert_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;health_status&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
+        <span class="n">exit_code</span> <span class="o">=</span> <span class="n">alert_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;exit_code&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">restart_count</span> <span class="o">=</span> <span class="n">alert_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;restart_count&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">cpu_percent</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cpu_percent&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">memory_percent</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;memory_percent&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Rule 1: Non-zero exit code (high confidence)</span>
+        <span class="k">if</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;restart&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Container exited with non-zero code: </span><span class="si">{</span><span class="n">exit_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
+                <span class="s2">&quot;is_false_alarm&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">&quot;analysis_method&quot;</span><span class="p">:</span> <span class="s2">&quot;rule_based&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="c1"># Rule 2: Excessive restarts (circuit breaker - false alarm)</span>
+        <span class="k">if</span> <span class="n">restart_count</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Excessive restarts detected (</span><span class="si">{</span><span class="n">restart_count</span><span class="si">}</span><span class="s2">); circuit breaker activated&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+                <span class="s2">&quot;is_false_alarm&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">&quot;analysis_method&quot;</span><span class="p">:</span> <span class="s2">&quot;rule_based&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="c1"># Rule 3: Critical severity anomaly</span>
+        <span class="n">critical_anomalies</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">anomalies</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;severity&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;critical&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">critical_anomalies</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;restart&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Critical anomalies detected: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;unknown&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">critical_anomalies</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="mf">0.85</span><span class="p">,</span>
+                <span class="s2">&quot;is_false_alarm&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">&quot;analysis_method&quot;</span><span class="p">:</span> <span class="s2">&quot;rule_based&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="c1"># Rule 4: Unhealthy status</span>
+        <span class="k">if</span> <span class="n">health_status</span> <span class="o">==</span> <span class="s2">&quot;unhealthy&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;restart&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;Container health check failed&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+                <span class="s2">&quot;is_false_alarm&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">&quot;analysis_method&quot;</span><span class="p">:</span> <span class="s2">&quot;rule_based&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="c1"># Rule 5: Sustained high CPU (2+ consecutive alerts)</span>
+        <span class="n">cpu_trend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_metric_trend</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="s2">&quot;cpu_percent&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cpu_percent</span> <span class="o">&gt;</span> <span class="mi">90</span> <span class="ow">and</span> <span class="n">cpu_trend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;increasing&quot;</span><span class="p">,</span> <span class="s2">&quot;stable&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;restart&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Sustained high CPU usage: </span><span class="si">{</span><span class="n">cpu_percent</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span>
+                <span class="s2">&quot;is_false_alarm&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">&quot;analysis_method&quot;</span><span class="p">:</span> <span class="s2">&quot;rule_based&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="c1"># Rule 6: Memory leak pattern (increasing trend)</span>
+        <span class="n">memory_trend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_metric_trend</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="s2">&quot;memory_percent&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">memory_trend</span> <span class="o">==</span> <span class="s2">&quot;increasing&quot;</span> <span class="ow">and</span> <span class="n">memory_percent</span> <span class="o">&gt;</span> <span class="mi">70</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;restart&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Memory leak pattern detected; memory increasing to </span><span class="si">{</span><span class="n">memory_percent</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+                <span class="s2">&quot;is_false_alarm&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">&quot;analysis_method&quot;</span><span class="p">:</span> <span class="s2">&quot;rule_based&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="c1"># Rule 7: Transient spike (single medium anomaly, no history)</span>
+        <span class="n">medium_anomalies</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">anomalies</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;severity&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;medium&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">anomalies</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">medium_anomalies</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">history</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;Transient spike detected; likely false alarm&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="mf">0.65</span><span class="p">,</span>
+                <span class="s2">&quot;is_false_alarm&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">&quot;analysis_method&quot;</span><span class="p">:</span> <span class="s2">&quot;rule_based&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="c1"># Default: Low confidence false alarm</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;Insufficient evidence for remediation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+            <span class="s2">&quot;is_false_alarm&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;analysis_method&quot;</span><span class="p">:</span> <span class="s2">&quot;rule_based&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_detect_metric_trend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">history</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">metric_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper method to detect trends in historical metrics.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            history: List of historical alert dicts</span>
+<span class="sd">            metric_key: Metric key to analyze (e.g., &quot;cpu_percent&quot;, &quot;memory_percent&quot;)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Trend string: &quot;increasing&quot;, &quot;decreasing&quot;, &quot;stable&quot;, or &quot;unknown&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">history</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;unknown&quot;</span>
+
+            <span class="c1"># Extract metric values from last 3-5 alerts</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">alert</span> <span class="ow">in</span> <span class="n">history</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">:]:</span>
+                <span class="n">metrics</span> <span class="o">=</span> <span class="n">alert</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metrics&quot;</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">metric_key</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;unknown&quot;</span>
+
+            <span class="c1"># Calculate trend</span>
+            <span class="n">diffs</span> <span class="o">=</span> <span class="p">[</span><span class="n">values</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
+            <span class="n">avg_diff</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">diffs</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">diffs</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">avg_diff</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>  <span class="c1"># Threshold for &quot;increasing&quot;</span>
+                <span class="k">return</span> <span class="s2">&quot;increasing&quot;</span>
+            <span class="k">elif</span> <span class="n">avg_diff</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">5</span><span class="p">:</span>  <span class="c1"># Threshold for &quot;decreasing&quot;</span>
+                <span class="k">return</span> <span class="s2">&quot;decreasing&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;stable&quot;</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error detecting metric trend: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;unknown&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_publish_remediation_needed</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">alert_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">analysis</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Publish a remediation needed event.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            alert_data: Original health alert data</span>
+<span class="sd">            analysis: Analysis result from AI or rule-based logic</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">container_name</span> <span class="o">=</span> <span class="n">alert_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;container_name&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
+
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;container&quot;</span><span class="p">:</span> <span class="n">container_name</span><span class="p">,</span>
+            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reason&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;confidence&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+            <span class="s2">&quot;metrics&quot;</span><span class="p">:</span> <span class="n">alert_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metrics&quot;</span><span class="p">,</span> <span class="p">{}),</span>
+            <span class="s2">&quot;analysis_method&quot;</span><span class="p">:</span> <span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;analysis_method&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">publish_event</span><span class="p">(</span><span class="s2">&quot;hemostat:remediation_needed&quot;</span><span class="p">,</span> <span class="s2">&quot;remediation_needed&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Remediation needed for </span><span class="si">{</span><span class="n">container_name</span><span class="si">}</span><span class="s2">: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;action=</span><span class="si">{</span><span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;action&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">, confidence=</span><span class="si">{</span><span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;confidence&#39;</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;agent&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_name</span><span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_publish_false_alarm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alert_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">analysis</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Publish a false alarm event.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            alert_data: Original health alert data</span>
+<span class="sd">            analysis: Analysis result from AI or rule-based logic</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">container_name</span> <span class="o">=</span> <span class="n">alert_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;container_name&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
+
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;container&quot;</span><span class="p">:</span> <span class="n">container_name</span><span class="p">,</span>
+            <span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reason&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;confidence&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+            <span class="s2">&quot;analysis_method&quot;</span><span class="p">:</span> <span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;analysis_method&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">publish_event</span><span class="p">(</span><span class="s2">&quot;hemostat:false_alarm&quot;</span><span class="p">,</span> <span class="s2">&quot;false_alarm&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;False alarm for </span><span class="si">{</span><span class="n">container_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;reason&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(confidence=</span><span class="si">{</span><span class="n">analysis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;confidence&#39;</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+            <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;agent&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_name</span><span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_alert_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">alert_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update alert history in Redis for pattern detection.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            container_name: Name of the container</span>
+<span class="sd">            alert_data: Current alert data to append to history</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Retrieve existing history</span>
+            <span class="n">history_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;alert_history:</span><span class="si">{</span><span class="n">container_name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">existing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_shared_state</span><span class="p">(</span><span class="n">history_key</span><span class="p">)</span>
+            <span class="n">alerts</span> <span class="o">=</span> <span class="n">existing</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;alerts&quot;</span><span class="p">,</span> <span class="p">[])</span> <span class="k">if</span> <span class="n">existing</span> <span class="k">else</span> <span class="p">[]</span>
+
+            <span class="c1"># Append current alert</span>
+            <span class="n">alerts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alert_data</span><span class="p">)</span>
+
+            <span class="c1"># Keep only last N alerts</span>
+            <span class="n">alerts</span> <span class="o">=</span> <span class="n">alerts</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">history_size</span> <span class="p">:]</span>
+
+            <span class="c1"># Store updated history</span>
+            <span class="n">history_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;alerts&quot;</span><span class="p">:</span> <span class="n">alerts</span><span class="p">,</span> <span class="s2">&quot;container&quot;</span><span class="p">:</span> <span class="n">container_name</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_state</span><span class="p">(</span><span class="n">history_key</span><span class="p">,</span> <span class="n">history_data</span><span class="p">,</span> <span class="n">ttl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">history_ttl</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updated alert history for </span><span class="si">{</span><span class="n">container_name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">alerts</span><span class="p">)</span><span class="si">}</span><span class="s2"> alerts)&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error updating alert history for </span><span class="si">{</span><span class="n">container_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Team 1.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

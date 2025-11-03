@@ -1,0 +1,192 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hemostat"
+version = "0.1.0"
+description = "Autonomous Container Health Monitoring System - Multi-agent system for Docker container health monitoring and remediation"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Team 1", email = "team@hemostat.local" }]
+keywords = [
+    "docker",
+    "monitoring",
+    "health-check",
+    "multi-agent",
+    "redis",
+    "ai",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Monitoring",
+    "Topic :: System :: Distributed Computing",
+]
+
+# Core dependencies for Phase 1
+dependencies = [
+    "redis==7.0.1",              # Redis Python client with pub/sub support
+    "python-dotenv==1.2.1",      # Environment variable loading from .env files
+    "python-json-logger==4.0.0", # Structured JSON logging
+]
+
+[project.optional-dependencies]
+# Phase 2 - Agent Implementations
+agents = [
+    "docker==7.1.0",                # Monitor/Responder agents for container management
+    "langchain==1.0.3",             # LLM orchestration for Analyzer agent
+    "langchain-openai==1.0.1",      # OpenAI provider integration for LangChain
+    "langchain-anthropic==1.0.1",   # Anthropic provider integration for LangChain
+    "langchain-huggingface>=0.1.0", # Hugging Face provider integration for LangChain
+    "openai==2.6.1",                # OpenAI GPT-4 integration
+    "anthropic>=0.72.0",            # Anthropic Claude integration (compatible with langchain-anthropic)
+    "requests==2.32.5",             # HTTP client for Alert agent (Slack webhooks)
+    "prometheus-client==0.21.0",    # Prometheus metrics exporter for observability
+]
+
+# Phase 3 - Dashboard
+dashboard = [
+    "streamlit==1.51.0", # Web UI framework for live monitoring dashboard
+]
+
+# Phase 4 - Testing & Monitoring
+dev = [
+    "pytest==8.4.2",         # Unit testing framework
+    "pytest-asyncio==1.2.0", # Async test support
+    "pytest-cov==7.0.0",     # Code coverage reporting
+    "ruff==0.5.3",           # Fast Python linter and formatter
+    "ty==0.0.1a25",          # Fast type checker from Astral (written in Rust)
+    "pre-commit==4.0.1",     # Git hooks for code quality
+]
+
+# Documentation generation
+docs = [
+    "sphinx>=7.2.0",                    # Core documentation generator with autodoc support
+    "sphinx-autodoc-typehints>=1.25.0", # Better type hint rendering in API docs
+    "sphinx-rtd-theme>=2.0.0",          # Official ReadTheDocs theme
+    "myst-parser>=2.0.0",               # Markdown support for Sphinx
+    "sphinx-copybutton>=0.5.0",         # Copy button for code blocks
+    "sphinxcontrib-mermaid>=0.9.0",     # Mermaid diagram support
+]
+
+# All optional dependencies
+all = [
+    "docker==7.1.0",
+    "langchain==1.0.3",
+    "langchain-openai==1.0.1",
+    "langchain-anthropic==1.0.1",
+    "langchain-huggingface>=0.1.0",
+    "openai==2.6.1",
+    "anthropic>=0.72.0",
+    "requests==2.32.5",
+    "prometheus-client==0.21.0",
+    "streamlit==1.51.0",
+    "pytest==8.4.2",
+    "pytest-asyncio==1.2.0",
+    "pytest-cov==7.0.0",
+    "ruff==0.5.3",
+    "ty==0.0.1a25",
+    "pre-commit==4.0.1",
+    "sphinx>=7.2.0",
+    "sphinx-autodoc-typehints>=1.25.0",
+    "sphinx-rtd-theme>=2.0.0",
+    "myst-parser>=2.0.0",
+    "sphinx-copybutton>=0.5.0",
+    "sphinxcontrib-mermaid>=0.9.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/jondmarien/HemoStat"
+Documentation = "https://quartz.chron0.tech/HemoStat/"
+Repository = "https://github.com/jondmarien/HemoStat.git"
+Issues = "https://github.com/jondmarien/HemoStat/issues"
+
+[tool.uv]
+# UV configuration for fast Python package management
+managed = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["agents"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+addopts = "--cov=agents --cov-report=html --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["agents"]
+omit = ["*/tests/*", "*/test_*.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.typos.default]
+check-filenames = true
+check-files = true
+
+[tool.typos.default.extend-ignore-identifiers]
+# Identifiers that may contain false positive typos
+hemostat = "hemostat"
+pubsub = "pubsub"
+redis = "redis"
+remediaton = "remediaton" # Custom spelling for internal use
+
+[tool.typos.default.extend-words]
+# Words to recognize as correct
+aerosol = "aerosol"
+
+[tool.typos.files]
+ignore-files = [".git", ".venv", "htmlcov", "dist", "build", "*.egg-info"]
+
+[tool.ruff]
+# Fast Python linter configuration
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort - import sorting
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "ARG", # flake8-unused-arguments
+    "SIM", # flake8-simplify
+    "RUF", # Ruff-specific rules
+]
+ignore = [
+    "E501",   # Line too long (handled by formatter)
+    "ARG001", # Unused function argument (can be intentional)
+    "ARG002", # Unused method argument (can be intentional)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["agents"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "double"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[tool.ty]
+# Fast type checker configuration (from Astral, written in Rust)
+# ty automatically discovers packages in the active virtual environment

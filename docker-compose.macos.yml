@@ -1,0 +1,11 @@
+# Docker Compose overrides for macOS
+# Use with: docker compose -f docker-compose.yml -f docker-compose.macos.yml up -d
+
+services:
+  monitor:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  responder:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

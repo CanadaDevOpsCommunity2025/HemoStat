@@ -1,0 +1,609 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agents Package &mdash; HemoStat Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Dashboard Package" href="dashboard.html" />
+    <link rel="prev" title="API Reference" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            HemoStat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">System Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../monitoring.html">Monitoring &amp; Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_protocol.html">API Protocol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deployment.html">Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Agents Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-agents">Package Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#base-agent-class">Base Agent Class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#logger">Logger</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#platform-utilities">Platform Utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#monitor-agent">Monitor Agent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#analyzer-agent">Analyzer Agent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#responder-agent">Responder Agent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#alert-agent">Alert Agent</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dashboard.html">Dashboard Package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#base-classes">Base Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HemoStat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">Agents Package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/agents.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="agents-package">
+<h1>Agents Package<a class="headerlink" href="#agents-package" title="Link to this heading"></a></h1>
+<p>All agent implementations and base classes. This documentation is auto-generated from Python docstrings.</p>
+<section id="module-agents">
+<span id="package-overview"></span><h2>Package Overview<a class="headerlink" href="#module-agents" title="Link to this heading"></a></h2>
+<p>HemoStat Agents Package</p>
+<p>Provides all four agent implementations for the HemoStat autonomous container health
+monitoring system:</p>
+<ul class="simple">
+<li><p><strong>Monitor Agent</strong>: Continuously polls Docker containers for health issues</p></li>
+<li><p><strong>Analyzer Agent</strong>: Performs AI-powered root cause analysis</p></li>
+<li><p><strong>Responder Agent</strong>: Executes safe remediation actions with safety constraints</p></li>
+<li><p><strong>Alert Agent</strong>: Sends notifications and stores events for dashboard consumption</p></li>
+</ul>
+<p>All agents inherit from HemoStatAgent base class and communicate via Redis pub/sub.</p>
+</section>
+<section id="base-agent-class">
+<h2>Base Agent Class<a class="headerlink" href="#base-agent-class" title="Link to this heading"></a></h2>
+<p>Foundation for all agents. Provides Redis pub/sub communication and shared state management.</p>
+<p id="module-agents.agent_base">HemoStat Base Agent Module</p>
+<p>Provides the foundational HemoStatAgent base class that all specialized agents inherit from.
+Encapsulates Redis pub/sub communication patterns and shared state management.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="agents.agent_base.HemoStatAgent">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agents.agent_base.</span></span><span class="sig-name descname"><span class="pre">HemoStatAgent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redis_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redis_port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redis_db</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/agent_base.html#HemoStatAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.agent_base.HemoStatAgent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Base class for all HemoStat agents.</p>
+<p>Encapsulates Redis pub/sub communication and shared state management.
+All specialized agents (Monitor, Analyzer, Responder, Alert) inherit from this class.</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.agent_base.HemoStatAgent.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redis_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redis_port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redis_db</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/agent_base.html#HemoStatAgent.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.agent_base.HemoStatAgent.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the HemoStat agent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>agent_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Unique identifier for this agent (e.g., ‘monitor’, ‘analyzer’)</p></li>
+<li><p><strong>redis_host</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>) – Redis server hostname (defaults to env REDIS_HOST or ‘redis’)</p></li>
+<li><p><strong>redis_port</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><em>None</em>) – Redis server port (defaults to env REDIS_PORT or 6379)</p></li>
+<li><p><strong>redis_db</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Redis database number (default: 0)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#agents.agent_base.HemoStatConnectionError" title="agents.agent_base.HemoStatConnectionError"><strong>HemoStatConnectionError</strong></a> – If Redis connection fails after retries</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.agent_base.HemoStatAgent.from_env">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/agent_base.html#HemoStatAgent.from_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.agent_base.HemoStatAgent.from_env" title="Link to this definition"></a></dt>
+<dd><p>Create an agent instance from environment variables.</p>
+<p>Reads REDIS_HOST, REDIS_PORT, and REDIS_DB from environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>agent_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the agent</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Initialized HemoStatAgent instance</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#agents.agent_base.HemoStatAgent" title="agents.agent_base.HemoStatAgent"><em>HemoStatAgent</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.agent_base.HemoStatAgent.get_shared_state">
+<span class="sig-name descname"><span class="pre">get_shared_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/agent_base.html#HemoStatAgent.get_shared_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.agent_base.HemoStatAgent.get_shared_state" title="Link to this definition"></a></dt>
+<dd><p>Retrieve shared state from Redis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – State key (will be prefixed with ‘hemostat:state:’)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Deserialized state dict, or None if key doesn’t exist or error occurs</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>] | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="agents.agent_base.HemoStatAgent.is_running">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_running</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#agents.agent_base.HemoStatAgent.is_running" title="Link to this definition"></a></dt>
+<dd><p>Check if the agent is currently running.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the agent is running, False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.agent_base.HemoStatAgent.publish_event">
+<span class="sig-name descname"><span class="pre">publish_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/agent_base.html#HemoStatAgent.publish_event"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.agent_base.HemoStatAgent.publish_event" title="Link to this definition"></a></dt>
+<dd><p>Publish a structured event to a Redis channel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Redis channel name (e.g., ‘hemostat:events:health’)</p></li>
+<li><p><strong>event_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Type of event (e.g., ‘container_unhealthy’)</p></li>
+<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>) – Event payload data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if publish succeeded, False otherwise</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.agent_base.HemoStatAgent.set_shared_state">
+<span class="sig-name descname"><span class="pre">set_shared_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ttl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/agent_base.html#HemoStatAgent.set_shared_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.agent_base.HemoStatAgent.set_shared_state" title="Link to this definition"></a></dt>
+<dd><p>Store shared state in Redis with optional TTL.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – State key (will be prefixed with ‘hemostat:state:’)</p></li>
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>) – State data to store</p></li>
+<li><p><strong>ttl</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><em>None</em>) – Time-to-live in seconds (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if successful, False otherwise</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.agent_base.HemoStatAgent.start_listening">
+<span class="sig-name descname"><span class="pre">start_listening</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/agent_base.html#HemoStatAgent.start_listening"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.agent_base.HemoStatAgent.start_listening" title="Link to this definition"></a></dt>
+<dd><p>Start the pub/sub message listening loop.</p>
+<p>Blocks until stop() is called. Handles messages and exceptions gracefully.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.agent_base.HemoStatAgent.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/agent_base.html#HemoStatAgent.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.agent_base.HemoStatAgent.stop" title="Link to this definition"></a></dt>
+<dd><p>Gracefully shut down the agent.</p>
+<p>Stops the listening loop, unsubscribes from channels, and closes connections.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.agent_base.HemoStatAgent.subscribe_to_channel">
+<span class="sig-name descname"><span class="pre">subscribe_to_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/agent_base.html#HemoStatAgent.subscribe_to_channel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.agent_base.HemoStatAgent.subscribe_to_channel" title="Link to this definition"></a></dt>
+<dd><p>Subscribe to a Redis channel and register a message handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Redis channel name to subscribe to</p></li>
+<li><p><strong>callback</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><em>Callable</em></a><em>[</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em><em>]</em><em>, </em><em>None</em><em>]</em>) – Callable that will be invoked for each message
+(receives deserialized message dict)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="agents.agent_base.HemoStatConnectionError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agents.agent_base.</span></span><span class="sig-name descname"><span class="pre">HemoStatConnectionError</span></span><a class="reference internal" href="../_modules/agents/agent_base.html#HemoStatConnectionError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.agent_base.HemoStatConnectionError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<p>Custom exception for Redis connection failures.</p>
+</dd></dl>
+
+</section>
+<section id="logger">
+<h2>Logger<a class="headerlink" href="#logger" title="Link to this heading"></a></h2>
+<p>Logging utilities for all agents.</p>
+<p id="module-agents.logger">HemoStat Custom Logger Module</p>
+<p>Provides a centralized, comprehensive logging system for the HemoStat project.
+Supports multiple output formats (text, JSON), configurable log levels, and
+structured logging with contextual information.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="agents.logger.HemoStatLogger">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agents.logger.</span></span><span class="sig-name descname"><span class="pre">HemoStatLogger</span></span><a class="reference internal" href="../_modules/agents/logger.html#HemoStatLogger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.logger.HemoStatLogger" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Centralized logger factory for HemoStat agents.</p>
+<p>Provides consistent logging configuration across all agents with support for:
+- Multiple output formats (text, JSON)
+- Configurable log levels via environment variables
+- Structured logging with contextual information
+- Consistent formatting and naming conventions</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.logger.HemoStatLogger.configure_root_logger">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">configure_root_logger</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/logger.html#HemoStatLogger.configure_root_logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.logger.HemoStatLogger.configure_root_logger" title="Link to this definition"></a></dt>
+<dd><p>Configure the root logger with basic settings.</p>
+<p>Called once at application startup to set up root logger configuration.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.logger.HemoStatLogger.get_logger">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/logger.html#HemoStatLogger.get_logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.logger.HemoStatLogger.get_logger" title="Link to this definition"></a></dt>
+<dd><p>Get or create a logger with the given name.</p>
+<p>Creates a new logger if it doesn’t exist, or returns the cached instance.
+All loggers are configured with consistent formatting and handlers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Logger name (typically agent name like ‘monitor’, ‘analyzer’, etc.)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Configured logging.Logger instance</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><em>Logger</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.logger.HemoStatLogger.reset">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/logger.html#HemoStatLogger.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.logger.HemoStatLogger.reset" title="Link to this definition"></a></dt>
+<dd><p>Reset all cached loggers and configuration.</p>
+<p>Useful for testing or reconfiguration.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="platform-utilities">
+<h2>Platform Utilities<a class="headerlink" href="#platform-utilities" title="Link to this heading"></a></h2>
+<p>Platform detection and utilities.</p>
+<p id="module-agents.platform_utils">HemoStat Platform Detection Utilities</p>
+<p>Provides OS detection and platform-specific configuration for Docker socket handling.
+Supports Windows, Linux, and macOS with automatic detection of running environment.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="agents.platform_utils.get_docker_host">
+<span class="sig-prename descclassname"><span class="pre">agents.platform_utils.</span></span><span class="sig-name descname"><span class="pre">get_docker_host</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/platform_utils.html#get_docker_host"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.platform_utils.get_docker_host" title="Link to this definition"></a></dt>
+<dd><p>Get the appropriate Docker daemon socket path for the current platform.</p>
+<p>Logic:</p>
+<ul class="simple">
+<li><p>If running in Docker container: always use unix:///var/run/docker.sock
+(Docker Desktop on Windows maps the named pipe to this path inside containers)</p></li>
+<li><p>If running locally on Windows: use npipe:////./pipe/docker_engine</p></li>
+<li><p>If running locally on Linux/macOS: use unix:///var/run/docker.sock</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Docker daemon socket path appropriate for the platform</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="agents.platform_utils.get_platform">
+<span class="sig-prename descclassname"><span class="pre">agents.platform_utils.</span></span><span class="sig-name descname"><span class="pre">get_platform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/platform_utils.html#get_platform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.platform_utils.get_platform" title="Link to this definition"></a></dt>
+<dd><p>Get the current operating system name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>‘Windows’, ‘Linux’, or ‘Darwin’ (macOS)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="agents.platform_utils.get_platform_display">
+<span class="sig-prename descclassname"><span class="pre">agents.platform_utils.</span></span><span class="sig-name descname"><span class="pre">get_platform_display</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/platform_utils.html#get_platform_display"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.platform_utils.get_platform_display" title="Link to this definition"></a></dt>
+<dd><p>Get a human-readable platform description for logging.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Platform description string</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="agents.platform_utils.is_in_docker">
+<span class="sig-prename descclassname"><span class="pre">agents.platform_utils.</span></span><span class="sig-name descname"><span class="pre">is_in_docker</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/platform_utils.html#is_in_docker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.platform_utils.is_in_docker" title="Link to this definition"></a></dt>
+<dd><p>Detect if the current process is running inside a Docker container.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if running in Docker, False otherwise</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="monitor-agent">
+<h2>Monitor Agent<a class="headerlink" href="#monitor-agent" title="Link to this heading"></a></h2>
+<p>Continuously monitors Docker container health and publishes alerts.</p>
+<p id="module-agents.hemostat_monitor.monitor">HemoStat Monitor Agent</p>
+<p>Continuously polls Docker containers to detect health issues, resource anomalies, and failures.
+Publishes structured health alerts to Redis for consumption by the Analyzer Agent.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="agents.hemostat_monitor.monitor.ContainerMonitor">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agents.hemostat_monitor.monitor.</span></span><span class="sig-name descname"><span class="pre">ContainerMonitor</span></span><a class="reference internal" href="../_modules/agents/hemostat_monitor/monitor.html#ContainerMonitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.hemostat_monitor.monitor.ContainerMonitor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#agents.agent_base.HemoStatAgent" title="agents.agent_base.HemoStatAgent"><code class="xref py py-class docutils literal notranslate"><span class="pre">HemoStatAgent</span></code></a></p>
+<p>Monitor Agent for HemoStat.</p>
+<p>Polls Docker containers at regular intervals, collects metrics (CPU, memory, network, disk I/O),
+detects anomalies against configurable thresholds, and publishes health alerts to Redis.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.hemostat_monitor.monitor.ContainerMonitor.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/hemostat_monitor/monitor.html#ContainerMonitor.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.hemostat_monitor.monitor.ContainerMonitor.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the Container Monitor agent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>DockerException</strong> – If Docker connection fails</p></li>
+<li><p><a class="reference internal" href="#agents.agent_base.HemoStatConnectionError" title="agents.agent_base.HemoStatConnectionError"><strong>HemoStatConnectionError</strong></a> – If Redis connection fails</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.hemostat_monitor.monitor.ContainerMonitor.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/hemostat_monitor/monitor.html#ContainerMonitor.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.hemostat_monitor.monitor.ContainerMonitor.run" title="Link to this definition"></a></dt>
+<dd><p>Main monitoring loop that runs continuously until stopped.</p>
+<p>Polls containers at regular intervals and detects anomalies.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.hemostat_monitor.monitor.ContainerMonitor.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/hemostat_monitor/monitor.html#ContainerMonitor.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.hemostat_monitor.monitor.ContainerMonitor.stop" title="Link to this definition"></a></dt>
+<dd><p>Stop the monitor agent gracefully.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="analyzer-agent">
+<h2>Analyzer Agent<a class="headerlink" href="#analyzer-agent" title="Link to this heading"></a></h2>
+<p>Performs AI-powered root cause analysis on health alerts.</p>
+<p id="module-agents.hemostat_analyzer.analyzer">HemoStat Analyzer Agent - Core Implementation</p>
+<p>Performs AI-powered root cause analysis of container health issues using LangChain with
+Claude/GPT-4, distinguishes real issues from false alarms, calculates confidence scores,
+and publishes remediation recommendations or false alarm notifications.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="agents.hemostat_analyzer.analyzer.HealthAnalyzer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agents.hemostat_analyzer.analyzer.</span></span><span class="sig-name descname"><span class="pre">HealthAnalyzer</span></span><a class="reference internal" href="../_modules/agents/hemostat_analyzer/analyzer.html#HealthAnalyzer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.hemostat_analyzer.analyzer.HealthAnalyzer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#agents.agent_base.HemoStatAgent" title="agents.agent_base.HemoStatAgent"><code class="xref py py-class docutils literal notranslate"><span class="pre">HemoStatAgent</span></code></a></p>
+<p>AI-powered health analyzer for container health issues.</p>
+<p>Inherits from HemoStatAgent and implements intelligent analysis of container health
+alerts using LangChain with Claude/GPT-4, with rule-based fallback for reliability.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.hemostat_analyzer.analyzer.HealthAnalyzer.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/hemostat_analyzer/analyzer.html#HealthAnalyzer.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.hemostat_analyzer.analyzer.HealthAnalyzer.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the Health Analyzer.</p>
+<p>Loads configuration from environment variables, initializes LangChain LLM,
+and subscribes to health alert channel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#agents.agent_base.HemoStatConnectionError" title="agents.agent_base.HemoStatConnectionError"><strong>HemoStatConnectionError</strong></a> – If Redis connection fails</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.hemostat_analyzer.analyzer.HealthAnalyzer.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/hemostat_analyzer/analyzer.html#HealthAnalyzer.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.hemostat_analyzer.analyzer.HealthAnalyzer.run" title="Link to this definition"></a></dt>
+<dd><p>Start the analyzer listening loop.</p>
+<p>Blocks until stop() is called. Handles exceptions gracefully.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="responder-agent">
+<h2>Responder Agent<a class="headerlink" href="#responder-agent" title="Link to this heading"></a></h2>
+<p>Executes safe remediation actions on containers.</p>
+<p id="module-agents.hemostat_responder.responder">HemoStat Responder Agent - Safe Container Remediation</p>
+<p>Executes remediation actions recommended by the Analyzer Agent with comprehensive
+safety constraints including cooldown periods, circuit breakers, and audit logging.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="agents.hemostat_responder.responder.ContainerResponder">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agents.hemostat_responder.responder.</span></span><span class="sig-name descname"><span class="pre">ContainerResponder</span></span><a class="reference internal" href="../_modules/agents/hemostat_responder/responder.html#ContainerResponder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.hemostat_responder.responder.ContainerResponder" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#agents.agent_base.HemoStatAgent" title="agents.agent_base.HemoStatAgent"><code class="xref py py-class docutils literal notranslate"><span class="pre">HemoStatAgent</span></code></a></p>
+<p>Executes safe container remediation with multi-layered safety mechanisms.</p>
+<p>Subscribes to hemostat:remediation_needed channel and executes Docker operations
+(restart, scale, cleanup, exec) while enforcing cooldown periods, circuit breakers,
+and maintaining comprehensive audit logs.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.hemostat_responder.responder.ContainerResponder.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/hemostat_responder/responder.html#ContainerResponder.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.hemostat_responder.responder.ContainerResponder.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the Responder Agent.</p>
+<p>Connects to Docker daemon with retry logic, loads safety configuration from
+environment variables, and subscribes to remediation_needed channel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#agents.agent_base.HemoStatConnectionError" title="agents.agent_base.HemoStatConnectionError"><strong>HemoStatConnectionError</strong></a> – If Redis connection fails</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.hemostat_responder.responder.ContainerResponder.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/hemostat_responder/responder.html#ContainerResponder.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.hemostat_responder.responder.ContainerResponder.run" title="Link to this definition"></a></dt>
+<dd><p>Start the message listening loop.</p>
+<p>Blocks until stop() is called. Listens for remediation requests on
+hemostat:remediation_needed channel and processes them.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="alert-agent">
+<h2>Alert Agent<a class="headerlink" href="#alert-agent" title="Link to this heading"></a></h2>
+<p>Sends notifications and stores event history.</p>
+<p id="module-agents.hemostat_alert.alert">HemoStat Alert Agent - Event Storage and Notifications</p>
+<p>Consumes remediation completion and false alarm events from the Responder and Analyzer agents.
+Sends formatted notifications to Slack webhooks, stores events in Redis for dashboard consumption,
+and implements event deduplication to prevent notification spam.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="agents.hemostat_alert.alert.AlertNotifier">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agents.hemostat_alert.alert.</span></span><span class="sig-name descname"><span class="pre">AlertNotifier</span></span><a class="reference internal" href="../_modules/agents/hemostat_alert/alert.html#AlertNotifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.hemostat_alert.alert.AlertNotifier" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#agents.agent_base.HemoStatAgent" title="agents.agent_base.HemoStatAgent"><code class="xref py py-class docutils literal notranslate"><span class="pre">HemoStatAgent</span></code></a></p>
+<p>Alert Agent for sending notifications and storing events.</p>
+<p>Subscribes to remediation completion and false alarm events,
+sends Slack notifications, and stores events in Redis for dashboard consumption.
+Implements event deduplication using minute-level timestamps and event type hashing
+to prevent duplicate notifications within configurable TTL windows.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.hemostat_alert.alert.AlertNotifier.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/hemostat_alert/alert.html#AlertNotifier.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.hemostat_alert.alert.AlertNotifier.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the Alert Agent.</p>
+<p>Loads configuration from environment variables, subscribes to remediation
+completion and false alarm channels, and validates Slack webhook URL if provided.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#agents.agent_base.HemoStatConnectionError" title="agents.agent_base.HemoStatConnectionError"><strong>HemoStatConnectionError</strong></a> – If Redis connection fails</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agents.hemostat_alert.alert.AlertNotifier.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/hemostat_alert/alert.html#AlertNotifier.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.hemostat_alert.alert.AlertNotifier.run" title="Link to this definition"></a></dt>
+<dd><p>Start the message listening loop.</p>
+<p>Blocks until stop() is called. Handles exceptions gracefully and logs errors.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dashboard.html" class="btn btn-neutral float-right" title="Dashboard Package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, The HemoStat Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

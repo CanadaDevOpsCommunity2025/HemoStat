@@ -1,0 +1,143 @@
+# Prometheus Alert Rules for HemoStat
+# Define alerting rules based on HemoStat metrics
+
+groups:
+  - name: hemostat_health
+    interval: 30s
+    rules:
+      # High CPU usage alert
+      - alert: HighContainerCPU
+        expr: hemostat_container_cpu_percent > 90
+        for: 2m
+        labels:
+          severity: critical
+          component: monitor
+        annotations:
+          summary: "High CPU usage on container {{ $labels.container_name }}"
+          description: "Container {{ $labels.container_name }} ({{ $labels.container_id }}) has CPU usage at {{ $value }}% for more than 2 minutes."
+
+      # High memory usage alert
+      - alert: HighContainerMemory
+        expr: hemostat_container_memory_percent > 90
+        for: 2m
+        labels:
+          severity: critical
+          component: monitor
+        annotations:
+          summary: "High memory usage on container {{ $labels.container_name }}"
+          description: "Container {{ $labels.container_name }} ({{ $labels.container_id }}) has memory usage at {{ $value }}% for more than 2 minutes."
+
+      # Excessive container restarts
+      - alert: ExcessiveContainerRestarts
+        expr: rate(hemostat_container_restart_count[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: monitor
+        annotations:
+          summary: "Container {{ $labels.container_name }} restarting frequently"
+          description: "Container {{ $labels.container_name }} is restarting at {{ $value }} restarts per second."
+
+  - name: hemostat_analysis
+    interval: 30s
+    rules:
+      # Slow analysis response
+      - alert: SlowAnalysisResponse
+        expr: histogram_quantile(0.95, rate(hemostat_analysis_duration_seconds_bucket[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: analyzer
+        annotations:
+          summary: "Slow AI analysis response time"
+          description: "95th percentile analysis duration is {{ $value }}s, exceeding 10s threshold."
+
+      # Low analysis confidence
+      - alert: LowAnalysisConfidence
+        expr: histogram_quantile(0.5, rate(hemostat_analysis_confidence_bucket{result_type="remediation_needed"}[5m])) < 0.5
+        for: 10m
+        labels:
+          severity: info
+          component: analyzer
+        annotations:
+          summary: "Low analysis confidence scores"
+          description: "Median analysis confidence is {{ $value }}, below 0.5 threshold."
+
+  - name: hemostat_remediation
+    interval: 30s
+    rules:
+      # High remediation failure rate
+      - alert: HighRemediationFailureRate
+        expr: |
+          rate(hemostat_remediation_attempts_total{status="failed"}[5m]) /
+          rate(hemostat_remediation_attempts_total[5m]) > 0.3
+        for: 5m
+        labels:
+          severity: critical
+          component: responder
+        annotations:
+          summary: "High remediation failure rate"
+          description: "Remediation failure rate is {{ $value | humanizePercentage }}, exceeding 30% threshold."
+
+      # Slow remediation execution
+      - alert: SlowRemediationExecution
+        expr: histogram_quantile(0.95, rate(hemostat_remediation_duration_seconds_bucket[5m])) > 60
+        for: 5m
+        labels:
+          severity: warning
+          component: responder
+        annotations:
+          summary: "Slow remediation execution"
+          description: "95th percentile remediation duration is {{ $value }}s, exceeding 60s threshold."
+
+  - name: hemostat_alerts
+    interval: 30s
+    rules:
+      # High alert failure rate
+      - alert: HighAlertFailureRate
+        expr: |
+          rate(hemostat_alerts_sent_total{status="failed"}[5m]) /
+          rate(hemostat_alerts_sent_total[5m]) > 0.2
+        for: 5m
+        labels:
+          severity: warning
+          component: alert
+        annotations:
+          summary: "High alert notification failure rate"
+          description: "Alert failure rate is {{ $value | humanizePercentage }}, exceeding 20% threshold."
+
+      # High deduplication rate (might indicate spam)
+      - alert: HighAlertDeduplicationRate
+        expr: rate(hemostat_alerts_deduped_total[5m]) > 1
+        for: 10m
+        labels:
+          severity: info
+          component: alert
+        annotations:
+          summary: "High alert deduplication rate"
+          description: "Alert deduplication rate is {{ $value }} per second, might indicate duplicate alerts."
+
+  - name: hemostat_system
+    interval: 30s
+    rules:
+      # Metrics exporter down
+      - alert: MetricsExporterDown
+        expr: up{job="hemostat-metrics"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: metrics
+        annotations:
+          summary: "HemoStat Metrics Exporter is down"
+          description: "The metrics exporter has been down for more than 1 minute."
+
+      # No health alerts detected (might indicate monitor is down)
+      - alert: NoHealthAlertsDetected
+        expr: rate(hemostat_health_alerts_total[10m]) == 0
+        for: 30m
+        labels:
+          severity: warning
+          component: monitor
+        annotations:
+          summary: "No health alerts detected recently"
+          description: "No health alerts have been detected in the last 30 minutes. Monitor agent might be down or no issues present."

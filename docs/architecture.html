@@ -1,0 +1,500 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>System Architecture &mdash; HemoStat Documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+      <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Monitoring &amp; Observability" href="monitoring.html" />
+    <link rel="prev" title="Quick Start Guide" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            HemoStat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">System Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#system-overview">System Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#agent-roles-and-responsibilities">Agent Roles and Responsibilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#monitor-agent">Monitor Agent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#analyzer-agent">Analyzer Agent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#responder-agent">Responder Agent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#alert-agent">Alert Agent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#metrics-exporter-agent">Metrics Exporter Agent</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#communication-model">Communication Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-flow">Data Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#redis-key-structure">Redis Key Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#safety-mechanisms">Safety Mechanisms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cooldown-period">Cooldown Period</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#max-actions-per-hour">Max Actions Per Hour</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fallback-analysis">Fallback Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#error-handling">Error Handling</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#scaling-considerations">Scaling Considerations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#horizontal-scaling">Horizontal Scaling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance-characteristics">Performance Characteristics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#redis-as-bottleneck">Redis as Bottleneck</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#extensibility">Extensibility</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#adding-new-agents">Adding New Agents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-new-remediation-actions">Adding New Remediation Actions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#customizing-monitor-thresholds">Customizing Monitor Thresholds</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#deployment-options">Deployment Options</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#local-docker-compose-demo">Local Docker Compose (Demo)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kubernetes">Kubernetes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#aws-ecs">AWS ECS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#multi-cloud">Multi-Cloud</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#monitoring-hemostat-itself">Monitoring HemoStat Itself</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#key-metrics-to-track">Key Metrics to Track</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#available-metrics">Available Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#health-checks">Health Checks</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#security-considerations">Security Considerations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#api-keys">API Keys</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#docker-socket">Docker Socket</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#redis-access">Redis Access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#logs-and-audit-trail">Logs and Audit Trail</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring &amp; Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_protocol.html">API Protocol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deployment.html">Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html#base-classes">Base Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HemoStat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">System Architecture</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/architecture.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="system-architecture">
+<h1>System Architecture<a class="headerlink" href="#system-architecture" title="Link to this heading"></a></h1>
+<p>HemoStat uses a multi-agent architecture where specialized agents communicate through Redis pub/sub to monitor, analyze, and remediate container health issues.</p>
+<section id="system-overview">
+<h2>System Overview<a class="headerlink" href="#system-overview" title="Link to this heading"></a></h2>
+<pre  class="mermaid">
+        graph TD
+    A[&quot;Monitor Agent&lt;br/&gt;Polls Docker every 30s&quot;] --&gt;|publishes health_alert| B[&quot;Analyzer Agent&lt;br/&gt;AI-powered root cause analysis&quot;]
+    B --&gt;|publishes remediation_needed| C[&quot;Responder Agent&lt;br/&gt;Executes safe fixes&quot;]
+    C --&gt;|publishes remediation_complete| D[&quot;Alert Agent&lt;br/&gt;Sends notifications&quot;]
+    D --&gt;|updates Redis| E[&quot;Dashboard&lt;br/&gt;Real-time visualization&quot;]
+    B --&gt;|publishes false_alarm| D
+    A --&gt;|events| M[&quot;Metrics Exporter&lt;br/&gt;Prometheus metrics&quot;]
+    B --&gt;|events| M
+    C --&gt;|events| M
+    D --&gt;|events| M
+    M --&gt;|scraped by| P[&quot;Prometheus + Grafana&lt;br/&gt;Historical analysis&quot;]
+    </pre></section>
+<section id="agent-roles-and-responsibilities">
+<h2>Agent Roles and Responsibilities<a class="headerlink" href="#agent-roles-and-responsibilities" title="Link to this heading"></a></h2>
+<section id="monitor-agent">
+<h3>Monitor Agent<a class="headerlink" href="#monitor-agent" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Continuously polls Docker container metrics every 30 seconds</p></li>
+<li><p>Collects CPU, memory, disk, and process status</p></li>
+<li><p>Detects anomalies using statistical analysis</p></li>
+<li><p>Publishes <code class="docutils literal notranslate"><span class="pre">health_alert</span></code> events to Redis</p></li>
+</ul>
+</section>
+<section id="analyzer-agent">
+<h3>Analyzer Agent<a class="headerlink" href="#analyzer-agent" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Subscribes to <code class="docutils literal notranslate"><span class="pre">health_alert</span></code> channel</p></li>
+<li><p>Performs AI-powered root cause analysis using Claude or GPT-4</p></li>
+<li><p>Distinguishes real issues from false alarms with confidence scoring</p></li>
+<li><p>Publishes <code class="docutils literal notranslate"><span class="pre">remediation_needed</span></code> or <code class="docutils literal notranslate"><span class="pre">false_alarm</span></code> events</p></li>
+</ul>
+</section>
+<section id="responder-agent">
+<h3>Responder Agent<a class="headerlink" href="#responder-agent" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Subscribes to <code class="docutils literal notranslate"><span class="pre">remediation_needed</span></code> channel</p></li>
+<li><p>Executes remediation actions (restart, scale, cleanup, exec)</p></li>
+<li><p>Enforces comprehensive safety constraints:</p>
+<ul>
+<li><p>Cooldown periods (1 hour default)</p></li>
+<li><p>Circuit breakers (max 3 retries/hour)</p></li>
+<li><p>Dry-run mode support</p></li>
+<li><p>Audit logging for compliance</p></li>
+</ul>
+</li>
+<li><p>Publishes <code class="docutils literal notranslate"><span class="pre">remediation_complete</span></code> events</p></li>
+</ul>
+</section>
+<section id="alert-agent">
+<h3>Alert Agent<a class="headerlink" href="#alert-agent" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Subscribes to <code class="docutils literal notranslate"><span class="pre">remediation_complete</span></code> and <code class="docutils literal notranslate"><span class="pre">false_alarm</span></code> channels</p></li>
+<li><p>Sends notifications to external systems (Slack webhooks)</p></li>
+<li><p>Stores events in Redis for dashboard consumption</p></li>
+<li><p>Provides comprehensive audit trail</p></li>
+<li><p>Implements event deduplication to prevent notification spam</p></li>
+</ul>
+</section>
+<section id="metrics-exporter-agent">
+<h3>Metrics Exporter Agent<a class="headerlink" href="#metrics-exporter-agent" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Subscribes to all HemoStat event channels</p></li>
+<li><p>Converts events into Prometheus-compatible metrics</p></li>
+<li><p>Exposes HTTP endpoint for Prometheus scraping (port 9090)</p></li>
+<li><p>Tracks container health, agent performance, and system operations</p></li>
+<li><p>Enables historical analysis and trend identification via Grafana</p></li>
+</ul>
+<p>See the <a class="reference internal" href="monitoring.html"><span class="std std-doc">Monitoring documentation</span></a> for detailed information on metrics and observability.</p>
+</section>
+</section>
+<section id="communication-model">
+<h2>Communication Model<a class="headerlink" href="#communication-model" title="Link to this heading"></a></h2>
+<p>All agents communicate via Redis pub/sub channels:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>hemostat:health_alert           (Monitor → Analyzer)
+hemostat:remediation_needed     (Analyzer → Responder)
+hemostat:remediation_complete   (Responder → Alert)
+hemostat:false_alarm            (Analyzer → Alert)
+</pre></div>
+</div>
+</section>
+<section id="data-flow">
+<h2>Data Flow<a class="headerlink" href="#data-flow" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Monitor</strong> collects container metrics every 30 seconds</p></li>
+<li><p><strong>Monitor</strong> publishes <code class="docutils literal notranslate"><span class="pre">health_alert</span></code> event if anomalies detected</p></li>
+<li><p><strong>Analyzer</strong> subscribes to <code class="docutils literal notranslate"><span class="pre">health_alert</span></code> channel</p></li>
+<li><p><strong>Analyzer</strong> processes alert, decides if real issue</p></li>
+<li><p>If real, <strong>Analyzer</strong> publishes <code class="docutils literal notranslate"><span class="pre">remediation_needed</span></code> event</p></li>
+<li><p><strong>Responder</strong> subscribes to <code class="docutils literal notranslate"><span class="pre">remediation_needed</span></code> channel</p></li>
+<li><p><strong>Responder</strong> checks safety constraints, executes fix</p></li>
+<li><p><strong>Responder</strong> publishes <code class="docutils literal notranslate"><span class="pre">remediation_complete</span></code> event</p></li>
+<li><p><strong>Alert</strong> subscribes to <code class="docutils literal notranslate"><span class="pre">remediation_complete</span></code> channel</p></li>
+<li><p><strong>Alert</strong> sends Slack notification, updates Redis</p></li>
+<li><p><strong>Dashboard</strong> reads from Redis, displays in real-time</p></li>
+</ol>
+</section>
+<section id="redis-key-structure">
+<h2>Redis Key Structure<a class="headerlink" href="#redis-key-structure" title="Link to this heading"></a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>hemostat:stats:&lt;container&gt;       Current metrics for container
+hemostat:remediation:&lt;container&gt; Action history for container
+hemostat:events:&lt;type&gt;           Event log by type
+hemostat:containers              List of monitored containers
+</pre></div>
+</div>
+</section>
+<section id="safety-mechanisms">
+<h2>Safety Mechanisms<a class="headerlink" href="#safety-mechanisms" title="Link to this heading"></a></h2>
+<section id="cooldown-period">
+<h3>Cooldown Period<a class="headerlink" href="#cooldown-period" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>After restart, 1 hour cooldown before next restart</p></li>
+<li><p>Prevents restart loops and cascading failures</p></li>
+</ul>
+</section>
+<section id="max-actions-per-hour">
+<h3>Max Actions Per Hour<a class="headerlink" href="#max-actions-per-hour" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Maximum 3 restarts per hour per container</p></li>
+<li><p>Circuit breaker for repeated failures</p></li>
+</ul>
+</section>
+<section id="fallback-analysis">
+<h3>Fallback Analysis<a class="headerlink" href="#fallback-analysis" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>If Claude fails, fall back to rule-based analysis</p></li>
+<li><p>System continues operating without AI</p></li>
+</ul>
+</section>
+<section id="error-handling">
+<h3>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>All agents catch and log exceptions</p></li>
+<li><p>Graceful degradation, no cascading failures</p></li>
+<li><p>Automatic restart on failure</p></li>
+</ul>
+</section>
+</section>
+<section id="scaling-considerations">
+<h2>Scaling Considerations<a class="headerlink" href="#scaling-considerations" title="Link to this heading"></a></h2>
+<section id="horizontal-scaling">
+<h3>Horizontal Scaling<a class="headerlink" href="#horizontal-scaling" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Run multiple Monitor instances (one per cluster)</p></li>
+<li><p>Run multiple Analyzer instances (share load via Redis)</p></li>
+<li><p>Run multiple Responder instances (Redis ensures atomicity)</p></li>
+<li><p>Keep single Alert and Dashboard</p></li>
+</ul>
+</section>
+<section id="performance-characteristics">
+<h3>Performance Characteristics<a class="headerlink" href="#performance-characteristics" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Monitor: O(n) where n = number of containers</p></li>
+<li><p>Analyzer: O(1) per alert, limited by Claude API rate</p></li>
+<li><p>Responder: O(1) per remediation request</p></li>
+<li><p>Alert: O(1) per completion event</p></li>
+<li><p>Dashboard: O(1) for display updates</p></li>
+</ul>
+</section>
+<section id="redis-as-bottleneck">
+<h3>Redis as Bottleneck<a class="headerlink" href="#redis-as-bottleneck" title="Link to this heading"></a></h3>
+<p>For large-scale deployments:</p>
+<ul class="simple">
+<li><p>Use Redis Cluster for horizontal scaling</p></li>
+<li><p>Add message queue (RabbitMQ) for very high volume</p></li>
+<li><p>Add persistent storage for audit logs</p></li>
+</ul>
+</section>
+</section>
+<section id="extensibility">
+<h2>Extensibility<a class="headerlink" href="#extensibility" title="Link to this heading"></a></h2>
+<section id="adding-new-agents">
+<h3>Adding New Agents<a class="headerlink" href="#adding-new-agents" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Create <code class="docutils literal notranslate"><span class="pre">agents/my_agent/my_agent.py</span></code></p></li>
+<li><p>Import <code class="docutils literal notranslate"><span class="pre">HemoStatAgent</span></code> from <code class="docutils literal notranslate"><span class="pre">agents.agent_base</span></code></p></li>
+<li><p>Override <code class="docutils literal notranslate"><span class="pre">run()</span></code> method</p></li>
+<li><p>Subscribe to relevant Redis channels</p></li>
+<li><p>Publish events to specific channels</p></li>
+<li><p>Add Dockerfile and update docker-compose.yml</p></li>
+</ol>
+<p>See the <a class="reference internal" href="api/agents.html"><span class="std std-doc">API Reference</span></a> for the <code class="docutils literal notranslate"><span class="pre">HemoStatAgent</span></code> base class documentation.</p>
+</section>
+<section id="adding-new-remediation-actions">
+<h3>Adding New Remediation Actions<a class="headerlink" href="#adding-new-remediation-actions" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Edit <code class="docutils literal notranslate"><span class="pre">agents/hemostat_responder/responder.py</span></code></p></li>
+<li><p>Add new method (e.g., <code class="docutils literal notranslate"><span class="pre">scale_container()</span></code>)</p></li>
+<li><p>Update <code class="docutils literal notranslate"><span class="pre">_handle_remediation_request()</span></code> to call new method</p></li>
+<li><p>Update Analyzer to suggest new action</p></li>
+</ol>
+</section>
+<section id="customizing-monitor-thresholds">
+<h3>Customizing Monitor Thresholds<a class="headerlink" href="#customizing-monitor-thresholds" title="Link to this heading"></a></h3>
+<p>Edit <code class="docutils literal notranslate"><span class="pre">agents/hemostat_monitor/monitor.py</span></code> to adjust detection thresholds:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;memory_pct&#39;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>   <span class="c1"># Change to 70 for earlier alerts</span>
+    <span class="s1">&#39;cpu_pct&#39;</span><span class="p">:</span> <span class="mi">85</span>       <span class="c1"># Change to 75 for earlier alerts</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="deployment-options">
+<h2>Deployment Options<a class="headerlink" href="#deployment-options" title="Link to this heading"></a></h2>
+<section id="local-docker-compose-demo">
+<h3>Local Docker Compose (Demo)<a class="headerlink" href="#local-docker-compose-demo" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Simplest setup</p></li>
+<li><p>All services on single machine</p></li>
+<li><p>Perfect for testing and development</p></li>
+</ul>
+</section>
+<section id="kubernetes">
+<h3>Kubernetes<a class="headerlink" href="#kubernetes" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Horizontal scaling</p></li>
+<li><p>High availability</p></li>
+<li><p>Production-grade</p></li>
+<li><p>More complex setup</p></li>
+</ul>
+</section>
+<section id="aws-ecs">
+<h3>AWS ECS<a class="headerlink" href="#aws-ecs" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Managed containers</p></li>
+<li><p>Auto-scaling</p></li>
+<li><p>Integration with CloudWatch</p></li>
+</ul>
+</section>
+<section id="multi-cloud">
+<h3>Multi-Cloud<a class="headerlink" href="#multi-cloud" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Deploy across multiple cloud providers</p></li>
+<li><p>Redis cluster for centralized state</p></li>
+<li><p>Cloud-specific agents for remediation</p></li>
+</ul>
+</section>
+</section>
+<section id="monitoring-hemostat-itself">
+<h2>Monitoring HemoStat Itself<a class="headerlink" href="#monitoring-hemostat-itself" title="Link to this heading"></a></h2>
+<p>HemoStat includes comprehensive monitoring through Prometheus and Grafana. See the <a class="reference internal" href="monitoring.html"><span class="std std-doc">Monitoring documentation</span></a> for complete details.</p>
+<section id="key-metrics-to-track">
+<h3>Key Metrics to Track<a class="headerlink" href="#key-metrics-to-track" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Monitor cycle time (should be ~30s)</p></li>
+<li><p>Analyzer response time (should be &lt;5s)</p></li>
+<li><p>Responder execution time (should be &lt;10s)</p></li>
+<li><p>Alert notification latency</p></li>
+<li><p>False alarm rate (should be low)</p></li>
+<li><p>Mean time to detection (should be &lt;30s)</p></li>
+<li><p>Mean time to fix (should be ~13s)</p></li>
+</ol>
+</section>
+<section id="available-metrics">
+<h3>Available Metrics<a class="headerlink" href="#available-metrics" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Container Health</strong>: CPU, memory, restarts, network I/O</p></li>
+<li><p><strong>Analysis Performance</strong>: Duration, confidence scores, request rates</p></li>
+<li><p><strong>Remediation Tracking</strong>: Attempts, success rates, execution time</p></li>
+<li><p><strong>System Health</strong>: Agent uptime, Redis operations, alert rates</p></li>
+</ul>
+<p>Access metrics at:</p>
+<ul class="simple">
+<li><p><strong>Grafana Dashboard</strong>: http://localhost:3000</p></li>
+<li><p><strong>Prometheus UI</strong>: http://localhost:9091</p></li>
+<li><p><strong>Raw Metrics</strong>: http://localhost:9090/metrics</p></li>
+</ul>
+</section>
+<section id="health-checks">
+<h3>Health Checks<a class="headerlink" href="#health-checks" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>All agents restart automatically on failure</p></li>
+<li><p>Redis connectivity verified at startup</p></li>
+<li><p>Docker socket connectivity verified at startup</p></li>
+<li><p>Health check endpoints available</p></li>
+<li><p>Prometheus monitors agent availability</p></li>
+</ul>
+</section>
+</section>
+<section id="security-considerations">
+<h2>Security Considerations<a class="headerlink" href="#security-considerations" title="Link to this heading"></a></h2>
+<section id="api-keys">
+<h3>API Keys<a class="headerlink" href="#api-keys" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Store in environment variables, not code</p></li>
+<li><p>Never commit <code class="docutils literal notranslate"><span class="pre">.env</span></code> file</p></li>
+<li><p>Rotate keys regularly</p></li>
+</ul>
+</section>
+<section id="docker-socket">
+<h3>Docker Socket<a class="headerlink" href="#docker-socket" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Only accessible from within container network</p></li>
+<li><p>Read-only where possible</p></li>
+<li><p>Audit all container operations</p></li>
+</ul>
+</section>
+<section id="redis-access">
+<h3>Redis Access<a class="headerlink" href="#redis-access" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Localhost only by default</p></li>
+<li><p>Add authentication for production</p></li>
+<li><p>Use TLS for remote access</p></li>
+</ul>
+</section>
+<section id="logs-and-audit-trail">
+<h3>Logs and Audit Trail<a class="headerlink" href="#logs-and-audit-trail" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>All actions logged</p></li>
+<li><p>No sensitive data in logs</p></li>
+<li><p>Retain logs for compliance</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quick Start Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="monitoring.html" class="btn btn-neutral float-right" title="Monitoring &amp; Observability" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, The HemoStat Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

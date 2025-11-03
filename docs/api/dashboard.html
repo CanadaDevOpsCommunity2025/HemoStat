@@ -1,0 +1,536 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Package &mdash; HemoStat Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Agents Package" href="agents.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            HemoStat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">System Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../monitoring.html">Monitoring &amp; Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_protocol.html">API Protocol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deployment.html">Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="agents.html">Agents Package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Dashboard Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-dashboard">Package Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#main-application">Main Application</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ui-components">UI Components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-fetching-utilities">Data Fetching Utilities</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#base-classes">Base Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HemoStat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">Dashboard Package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/dashboard.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dashboard-package">
+<h1>Dashboard Package<a class="headerlink" href="#dashboard-package" title="Link to this heading"></a></h1>
+<p>Dashboard UI components and utilities. This documentation is auto-generated from Python docstrings.</p>
+<section id="module-dashboard">
+<span id="package-overview"></span><h2>Package Overview<a class="headerlink" href="#module-dashboard" title="Link to this heading"></a></h2>
+<p>HemoStat Dashboard Package</p>
+<p>Real-time Streamlit dashboard for monitoring HemoStat container health system.
+Displays live container metrics, active issues, remediation history, and event timeline.</p>
+</section>
+<section id="main-application">
+<h2>Main Application<a class="headerlink" href="#main-application" title="Link to this heading"></a></h2>
+<p>Streamlit-based monitoring dashboard.</p>
+<p id="module-dashboard.app">HemoStat Dashboard Main Application</p>
+<p>Real-time Streamlit dashboard for monitoring HemoStat container health system.
+Displays live container metrics, active issues, remediation history, and event timeline
+with auto-refresh every 5 seconds.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.app.check_redis_connection">
+<span class="sig-prename descclassname"><span class="pre">dashboard.app.</span></span><span class="sig-name descname"><span class="pre">check_redis_connection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dashboard/app.html#check_redis_connection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dashboard.app.check_redis_connection" title="Link to this definition"></a></dt>
+<dd><p>Test Redis connection and return status.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if Redis is connected, False otherwise</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.app.main">
+<span class="sig-prename descclassname"><span class="pre">dashboard.app.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dashboard/app.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dashboard.app.main" title="Link to this definition"></a></dt>
+<dd><p>Main dashboard application entry point.</p>
+<p>Initializes the dashboard, renders sidebar, header, content, and footer.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.app.render_footer">
+<span class="sig-prename descclassname"><span class="pre">dashboard.app.</span></span><span class="sig-name descname"><span class="pre">render_footer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dashboard/app.html#render_footer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dashboard.app.render_footer" title="Link to this definition"></a></dt>
+<dd><p>Render dashboard footer with version and status information.</p>
+<p>Displays HemoStat version and last update timestamp.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.app.render_header">
+<span class="sig-prename descclassname"><span class="pre">dashboard.app.</span></span><span class="sig-name descname"><span class="pre">render_header</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dashboard/app.html#render_header"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dashboard.app.render_header" title="Link to this definition"></a></dt>
+<dd><p>Render dashboard header with title and connection status.</p>
+<p>Displays main title, subtitle with current timestamp, and
+connection status indicator.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.app.render_live_content">
+<span class="sig-prename descclassname"><span class="pre">dashboard.app.</span></span><span class="sig-name descname"><span class="pre">render_live_content</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dashboard/app.html#render_live_content"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dashboard.app.render_live_content" title="Link to this definition"></a></dt>
+<dd><p>Render auto-refreshing dashboard content.</p>
+<p>Uses st.fragment with dynamic run_every interval tied to session state.
+Fetches data from Redis and renders all dashboard tabs.
+Tabs are outside fragment to preserve selection across refreshes.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.app.render_sidebar">
+<span class="sig-prename descclassname"><span class="pre">dashboard.app.</span></span><span class="sig-name descname"><span class="pre">render_sidebar</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dashboard/app.html#render_sidebar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dashboard.app.render_sidebar" title="Link to this definition"></a></dt>
+<dd><p>Render sidebar with system status, controls, and links.</p>
+<p>Displays Redis connection status, refresh controls, settings, and
+helpful links to documentation and repositories.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</section>
+<section id="ui-components">
+<h2>UI Components<a class="headerlink" href="#ui-components" title="Link to this heading"></a></h2>
+<p>Reusable dashboard components for displaying metrics and events.</p>
+<p id="module-dashboard.components">Dashboard UI Components Module</p>
+<p>Provides reusable Streamlit components for rendering dashboard visualizations.
+Includes metrics cards, health grids, issue feeds, history tables, and timelines.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.components.format_timestamp">
+<span class="sig-prename descclassname"><span class="pre">dashboard.components.</span></span><span class="sig-name descname"><span class="pre">format_timestamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iso_timestamp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dashboard/components.html#format_timestamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dashboard.components.format_timestamp" title="Link to this definition"></a></dt>
+<dd><p>Format ISO timestamp to relative or absolute time string in Eastern Time (GMT-5).</p>
+<p>Converts ISO timestamps to relative time for recent events
+(“2 minutes ago”, “1 hour ago”) and absolute time for older events
+(“Jan 3, 10:30 AM EST”).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>iso_timestamp</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – ISO format timestamp string</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Formatted timestamp string in Eastern Time or “Unknown” if invalid</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.components.get_event_type_icon">
+<span class="sig-prename descclassname"><span class="pre">dashboard.components.</span></span><span class="sig-name descname"><span class="pre">get_event_type_icon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dashboard/components.html#get_event_type_icon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dashboard.components.get_event_type_icon" title="Link to this definition"></a></dt>
+<dd><p>Map event type to text indicator.</p>
+<p>Returns text indicator for different event types:
+- health_alert: [ALERT]
+- remediation: [REMEDIATION]
+- false_alarm: [FALSE ALARM]
+- unknown: [EVENT]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>event_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Event type string</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Text indicator</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.components.get_severity_emoji">
+<span class="sig-prename descclassname"><span class="pre">dashboard.components.</span></span><span class="sig-name descname"><span class="pre">get_severity_emoji</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">severity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dashboard/components.html#get_severity_emoji"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dashboard.components.get_severity_emoji" title="Link to this definition"></a></dt>
+<dd><p>Map severity level to text indicator.</p>
+<p>Returns text indicator for different severity levels:
+- critical: [CRITICAL]
+- high: [HIGH]
+- medium: [MEDIUM]
+- low: [LOW]
+- unknown: [UNKNOWN]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>severity</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Severity level string</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Text indicator</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.components.get_status_color">
+<span class="sig-prename descclassname"><span class="pre">dashboard.components.</span></span><span class="sig-name descname"><span class="pre">get_status_color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dashboard/components.html#get_status_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dashboard.components.get_status_color" title="Link to this definition"></a></dt>
+<dd><p>Map status string to hex color code.</p>
+<p>Returns color codes for different status values:
+- success/healthy: green
+- failed/unhealthy: red
+- rejected: orange
+- unknown: gray</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>status</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Status string</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Hex color code</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.components.render_active_issues">
+<span class="sig-prename descclassname"><span class="pre">dashboard.components.</span></span><span class="sig-name descname"><span class="pre">render_active_issues</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">events</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dashboard/components.html#render_active_issues"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dashboard.components.render_active_issues" title="Link to this definition"></a></dt>
+<dd><p>Render active issues that need attention.</p>
+<p>Displays failed/rejected remediations and recent health alerts with
+severity indicators. Uses expanders for detailed information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>events</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>]</em>) – List of event dictionaries from Redis</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.components.render_health_grid">
+<span class="sig-prename descclassname"><span class="pre">dashboard.components.</span></span><span class="sig-name descname"><span class="pre">render_health_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">events</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dashboard/components.html#render_health_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dashboard.components.render_health_grid" title="Link to this definition"></a></dt>
+<dd><p>Render container health status in a grid layout.</p>
+<p>Displays a table of containers with their latest status, CPU/memory
+percentages from <cite>hemostat:stats:*</cite> keys (preferred) or event data (fallback),
+and last update timestamp. Uses color coding for status
+(green=healthy, red=unhealthy, blue=remediated).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>events</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>]</em>) – List of event dictionaries from Redis</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.components.render_metrics_cards">
+<span class="sig-prename descclassname"><span class="pre">dashboard.components.</span></span><span class="sig-name descname"><span class="pre">render_metrics_cards</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remediation_stats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">false_alarm_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_containers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dashboard/components.html#render_metrics_cards"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dashboard.components.render_metrics_cards" title="Link to this definition"></a></dt>
+<dd><p>Render key metrics in a row of cards.</p>
+<p>Displays four metric cards showing total remediations, success rate,
+false alarms, and active containers. Uses color coding for success rate
+(green &gt;80%, yellow 50-80%, red &lt;50%).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>remediation_stats</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>) – Dictionary with remediation statistics</p></li>
+<li><p><strong>false_alarm_count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of false alarm events</p></li>
+<li><p><strong>active_containers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of active containers</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.components.render_remediation_history">
+<span class="sig-prename descclassname"><span class="pre">dashboard.components.</span></span><span class="sig-name descname"><span class="pre">render_remediation_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">events</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dashboard/components.html#render_remediation_history"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dashboard.components.render_remediation_history" title="Link to this definition"></a></dt>
+<dd><p>Render table of remediation attempts with filtering.</p>
+<p>Displays all remediation events with columns for timestamp, container,
+action, status, reason, and confidence. Includes filters for status,
+container, and time range. Reasons can be expanded to view full text.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>events</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>]</em>) – List of remediation event dictionaries from Redis</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.components.render_timeline">
+<span class="sig-prename descclassname"><span class="pre">dashboard.components.</span></span><span class="sig-name descname"><span class="pre">render_timeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">events</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_events</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dashboard/components.html#render_timeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dashboard.components.render_timeline" title="Link to this definition"></a></dt>
+<dd><p>Render chronological timeline of all events with graph visualization.</p>
+<p>Displays events in reverse chronological order (newest first) with
+type indicators, container names, and expandable details. Also shows
+a timeline graph of event frequency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>events</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>]</em>) – List of event dictionaries from Redis</p></li>
+<li><p><strong>max_events</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Maximum number of events to display (default: 100)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="data-fetching-utilities">
+<h2>Data Fetching Utilities<a class="headerlink" href="#data-fetching-utilities" title="Link to this heading"></a></h2>
+<p>Redis data fetching and aggregation utilities.</p>
+<p id="module-dashboard.data_fetcher">Dashboard Data Fetcher Module</p>
+<p>Provides Redis data access layer with efficient caching for dashboard operations.
+Uses Streamlit caching decorators to minimize Redis polling and improve performance.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.data_fetcher.get_active_containers">
+<span class="sig-prename descclassname"><span class="pre">dashboard.data_fetcher.</span></span><span class="sig-name descname"><span class="pre">get_active_containers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.data_fetcher.get_active_containers" title="Link to this definition"></a></dt>
+<dd><p>Fetch list of active container IDs from Redis with 5-second cache.</p>
+<p>Scans Redis for keys matching <cite>hemostat:state:container:*</cite> pattern
+and extracts container IDs. Uses SCAN instead of KEYS for production safety.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of active container IDs</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.data_fetcher.get_all_container_stats">
+<span class="sig-prename descclassname"><span class="pre">dashboard.data_fetcher.</span></span><span class="sig-name descname"><span class="pre">get_all_container_stats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.data_fetcher.get_all_container_stats" title="Link to this definition"></a></dt>
+<dd><p>Fetch all container statistics from Redis with 5-second cache.</p>
+<p>Scans Redis for keys matching <cite>hemostat:stats:*</cite> pattern and retrieves
+parsed stats for each container. Uses SCAN for production safety.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary mapping container IDs to their stats</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.data_fetcher.get_all_events">
+<span class="sig-prename descclassname"><span class="pre">dashboard.data_fetcher.</span></span><span class="sig-name descname"><span class="pre">get_all_events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.data_fetcher.get_all_events" title="Link to this definition"></a></dt>
+<dd><p>Fetch all events from Redis with 5-second cache.</p>
+<p>Retrieves events from the <cite>hemostat:events:all</cite> list, parses JSON,
+and returns sorted by timestamp (newest first). Handles missing keys
+and malformed JSON gracefully.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>limit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Maximum number of events to retrieve (default: 1000)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of event dictionaries sorted by timestamp (newest first)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.data_fetcher.get_container_stats">
+<span class="sig-prename descclassname"><span class="pre">dashboard.data_fetcher.</span></span><span class="sig-name descname"><span class="pre">get_container_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.data_fetcher.get_container_stats" title="Link to this definition"></a></dt>
+<dd><p>Fetch container statistics from Redis with 5-second cache.</p>
+<p>Retrieves stats from <cite>hemostat:state:container:{container_id}</cite> key,
+parses JSON, and returns as dictionary. Returns None if key doesn’t
+exist or has expired.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>container_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Container ID to fetch stats for</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Container stats dictionary or None if not found</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any] | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.data_fetcher.get_events_by_type">
+<span class="sig-prename descclassname"><span class="pre">dashboard.data_fetcher.</span></span><span class="sig-name descname"><span class="pre">get_events_by_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.data_fetcher.get_events_by_type" title="Link to this definition"></a></dt>
+<dd><p>Fetch events of a specific type from Redis with 5-second cache.</p>
+<p>Retrieves events from <cite>hemostat:events:{event_type}</cite> list, parses JSON,
+and returns as list. Handles missing keys gracefully.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Type of events to fetch (e.g., ‘remediation_complete’, ‘false_alarm’)</p></li>
+<li><p><strong>limit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Maximum number of events to retrieve (default: 1000)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of event dictionaries of the specified type</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.data_fetcher.get_false_alarm_count">
+<span class="sig-prename descclassname"><span class="pre">dashboard.data_fetcher.</span></span><span class="sig-name descname"><span class="pre">get_false_alarm_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.data_fetcher.get_false_alarm_count" title="Link to this definition"></a></dt>
+<dd><p>Count false alarm events from Redis with 5-second cache.</p>
+<p>Uses LLEN to efficiently count events in <cite>hemostat:events:false_alarm</cite> list
+without fetching all events.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of false alarm events</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.data_fetcher.get_redis_client">
+<span class="sig-prename descclassname"><span class="pre">dashboard.data_fetcher.</span></span><span class="sig-name descname"><span class="pre">get_redis_client</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.data_fetcher.get_redis_client" title="Link to this definition"></a></dt>
+<dd><p>Get or create a cached Redis client for long-lived connections.</p>
+<p>Loads Redis configuration from environment variables and establishes
+a connection with string response decoding enabled. Tests connection
+on first initialization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Connected Redis client instance with decode_responses=True</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>redis.Redis</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>redis.ConnectionError</strong> – If Redis connection cannot be established</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.data_fetcher.get_remediation_stats">
+<span class="sig-prename descclassname"><span class="pre">dashboard.data_fetcher.</span></span><span class="sig-name descname"><span class="pre">get_remediation_stats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.data_fetcher.get_remediation_stats" title="Link to this definition"></a></dt>
+<dd><p>Aggregate remediation statistics from Redis with 5-second cache.</p>
+<p>Fetches events from <cite>hemostat:events:remediation_complete</cite> and calculates:
+- Total remediations
+- Success count
+- Failure count
+- Rejection count (cooldown/circuit breaker)
+- Success rate percentage</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary with aggregated remediation statistics</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="agents.html" class="btn btn-neutral float-left" title="Agents Package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, The HemoStat Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

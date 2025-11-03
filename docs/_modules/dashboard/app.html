@@ -1,0 +1,591 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dashboard.app &mdash; HemoStat Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+      <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            HemoStat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../architecture.html">System Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_protocol.html">API Protocol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deployment.html">Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../development.html">Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html#base-classes">Base Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">HemoStat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">dashboard.app</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for dashboard.app</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">HemoStat Dashboard Main Application</span>
+
+<span class="sd">Real-time Streamlit dashboard for monitoring HemoStat container health system.</span>
+<span class="sd">Displays live container metrics, active issues, remediation history, and event timeline</span>
+<span class="sd">with auto-refresh every 5 seconds.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">zoneinfo</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZoneInfo</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">streamlit</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">st</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">agents.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">HemoStatLogger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dashboard.components</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">render_active_issues</span><span class="p">,</span>
+    <span class="n">render_health_grid</span><span class="p">,</span>
+    <span class="n">render_metrics_cards</span><span class="p">,</span>
+    <span class="n">render_remediation_history</span><span class="p">,</span>
+    <span class="n">render_timeline</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dashboard.data_fetcher</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_active_containers</span><span class="p">,</span>
+    <span class="n">get_all_events</span><span class="p">,</span>
+    <span class="n">get_events_by_type</span><span class="p">,</span>
+    <span class="n">get_false_alarm_count</span><span class="p">,</span>
+    <span class="n">get_redis_client</span><span class="p">,</span>
+    <span class="n">get_remediation_stats</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Load environment variables</span>
+<span class="n">load_dotenv</span><span class="p">()</span>
+
+<span class="c1"># Initialize logger</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">HemoStatLogger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="s2">&quot;dashboard&quot;</span><span class="p">)</span>
+
+<span class="c1"># Page configuration</span>
+<span class="n">st</span><span class="o">.</span><span class="n">set_page_config</span><span class="p">(</span>
+    <span class="n">page_title</span><span class="o">=</span><span class="s2">&quot;HemoStat Dashboard&quot;</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;wide&quot;</span><span class="p">,</span>
+    <span class="n">initial_sidebar_state</span><span class="o">=</span><span class="s2">&quot;expanded&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Custom CSS styling - clinical/medical + DevOps infrastructure theme</span>
+<span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;style&gt;</span>
+<span class="s2">    /* Primary colors: Medical blue + DevOps infrastructure orange */</span>
+<span class="s2">    :root {</span>
+<span class="s2">        --primary-blue: #0066cc;</span>
+<span class="s2">        --secondary-blue: #003d99;</span>
+<span class="s2">        --devops-orange: #ff6b35;</span>
+<span class="s2">        --accent-green: #00aa44;</span>
+<span class="s2">        --accent-red: #cc0000;</span>
+<span class="s2">        --accent-yellow: #ffaa00;</span>
+<span class="s2">        --neutral-light: #f5f7fa;</span>
+<span class="s2">        --neutral-dark: #1a1a1a;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    /* Main container styling - subtle infrastructure grid pattern */</span>
+<span class="s2">    .main {</span>
+<span class="s2">        background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);</span>
+<span class="s2">        background-image: </span>
+<span class="s2">            linear-gradient(0deg, transparent 24%, rgba(0, 102, 204, 0.02) 25%, rgba(0, 102, 204, 0.02) 26%, transparent 27%, transparent 74%, rgba(0, 102, 204, 0.02) 75%, rgba(0, 102, 204, 0.02) 76%, transparent 77%, transparent),</span>
+<span class="s2">            linear-gradient(90deg, transparent 24%, rgba(0, 102, 204, 0.02) 25%, rgba(0, 102, 204, 0.02) 26%, transparent 27%, transparent 74%, rgba(0, 102, 204, 0.02) 75%, rgba(0, 102, 204, 0.02) 76%, transparent 77%, transparent);</span>
+<span class="s2">        background-size: 50px 50px;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    /* Sidebar styling - DevOps infrastructure gradient */</span>
+<span class="s2">    [data-testid=&quot;stSidebar&quot;] {</span>
+<span class="s2">        background: linear-gradient(180deg, #003d99 0%, #0066cc 50%, #ff6b35 100%);</span>
+<span class="s2">        color: white;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    [data-testid=&quot;stSidebar&quot;] * {</span>
+<span class="s2">        color: white !important;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    /* Headers - clean and professional with DevOps accent */</span>
+<span class="s2">    h1, h2, h3 {</span>
+<span class="s2">        color: #003d99;</span>
+<span class="s2">        font-weight: 600;</span>
+<span class="s2">        letter-spacing: -0.5px;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    h1 {</span>
+<span class="s2">        border-bottom: 3px solid #ff6b35;</span>
+<span class="s2">        padding-bottom: 12px;</span>
+<span class="s2">        margin-bottom: 24px;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    h2 {</span>
+<span class="s2">        border-left: 4px solid #ff6b35;</span>
+<span class="s2">        padding-left: 12px;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    /* Metric cards - elevated with DevOps accent */</span>
+<span class="s2">    [data-testid=&quot;metric-container&quot;] {</span>
+<span class="s2">        background: white;</span>
+<span class="s2">        border-radius: 12px;</span>
+<span class="s2">        border-left: 4px solid #ff6b35;</span>
+<span class="s2">        box-shadow: 0 2px 8px rgba(255, 107, 53, 0.1);</span>
+<span class="s2">        padding: 20px;</span>
+<span class="s2">        transition: all 0.3s ease;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    [data-testid=&quot;metric-container&quot;]:hover {</span>
+<span class="s2">        box-shadow: 0 4px 16px rgba(255, 107, 53, 0.15);</span>
+<span class="s2">        transform: translateY(-2px);</span>
+<span class="s2">        border-left-color: #0066cc;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    /* Data frames - infrastructure style */</span>
+<span class="s2">    [data-testid=&quot;stDataFrame&quot;] {</span>
+<span class="s2">        border-radius: 8px;</span>
+<span class="s2">        overflow: hidden;</span>
+<span class="s2">        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);</span>
+<span class="s2">        border: 1px solid rgba(255, 107, 53, 0.1);</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    /* Buttons - DevOps orange with blue accent */</span>
+<span class="s2">    button {</span>
+<span class="s2">        background: linear-gradient(135deg, #ff6b35 0%, #ff5722 100%) !important;</span>
+<span class="s2">        color: white !important;</span>
+<span class="s2">        border: none !important;</span>
+<span class="s2">        border-radius: 6px !important;</span>
+<span class="s2">        font-weight: 500 !important;</span>
+<span class="s2">        transition: all 0.2s ease !important;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    button:hover {</span>
+<span class="s2">        background: linear-gradient(135deg, #ff5722 0%, #ff6b35 100%) !important;</span>
+<span class="s2">        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4) !important;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    /* Containers and cards */</span>
+<span class="s2">    [data-testid=&quot;stContainer&quot;] {</span>
+<span class="s2">        border-radius: 8px;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    /* Expanders - DevOps infrastructure style */</span>
+<span class="s2">    [data-testid=&quot;stExpander&quot;] {</span>
+<span class="s2">        border: 1px solid rgba(255, 107, 53, 0.2);</span>
+<span class="s2">        border-radius: 8px;</span>
+<span class="s2">        background: white;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    [data-testid=&quot;stExpander&quot;] summary {</span>
+<span class="s2">        color: #003d99;</span>
+<span class="s2">        font-weight: 500;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    /* Tabs - modern with DevOps accent */</span>
+<span class="s2">    [data-testid=&quot;stTabs&quot;] [role=&quot;tablist&quot;] {</span>
+<span class="s2">        border-bottom: 2px solid rgba(255, 107, 53, 0.2);</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    [data-testid=&quot;stTabs&quot;] [role=&quot;tab&quot;] {</span>
+<span class="s2">        color: #666;</span>
+<span class="s2">        font-weight: 500;</span>
+<span class="s2">        border-bottom: 3px solid transparent;</span>
+<span class="s2">        transition: all 0.2s ease;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    [data-testid=&quot;stTabs&quot;] [role=&quot;tab&quot;][aria-selected=&quot;true&quot;] {</span>
+<span class="s2">        color: #ff6b35;</span>
+<span class="s2">        border-bottom-color: #ff6b35;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    /* Status indicators - operational colors */</span>
+<span class="s2">    .status-healthy {</span>
+<span class="s2">        color: #00aa44;</span>
+<span class="s2">        font-weight: 600;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    .status-unhealthy {</span>
+<span class="s2">        color: #cc0000;</span>
+<span class="s2">        font-weight: 600;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    .status-warning {</span>
+<span class="s2">        color: #ffaa00;</span>
+<span class="s2">        font-weight: 600;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    .status-deploying {</span>
+<span class="s2">        color: #ff6b35;</span>
+<span class="s2">        font-weight: 600;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    /* Chart containers - infrastructure monitoring style */</span>
+<span class="s2">    [data-testid=&quot;stPlotlyContainer&quot;] {</span>
+<span class="s2">        border-radius: 8px;</span>
+<span class="s2">        background: white;</span>
+<span class="s2">        padding: 16px;</span>
+<span class="s2">        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);</span>
+<span class="s2">        border: 1px solid rgba(255, 107, 53, 0.1);</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    /* Dividers - DevOps themed */</span>
+<span class="s2">    hr {</span>
+<span class="s2">        border: none;</span>
+<span class="s2">        height: 2px;</span>
+<span class="s2">        background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.3), transparent);</span>
+<span class="s2">        margin: 24px 0;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    /* Text styling */</span>
+<span class="s2">    p, span, label {</span>
+<span class="s2">        color: #333;</span>
+<span class="s2">        line-height: 1.6;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    /* Info boxes - infrastructure alerts */</span>
+<span class="s2">    [data-testid=&quot;stAlert&quot;] {</span>
+<span class="s2">        border-radius: 8px;</span>
+<span class="s2">        border-left: 4px solid #ff6b35;</span>
+<span class="s2">    }</span>
+<span class="s2">    </span>
+<span class="s2">    /* Code blocks - terminal style */</span>
+<span class="s2">    code {</span>
+<span class="s2">        background: #1a1a1a;</span>
+<span class="s2">        color: #00aa44;</span>
+<span class="s2">        padding: 2px 6px;</span>
+<span class="s2">        border-radius: 4px;</span>
+<span class="s2">        font-family: &#39;Courier New&#39;, monospace;</span>
+<span class="s2">    }</span>
+<span class="s2">&lt;/style&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">,</span> <span class="n">unsafe_allow_html</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="c1"># Initialize session state</span>
+<span class="k">if</span> <span class="s2">&quot;auto_refresh_enabled&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">:</span>
+    <span class="n">auto_refresh_env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DASHBOARD_AUTO_REFRESH&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">auto_refresh_enabled</span> <span class="o">=</span> <span class="n">auto_refresh_env</span>
+<span class="k">if</span> <span class="s2">&quot;refresh_interval&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">:</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">refresh_interval</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DASHBOARD_REFRESH_INTERVAL&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="k">if</span> <span class="s2">&quot;max_events&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">:</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">max_events</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DASHBOARD_MAX_EVENTS&quot;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">))</span>
+<span class="k">if</span> <span class="s2">&quot;last_refresh&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">:</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">last_refresh</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="k">if</span> <span class="s2">&quot;manual_refresh_trigger&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">:</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">manual_refresh_trigger</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+<div class="viewcode-block" id="check_redis_connection">
+<a class="viewcode-back" href="../../api/dashboard.html#dashboard.app.check_redis_connection">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_redis_connection</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test Redis connection and return status.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if Redis is connected, False otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="n">get_redis_client</span><span class="p">()</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">ping</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Redis connection failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="render_sidebar">
+<a class="viewcode-back" href="../../api/dashboard.html#dashboard.app.render_sidebar">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">render_sidebar</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Render sidebar with system status, controls, and links.</span>
+
+<span class="sd">    Displays Redis connection status, refresh controls, settings, and</span>
+<span class="sd">    helpful links to documentation and repositories.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">sidebar</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;HemoStat&quot;</span><span class="p">)</span>
+
+    <span class="c1"># System status</span>
+    <span class="n">redis_connected</span> <span class="o">=</span> <span class="n">check_redis_connection</span><span class="p">()</span>
+    <span class="n">status_text</span> <span class="o">=</span> <span class="s2">&quot;Connected&quot;</span> <span class="k">if</span> <span class="n">redis_connected</span> <span class="k">else</span> <span class="s2">&quot;Disconnected&quot;</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">sidebar</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;**Status**: </span><span class="si">{</span><span class="n">status_text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">last_refresh</span><span class="p">:</span>
+        <span class="n">tz_abbr</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">last_refresh</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Z&quot;</span><span class="p">)</span>  <span class="c1"># EST or EDT</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">sidebar</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;**Last Refresh**: </span><span class="si">{</span><span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">last_refresh</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;%I:%M:%S %p </span><span class="si">{</span><span class="n">tz_abbr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">st</span><span class="o">.</span><span class="n">sidebar</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Manual refresh button</span>
+    <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">sidebar</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;Refresh Now&quot;</span><span class="p">,</span> <span class="n">use_container_width</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">manual_refresh_trigger</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">cache_data</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+    <span class="n">st</span><span class="o">.</span><span class="n">sidebar</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Settings</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">sidebar</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;**Settings**&quot;</span><span class="p">)</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">auto_refresh_enabled</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">sidebar</span><span class="o">.</span><span class="n">checkbox</span><span class="p">(</span>
+        <span class="s2">&quot;Auto-refresh&quot;</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">auto_refresh_enabled</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">refresh_interval</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">sidebar</span><span class="o">.</span><span class="n">slider</span><span class="p">(</span>
+        <span class="s2">&quot;Interval (seconds)&quot;</span><span class="p">,</span>
+        <span class="n">min_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">max_value</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">refresh_interval</span><span class="p">,</span>
+        <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">st</span><span class="o">.</span><span class="n">sidebar</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Links</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">sidebar</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;**Resources**&quot;</span><span class="p">)</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">sidebar</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        - [Documentation](https://github.com/jondmarien/HemoStat)</span>
+<span class="sd">        - [GitHub](https://github.com/jondmarien/HemoStat)</span>
+<span class="sd">        - [API Docs](./docs/API_PROTOCOL.md)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="render_header">
+<a class="viewcode-back" href="../../api/dashboard.html#dashboard.app.render_header">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">render_header</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Render dashboard header with title and connection status.</span>
+
+<span class="sd">    Displays main title, subtitle with current timestamp, and</span>
+<span class="sd">    connection status indicator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">eastern</span> <span class="o">=</span> <span class="n">ZoneInfo</span><span class="p">(</span><span class="s2">&quot;America/New_York&quot;</span><span class="p">)</span>
+    <span class="n">now_et</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">eastern</span><span class="p">)</span>
+    <span class="n">tz_abbr</span> <span class="o">=</span> <span class="n">now_et</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Z&quot;</span><span class="p">)</span>  <span class="c1"># EST or EDT</span>
+    
+    <span class="n">col1</span><span class="p">,</span> <span class="n">col2</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">gap</span><span class="o">=</span><span class="s2">&quot;large&quot;</span><span class="p">)</span>
+    
+    <span class="k">with</span> <span class="n">col1</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;## HemoStat Container Health Monitoring&quot;</span><span class="p">)</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Real-time autonomous monitoring • </span><span class="si">{</span><span class="n">now_et</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;%Y-%m-%d %I:%M:%S %p </span><span class="si">{</span><span class="n">tz_abbr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">col2</span><span class="p">:</span>
+        <span class="n">redis_connected</span> <span class="o">=</span> <span class="n">check_redis_connection</span><span class="p">()</span>
+        <span class="n">status_indicator</span> <span class="o">=</span> <span class="s2">&quot;Connected&quot;</span> <span class="k">if</span> <span class="n">redis_connected</span> <span class="k">else</span> <span class="s2">&quot;Disconnected&quot;</span>
+        <span class="n">status_color</span> <span class="o">=</span> <span class="s2">&quot;#00aa44&quot;</span> <span class="k">if</span> <span class="n">redis_connected</span> <span class="k">else</span> <span class="s2">&quot;#cc0000&quot;</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&lt;div style=&#39;text-align: right; padding: 12px; border-radius: 8px; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;background: rgba(0, 102, 204, 0.05); border-left: 3px solid </span><span class="si">{</span><span class="n">status_color</span><span class="si">}</span><span class="s2">;&#39;&gt;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&lt;div style=&#39;font-size: 12px; color: #666; margin-bottom: 4px;&#39;&gt;System Status&lt;/div&gt;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&lt;div style=&#39;font-size: 14px; font-weight: 600; color: </span><span class="si">{</span><span class="n">status_color</span><span class="si">}</span><span class="s2">;&#39;&gt;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Redis </span><span class="si">{</span><span class="n">status_indicator</span><span class="si">}</span><span class="s2">&lt;/div&gt;&lt;/div&gt;&quot;</span><span class="p">,</span>
+            <span class="n">unsafe_allow_html</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="render_live_content">
+<a class="viewcode-back" href="../../api/dashboard.html#dashboard.app.render_live_content">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">render_live_content</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Render auto-refreshing dashboard content.</span>
+
+<span class="sd">    Uses st.fragment with dynamic run_every interval tied to session state.</span>
+<span class="sd">    Fetches data from Redis and renders all dashboard tabs.</span>
+<span class="sd">    Tabs are outside fragment to preserve selection across refreshes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">auto_refresh_enabled</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Auto-refresh is disabled. Click &#39;Refresh Now&#39; to update.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Fetch data with fragment for auto-refresh</span>
+    <span class="nd">@st</span><span class="o">.</span><span class="n">fragment</span><span class="p">(</span><span class="n">run_every</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">refresh_interval</span><span class="p">)</span>  <span class="c1"># type: ignore[attr-defined]</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fetch_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+        <span class="n">eastern</span> <span class="o">=</span> <span class="n">ZoneInfo</span><span class="p">(</span><span class="s2">&quot;America/New_York&quot;</span><span class="p">)</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">last_refresh</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">eastern</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">spinner</span><span class="p">(</span><span class="s2">&quot;Loading data from Redis...&quot;</span><span class="p">):</span>
+                <span class="n">all_events</span> <span class="o">=</span> <span class="n">get_all_events</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">max_events</span><span class="p">)</span>
+                <span class="n">remediation_events</span> <span class="o">=</span> <span class="n">get_events_by_type</span><span class="p">(</span>
+                    <span class="s2">&quot;remediation_complete&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">max_events</span>
+                <span class="p">)</span>
+                <span class="n">false_alarm_count</span> <span class="o">=</span> <span class="n">get_false_alarm_count</span><span class="p">()</span>
+                <span class="n">active_containers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">get_active_containers</span><span class="p">())</span>
+                <span class="n">remediation_stats</span> <span class="o">=</span> <span class="n">get_remediation_stats</span><span class="p">()</span>
+            
+            <span class="k">return</span> <span class="n">all_events</span><span class="p">,</span> <span class="n">remediation_events</span><span class="p">,</span> <span class="n">false_alarm_count</span><span class="p">,</span> <span class="n">active_containers</span><span class="p">,</span> <span class="n">remediation_stats</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching dashboard data: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error loading dashboard data: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[],</span> <span class="p">[],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;success_rate&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;total_remediations&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;false_alarms&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+
+    <span class="c1"># Fetch data (will auto-refresh)</span>
+    <span class="n">all_events</span><span class="p">,</span> <span class="n">remediation_events</span><span class="p">,</span> <span class="n">false_alarm_count</span><span class="p">,</span> <span class="n">active_containers</span><span class="p">,</span> <span class="n">remediation_stats</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">()</span>
+
+    <span class="c1"># Metrics section (outside fragment)</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">subheader</span><span class="p">(</span><span class="s2">&quot;Key Metrics&quot;</span><span class="p">)</span>
+    <span class="n">render_metrics_cards</span><span class="p">(</span><span class="n">remediation_stats</span><span class="p">,</span> <span class="n">false_alarm_count</span><span class="p">,</span> <span class="n">active_containers</span><span class="p">)</span>
+
+    <span class="c1"># Tabs for different views (outside fragment to preserve tab state)</span>
+    <span class="n">tab1</span><span class="p">,</span> <span class="n">tab2</span><span class="p">,</span> <span class="n">tab3</span><span class="p">,</span> <span class="n">tab4</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">tabs</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;🏥 Health Grid&quot;</span><span class="p">,</span> <span class="s2">&quot;⚠️ Active Issues&quot;</span><span class="p">,</span> <span class="s2">&quot;📊 History&quot;</span><span class="p">,</span> <span class="s2">&quot;📈 Timeline&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">tab1</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">subheader</span><span class="p">(</span><span class="s2">&quot;Container Health Grid&quot;</span><span class="p">)</span>
+        <span class="n">render_health_grid</span><span class="p">(</span><span class="n">all_events</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">tab2</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">subheader</span><span class="p">(</span><span class="s2">&quot;Active Issues&quot;</span><span class="p">)</span>
+        <span class="n">render_active_issues</span><span class="p">(</span><span class="n">all_events</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">tab3</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">subheader</span><span class="p">(</span><span class="s2">&quot;Remediation History&quot;</span><span class="p">)</span>
+        <span class="n">render_remediation_history</span><span class="p">(</span><span class="n">remediation_events</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">tab4</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">subheader</span><span class="p">(</span><span class="s2">&quot;Event Timeline&quot;</span><span class="p">)</span>
+        <span class="n">render_timeline</span><span class="p">(</span><span class="n">all_events</span><span class="p">,</span> <span class="n">max_events</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">max_events</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="render_footer">
+<a class="viewcode-back" href="../../api/dashboard.html#dashboard.app.render_footer">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">render_footer</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Render dashboard footer with version and status information.</span>
+
+<span class="sd">    Displays HemoStat version and last update timestamp.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">divider</span><span class="p">()</span>
+    <span class="n">col1</span><span class="p">,</span> <span class="n">col2</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">col1</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="s2">&quot;HemoStat v0.1.0 • Phase 4: Testing &amp; Integration&quot;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">col2</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">last_refresh</span><span class="p">:</span>
+            <span class="n">tz_abbr</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">last_refresh</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Z&quot;</span><span class="p">)</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Last updated: </span><span class="si">{</span><span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">last_refresh</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;%I:%M:%S %p </span><span class="si">{</span><span class="n">tz_abbr</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../api/dashboard.html#dashboard.app.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main dashboard application entry point.</span>
+
+<span class="sd">    Initializes the dashboard, renders sidebar, header, content, and footer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Dashboard started&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Render sidebar</span>
+    <span class="n">render_sidebar</span><span class="p">()</span>
+
+    <span class="c1"># Render header</span>
+    <span class="n">render_header</span><span class="p">()</span>
+
+    <span class="c1"># Render main content</span>
+    <span class="n">render_live_content</span><span class="p">()</span>
+
+    <span class="c1"># Render footer</span>
+    <span class="n">render_footer</span><span class="p">()</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Team 1.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

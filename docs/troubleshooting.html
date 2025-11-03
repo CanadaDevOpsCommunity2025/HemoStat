@@ -1,0 +1,525 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Troubleshooting Guide &mdash; HemoStat Documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Development Guide" href="development.html" />
+    <link rel="prev" title="Deployment Guide" href="deployment.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            HemoStat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">System Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring &amp; Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_protocol.html">API Protocol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deployment.html">Deployment Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Troubleshooting Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#common-issues">Common Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#services-won-t-start">Services Won’t Start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#monitor-not-detecting-issues">Monitor Not Detecting Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#analyzer-errors">Analyzer Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#analyzer-anthropic-api-authentication-error-401">Analyzer - Anthropic API Authentication Error (401)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#responder-not-fixing-issues">Responder Not Fixing Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dashboard-not-updating">Dashboard Not Updating</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#alert-not-sending-slack">Alert Not Sending Slack</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance-issues">Performance Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#docker-permissions">Docker Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#debug-mode">Debug Mode</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#enable-verbose-logging">Enable Verbose Logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#monitor-redis-activity">Monitor Redis Activity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-individual-components">Test Individual Components</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-help">Getting Help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#performance-tuning">Performance Tuning</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#monitor-polling-interval">Monitor Polling Interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#analyzer-thresholds">Analyzer Thresholds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#responder-cooldown">Responder Cooldown</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dashboard-refresh-rate">Dashboard Refresh Rate</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-debugging">Advanced Debugging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#network-inspection">Network Inspection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#resource-limits">Resource Limits</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#collecting-debug-information">Collecting Debug Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html#base-classes">Base Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HemoStat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Troubleshooting Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/troubleshooting.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="troubleshooting-guide">
+<h1>Troubleshooting Guide<a class="headerlink" href="#troubleshooting-guide" title="Link to this heading"></a></h1>
+<p>Solutions for common issues and debugging techniques.</p>
+<section id="common-issues">
+<h2>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading"></a></h2>
+<section id="services-won-t-start">
+<h3>Services Won’t Start<a class="headerlink" href="#services-won-t-start" title="Link to this heading"></a></h3>
+<p><strong>Problem:</strong> <code class="docutils literal notranslate"><span class="pre">docker-compose</span> <span class="pre">up</span></code> fails or services crash</p>
+<p><strong>Solutions:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check Docker is running</span>
+docker<span class="w"> </span>ps
+
+<span class="c1"># View service logs</span>
+docker-compose<span class="w"> </span>logs<span class="w"> </span>hemostat-redis
+docker-compose<span class="w"> </span>logs<span class="w"> </span>hemostat-monitor
+
+<span class="c1"># Rebuild from scratch</span>
+docker-compose<span class="w"> </span>down<span class="w"> </span>-v
+docker-compose<span class="w"> </span>build<span class="w"> </span>--no-cache
+docker-compose<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># Check for port conflicts</span>
+lsof<span class="w"> </span>-i<span class="w"> </span>:8501<span class="w">  </span><span class="c1"># Streamlit</span>
+lsof<span class="w"> </span>-i<span class="w"> </span>:3000<span class="w">  </span><span class="c1"># Arcane</span>
+lsof<span class="w"> </span>-i<span class="w"> </span>:6379<span class="w">  </span><span class="c1"># Redis</span>
+</pre></div>
+</div>
+</section>
+<section id="monitor-not-detecting-issues">
+<h3>Monitor Not Detecting Issues<a class="headerlink" href="#monitor-not-detecting-issues" title="Link to this heading"></a></h3>
+<p><strong>Problem:</strong> Container anomalies not appearing in logs</p>
+<p><strong>Check:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># View Monitor logs</span>
+docker-compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>hemostat-monitor
+
+<span class="c1"># Verify Redis connection</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-redis<span class="w"> </span>redis-cli<span class="w"> </span>ping
+
+<span class="c1"># Check test-api is running</span>
+docker-compose<span class="w"> </span>ps<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>test-api
+
+<span class="c1"># Manually trigger issue</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-test-api<span class="w"> </span>apk<span class="w"> </span>add<span class="w"> </span>stress
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-test-api<span class="w"> </span>stress<span class="w"> </span>--cpu<span class="w"> </span><span class="m">4</span><span class="w"> </span>--timeout<span class="w"> </span><span class="m">10</span>
+</pre></div>
+</div>
+<p><strong>Solutions:</strong></p>
+<ul class="simple">
+<li><p>Increase memory/CPU stress to exceed thresholds (80% memory, 85% CPU)</p></li>
+<li><p>Check Monitor polling interval (default 30 seconds)</p></li>
+<li><p>Verify Redis is healthy: <code class="docutils literal notranslate"><span class="pre">docker-compose</span> <span class="pre">logs</span> <span class="pre">hemostat-redis</span></code></p></li>
+</ul>
+</section>
+<section id="analyzer-errors">
+<h3>Analyzer Errors<a class="headerlink" href="#analyzer-errors" title="Link to this heading"></a></h3>
+<p><strong>Problem:</strong> Analyzer crashes or doesn’t process alerts</p>
+<p><strong>Check:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># View Analyzer logs</span>
+docker-compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>hemostat-analyzer
+
+<span class="c1"># Check if OpenAI API key is set</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$OPENAI_API_KEY</span>
+
+<span class="c1"># Verify Redis connection</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-redis<span class="w"> </span>redis-cli<span class="w"> </span>KEYS<span class="w"> </span><span class="s2">&quot;hemostat:*&quot;</span>
+</pre></div>
+</div>
+<p><strong>Solutions:</strong></p>
+<ul class="simple">
+<li><p>Without API key, system uses fallback rule-based analysis (normal!)</p></li>
+<li><p>Check API key is valid: <code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">https://api.openai.com/v1/models</span> <span class="pre">-H</span> <span class="pre">&quot;Authorization:</span> <span class="pre">Bearer</span> <span class="pre">$OPENAI_API_KEY&quot;</span></code></p></li>
+<li><p>Check rate limits on OpenAI account</p></li>
+<li><p>Review Analyzer logs for error details</p></li>
+</ul>
+</section>
+<section id="analyzer-anthropic-api-authentication-error-401">
+<h3>Analyzer - Anthropic API Authentication Error (401)<a class="headerlink" href="#analyzer-anthropic-api-authentication-error-401" title="Link to this heading"></a></h3>
+<p><strong>Problem:</strong> <code class="docutils literal notranslate"><span class="pre">Error</span> <span class="pre">code:</span> <span class="pre">401</span> <span class="pre">-</span> <span class="pre">invalid</span> <span class="pre">x-api-key</span></code> when using Claude models</p>
+<p><strong>Root Causes:</strong></p>
+<ol class="arabic simple">
+<li><p>Wrong environment file being loaded - Docker Compose uses <code class="docutils literal notranslate"><span class="pre">.env</span></code> by default, not <code class="docutils literal notranslate"><span class="pre">.env.docker.{platform}</span></code></p></li>
+<li><p>Incorrect ChatAnthropic parameter - Using <code class="docutils literal notranslate"><span class="pre">model_name</span></code> instead of <code class="docutils literal notranslate"><span class="pre">model</span></code></p></li>
+<li><p>API key not in the correct .env file - Key is in <code class="docutils literal notranslate"><span class="pre">.env.docker.windows</span></code> but not in <code class="docutils literal notranslate"><span class="pre">.env</span></code></p></li>
+</ol>
+<p><strong>Check:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Verify API key is in the container</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-analyzer<span class="w"> </span>printenv<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>ANTHROPIC_API_KEY
+
+<span class="c1"># Check which env file Docker Compose is using</span>
+docker<span class="w"> </span>inspect<span class="w"> </span>hemostat-analyzer<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-A<span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="s2">&quot;Env&quot;</span>
+
+<span class="c1"># Verify the API key format (should start with sk-ant-)</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-analyzer<span class="w"> </span>printenv<span class="w"> </span>ANTHROPIC_API_KEY
+</pre></div>
+</div>
+<p><strong>Solutions:</strong></p>
+<p><strong>Option 1: Use correct env file with Docker Compose (Recommended)</strong></p>
+<p>Always use the platform-specific env file when building/running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Windows</span>
+docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.yml<span class="w"> </span>-f<span class="w"> </span>docker-compose.windows.yml<span class="w"> </span>--env-file<span class="w"> </span>.env.docker.windows<span class="w"> </span>build<span class="w"> </span>analyzer<span class="w"> </span>--no-cache
+docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.yml<span class="w"> </span>-f<span class="w"> </span>docker-compose.windows.yml<span class="w"> </span>--env-file<span class="w"> </span>.env.docker.windows<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>analyzer
+
+<span class="c1"># Linux</span>
+docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.yml<span class="w"> </span>-f<span class="w"> </span>docker-compose.linux.yml<span class="w"> </span>--env-file<span class="w"> </span>.env.docker.linux<span class="w"> </span>build<span class="w"> </span>analyzer<span class="w"> </span>--no-cache
+docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.yml<span class="w"> </span>-f<span class="w"> </span>docker-compose.linux.yml<span class="w"> </span>--env-file<span class="w"> </span>.env.docker.linux<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>analyzer
+
+<span class="c1"># macOS</span>
+docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.yml<span class="w"> </span>-f<span class="w"> </span>docker-compose.macos.yml<span class="w"> </span>--env-file<span class="w"> </span>.env.docker.macos<span class="w"> </span>build<span class="w"> </span>analyzer<span class="w"> </span>--no-cache
+docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.yml<span class="w"> </span>-f<span class="w"> </span>docker-compose.macos.yml<span class="w"> </span>--env-file<span class="w"> </span>.env.docker.macos<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>analyzer
+</pre></div>
+</div>
+<p><strong>Option 2: Add API key to default .env file</strong></p>
+<p>Copy your Anthropic API key from <code class="docutils literal notranslate"><span class="pre">.env.docker.windows</span></code> to <code class="docutils literal notranslate"><span class="pre">.env</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Edit .env and set:</span>
+<span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span>sk-ant-api03-YOUR_KEY_HERE
+<span class="nv">AI_MODEL</span><span class="o">=</span>claude-haiku-4-5-20251001
+</pre></div>
+</div>
+<p>Then rebuild normally:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w"> </span>analyzer<span class="w"> </span>--no-cache
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>analyzer
+</pre></div>
+</div>
+<p>See README.md section “Building &amp; Rebuilding Services” for complete platform-specific commands.</p>
+</section>
+<section id="responder-not-fixing-issues">
+<h3>Responder Not Fixing Issues<a class="headerlink" href="#responder-not-fixing-issues" title="Link to this heading"></a></h3>
+<p><strong>Problem:</strong> Remediation not executing</p>
+<p><strong>Check:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># View Responder logs</span>
+docker-compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>hemostat-responder
+
+<span class="c1"># Check Docker socket permissions</span>
+ls<span class="w"> </span>-la<span class="w"> </span>/var/run/docker.sock
+
+<span class="c1"># Verify container can be restarted</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-responder<span class="w"> </span>docker<span class="w"> </span>restart<span class="w"> </span>hemostat-test-api
+</pre></div>
+</div>
+<p><strong>Solutions:</strong></p>
+<ul class="simple">
+<li><p>Check cooldown not active: <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">exec</span> <span class="pre">hemostat-redis</span> <span class="pre">redis-cli</span> <span class="pre">GET</span> <span class="pre">&quot;hemostat:remediation:*&quot;</span></code></p></li>
+<li><p>Verify Docker socket is mounted correctly in docker-compose.yml</p></li>
+<li><p>Check safety mechanisms (cooldown, max retries) aren’t triggered</p></li>
+<li><p>Review Responder logs for error details</p></li>
+</ul>
+</section>
+<section id="dashboard-not-updating">
+<h3>Dashboard Not Updating<a class="headerlink" href="#dashboard-not-updating" title="Link to this heading"></a></h3>
+<p><strong>Problem:</strong> Streamlit shows no data</p>
+<p><strong>Check:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># View Streamlit logs</span>
+docker-compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>hemostat-dashboard
+
+<span class="c1"># Verify Redis has data</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-redis<span class="w"> </span>redis-cli<span class="w"> </span>GET<span class="w"> </span><span class="s2">&quot;hemostat:stats:hemostat-test-api&quot;</span>
+
+<span class="c1"># Check dashboard can connect to Redis</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-dashboard<span class="w"> </span>ping<span class="w"> </span>redis
+
+<span class="c1"># Refresh browser</span>
+<span class="c1"># Streamlit auto-refreshes every 5 seconds</span>
+</pre></div>
+</div>
+<p><strong>Solutions:</strong></p>
+<ul class="simple">
+<li><p>Wait 30+ seconds for Monitor to collect first stats</p></li>
+<li><p>Manually refresh Streamlit page</p></li>
+<li><p>Check Redis is healthy and storing data</p></li>
+<li><p>Verify dashboard/app.py is reading correct Redis keys</p></li>
+</ul>
+</section>
+<section id="alert-not-sending-slack">
+<h3>Alert Not Sending Slack<a class="headerlink" href="#alert-not-sending-slack" title="Link to this heading"></a></h3>
+<p><strong>Problem:</strong> No Slack notifications despite fixes</p>
+<p><strong>Check:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># View Alert logs</span>
+docker-compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>hemostat-alert
+
+<span class="c1"># Check Slack webhook URL is set</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$SLACK_WEBHOOK_URL</span>
+
+<span class="c1"># Test webhook manually</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="nv">$SLACK_WEBHOOK_URL</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">    &quot;attachments&quot;: [{</span>
+<span class="s1">      &quot;color&quot;: &quot;good&quot;,</span>
+<span class="s1">      &quot;title&quot;: &quot;HemoStat Test&quot;,</span>
+<span class="s1">      &quot;text&quot;: &quot;This is a test notification&quot;</span>
+<span class="s1">    }]</span>
+<span class="s1">  }&#39;</span>
+</pre></div>
+</div>
+<p><strong>Solutions:</strong></p>
+<ul class="simple">
+<li><p>Without Slack webhook, system still works (just no notifications)</p></li>
+<li><p>Verify webhook URL is correct and active</p></li>
+<li><p>Check Slack workspace permissions</p></li>
+<li><p>Review Alert logs for HTTP errors</p></li>
+</ul>
+</section>
+<section id="performance-issues">
+<h3>Performance Issues<a class="headerlink" href="#performance-issues" title="Link to this heading"></a></h3>
+<p><strong>Problem:</strong> System slow or laggy</p>
+<p><strong>Check:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># View system resources</span>
+docker<span class="w"> </span>stats
+
+<span class="c1"># Check individual service performance</span>
+docker-compose<span class="w"> </span>logs<span class="w"> </span>hemostat-monitor<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;published&quot;</span>
+docker-compose<span class="w"> </span>logs<span class="w"> </span>hemostat-analyzer<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;Published&quot;</span>
+
+<span class="c1"># Monitor Redis performance</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-redis<span class="w"> </span>redis-cli<span class="w"> </span>--stat
+</pre></div>
+</div>
+<p><strong>Solutions:</strong></p>
+<ul class="simple">
+<li><p>Reduce Monitor polling interval (edit hemostat_monitor.py)</p></li>
+<li><p>Increase Docker resource limits (edit docker-compose.yml)</p></li>
+<li><p>Check Redis is not full: <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">exec</span> <span class="pre">hemostat-redis</span> <span class="pre">redis-cli</span> <span class="pre">INFO</span> <span class="pre">memory</span></code></p></li>
+<li><p>Clear old events: <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">exec</span> <span class="pre">hemostat-redis</span> <span class="pre">redis-cli</span> <span class="pre">KEYS</span> <span class="pre">&quot;hemostat:events:*&quot;</span> <span class="pre">|</span> <span class="pre">xargs</span> <span class="pre">redis-cli</span> <span class="pre">DEL</span></code></p></li>
+</ul>
+</section>
+<section id="docker-permissions">
+<h3>Docker Permissions<a class="headerlink" href="#docker-permissions" title="Link to this heading"></a></h3>
+<p><strong>Problem:</strong> Permission denied errors</p>
+<p><strong>Check:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check Docker socket permissions</span>
+ls<span class="w"> </span>-la<span class="w"> </span>/var/run/docker.sock
+
+<span class="c1"># Check if user is in docker group</span>
+groups<span class="w"> </span><span class="nv">$USER</span>
+</pre></div>
+</div>
+<p><strong>Solutions:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add user to docker group (Linux)</span>
+sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>docker<span class="w"> </span><span class="nv">$USER</span>
+newgrp<span class="w"> </span>docker
+
+<span class="c1"># Restart Docker service</span>
+sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>docker
+
+<span class="c1"># Or run docker-compose with sudo</span>
+sudo<span class="w"> </span>docker-compose<span class="w"> </span>up<span class="w"> </span>-d
+</pre></div>
+</div>
+</section>
+</section>
+<section id="debug-mode">
+<h2>Debug Mode<a class="headerlink" href="#debug-mode" title="Link to this heading"></a></h2>
+<section id="enable-verbose-logging">
+<h3>Enable Verbose Logging<a class="headerlink" href="#enable-verbose-logging" title="Link to this heading"></a></h3>
+<p>Edit each agent to add more logging:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>  <span class="c1"># Change from INFO to DEBUG</span>
+</pre></div>
+</div>
+</section>
+<section id="monitor-redis-activity">
+<h3>Monitor Redis Activity<a class="headerlink" href="#monitor-redis-activity" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Watch all Redis events in real-time</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-redis<span class="w"> </span>redis-cli<span class="w"> </span>SUBSCRIBE<span class="w"> </span><span class="s2">&quot;hemostat:*&quot;</span>
+
+<span class="c1"># List all Redis keys</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-redis<span class="w"> </span>redis-cli<span class="w"> </span>KEYS<span class="w"> </span><span class="s2">&quot;*&quot;</span>
+
+<span class="c1"># View specific key value</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-redis<span class="w"> </span>redis-cli<span class="w"> </span>GET<span class="w"> </span><span class="s2">&quot;hemostat:stats:hemostat-test-api&quot;</span>
+
+<span class="c1"># Monitor Redis traffic</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-redis<span class="w"> </span>redis-cli<span class="w"> </span>MONITOR
+</pre></div>
+</div>
+</section>
+<section id="test-individual-components">
+<h3>Test Individual Components<a class="headerlink" href="#test-individual-components" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test Monitor independently</span>
+docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>hemostat-agents-hemostat-monitor<span class="w"> </span>bash
+python<span class="w"> </span>hemostat_monitor.py
+
+<span class="c1"># Test Docker SDK</span>
+docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>python:3.11<span class="w"> </span>bash
+pip<span class="w"> </span>install<span class="w"> </span>docker
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import docker; c = docker.from_env(); print(c.containers.list())&quot;</span>
+
+<span class="c1"># Test Redis connection</span>
+docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>redis:7-alpine<span class="w"> </span>redis-cli<span class="w"> </span>-h<span class="w"> </span>redis<span class="w"> </span>ping
+</pre></div>
+</div>
+</section>
+</section>
+<section id="getting-help">
+<h2>Getting Help<a class="headerlink" href="#getting-help" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Check logs first:</strong> Most issues show up in Docker logs</p></li>
+<li><p><strong>Search TROUBLESHOOTING.md:</strong> Common issues documented here</p></li>
+<li><p><strong>Review docker-compose logs:</strong> Full system trace</p></li>
+<li><p><strong>Check GitHub issues:</strong> If this was forked from a repo</p></li>
+<li><p><strong>Ask AI/LLM:</strong> Paste logs into Claude/ChatGPT for analysis</p></li>
+</ol>
+</section>
+<section id="performance-tuning">
+<h2>Performance Tuning<a class="headerlink" href="#performance-tuning" title="Link to this heading"></a></h2>
+<section id="monitor-polling-interval">
+<h3>Monitor Polling Interval<a class="headerlink" href="#monitor-polling-interval" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In agents/hemostat_monitor/monitor.py</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>  <span class="c1"># Change to 10 for faster detection, 60 for less CPU</span>
+</pre></div>
+</div>
+</section>
+<section id="analyzer-thresholds">
+<h3>Analyzer Thresholds<a class="headerlink" href="#analyzer-thresholds" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In agents/hemostat_analyzer/analyzer.py</span>
+<span class="k">if</span> <span class="n">memory_pct</span> <span class="o">&gt;</span> <span class="mi">90</span><span class="p">:</span>  <span class="c1"># Lower for earlier alerts</span>
+<span class="k">if</span> <span class="n">cpu_pct</span> <span class="o">&gt;</span> <span class="mi">90</span><span class="p">:</span>     <span class="c1"># Lower for earlier alerts</span>
+</pre></div>
+</div>
+</section>
+<section id="responder-cooldown">
+<h3>Responder Cooldown<a class="headerlink" href="#responder-cooldown" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In agents/hemostat_responder/responder.py</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">cooldown_period</span> <span class="o">=</span> <span class="mi">3600</span>  <span class="c1"># 1 hour, lower for more restarts</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">max_actions_per_hour</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># Increase for more remediation attempts</span>
+</pre></div>
+</div>
+</section>
+<section id="dashboard-refresh-rate">
+<h3>Dashboard Refresh Rate<a class="headerlink" href="#dashboard-refresh-rate" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In dashboard/app.py - Streamlit auto-refreshes every 5 seconds</span>
+<span class="c1"># To change, add to Streamlit config</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="advanced-debugging">
+<h2>Advanced Debugging<a class="headerlink" href="#advanced-debugging" title="Link to this heading"></a></h2>
+<section id="network-inspection">
+<h3>Network Inspection<a class="headerlink" href="#network-inspection" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check if agents can communicate</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-monitor<span class="w"> </span>ping<span class="w"> </span>hemostat-redis
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hemostat-analyzer<span class="w"> </span>ping<span class="w"> </span>hemostat-redis
+
+<span class="c1"># Test inter-container connectivity</span>
+docker<span class="w"> </span>network<span class="w"> </span>inspect<span class="w"> </span>hemostat-agents_default
+</pre></div>
+</div>
+</section>
+<section id="resource-limits">
+<h3>Resource Limits<a class="headerlink" href="#resource-limits" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># View resource usage</span>
+docker<span class="w"> </span>stats<span class="w"> </span>hemostat-monitor
+docker<span class="w"> </span>stats<span class="w"> </span>hemostat-analyzer
+docker<span class="w"> </span>stats<span class="w"> </span>hemostat-responder
+
+<span class="c1"># Set resource limits in docker-compose.yml</span>
+<span class="c1"># See docker-compose.yml for examples</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="collecting-debug-information">
+<h2>Collecting Debug Information<a class="headerlink" href="#collecting-debug-information" title="Link to this heading"></a></h2>
+<p>If you’re still stuck, capture the output of:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker-compose<span class="w"> </span>logs<span class="w"> </span>&gt;<span class="w"> </span>hemostat-debug.log
+docker<span class="w"> </span>ps<span class="w"> </span>&gt;<span class="w"> </span>containers.log
+docker-compose<span class="w"> </span>ps<span class="w"> </span>&gt;<span class="w"> </span>services.log
+</pre></div>
+</div>
+<p>Review the logs carefully for error messages!</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="deployment.html" class="btn btn-neutral float-left" title="Deployment Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="development.html" class="btn btn-neutral float-right" title="Development Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, The HemoStat Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

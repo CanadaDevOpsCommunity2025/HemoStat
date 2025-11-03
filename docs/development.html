@@ -1,0 +1,586 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Development Guide &mdash; HemoStat Documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="api/index.html" />
+    <link rel="prev" title="Troubleshooting Guide" href="troubleshooting.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            HemoStat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">System Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring &amp; Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_protocol.html">API Protocol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deployment.html">Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Development Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#development-setup">Development Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#install-uv">Install uv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#set-up-virtual-environment">Set Up Virtual Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#load-environment-configuration">Load Environment Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#code-quality-tools">Code Quality Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ruff-linting-formatting">Ruff (Linting &amp; Formatting)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ty-type-checking">ty (Type Checking)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-all-quality-checks">Run All Quality Checks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pre-commit-hooks-optional">Pre-commit Hooks (Optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#development-workflow">Development Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#running-agents-locally">Running Agents Locally</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-dashboard">Running the Dashboard</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing-changes">Testing Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-quality-checks">Running Quality Checks</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#understanding-the-architecture">Understanding the Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#multi-agent-message-flow">Multi-Agent Message Flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#redis-channel-schema">Redis Channel Schema</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-docstrings">Writing Docstrings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example-function-docstring">Example: Function Docstring</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-class-docstring">Example: Class Docstring</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#adding-features">Adding Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#adding-a-new-agent">Adding a New Agent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-new-remediation-actions">Adding New Remediation Actions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#customizing-monitor-thresholds">Customizing Monitor Thresholds</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#testing-with-dry-run-mode">Testing with Dry-Run Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#contributing-guidelines">Contributing Guidelines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#code-style">Code Style</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing-requirements">Testing Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#documentation-requirements">Documentation Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#making-commits">Making Commits</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#project-phases">Project Phases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#phase-1-core-architecture">Phase 1: Core Architecture ✅</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#phase-2-agent-implementations">Phase 2: Agent Implementations ✅</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#phase-3-dashboard">Phase 3: Dashboard ✅</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#phase-4-testing-monitoring">Phase 4: Testing &amp; Monitoring 🔄</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#useful-commands">Useful Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-help">Getting Help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html#base-classes">Base Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HemoStat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Development Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/development.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="development-guide">
+<h1>Development Guide<a class="headerlink" href="#development-guide" title="Link to this heading"></a></h1>
+<p>Guide for contributing to HemoStat and setting up your development environment.</p>
+<section id="development-setup">
+<h2>Development Setup<a class="headerlink" href="#development-setup" title="Link to this heading"></a></h2>
+<section id="install-uv">
+<h3>Install uv<a class="headerlink" href="#install-uv" title="Link to this heading"></a></h3>
+<p>HemoStat uses <code class="docutils literal notranslate"><span class="pre">uv</span></code> for fast Python package management:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install uv (if not already installed)</span>
+curl<span class="w"> </span>-LsSf<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+
+<span class="c1"># Or on Windows with PowerShell:</span>
+powershell<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;irm https://astral.sh/uv/install.ps1 | iex&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="set-up-virtual-environment">
+<h3>Set Up Virtual Environment<a class="headerlink" href="#set-up-virtual-environment" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install all dependencies including dev tools</span>
+uv<span class="w"> </span>sync<span class="w"> </span>--all-extras
+
+<span class="c1"># Or just core dependencies</span>
+uv<span class="w"> </span>sync
+</pre></div>
+</div>
+</section>
+<section id="load-environment-configuration">
+<h3>Load Environment Configuration<a class="headerlink" href="#load-environment-configuration" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Copy from template</span>
+cp<span class="w"> </span>.env.example<span class="w"> </span>.env
+
+<span class="c1"># Edit .env with your API keys:</span>
+<span class="c1"># - OPENAI_API_KEY (for GPT-4 analysis)</span>
+<span class="c1"># - ANTHROPIC_API_KEY (for Claude analysis)</span>
+<span class="c1"># - SLACK_WEBHOOK_URL (for notifications)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="code-quality-tools">
+<h2>Code Quality Tools<a class="headerlink" href="#code-quality-tools" title="Link to this heading"></a></h2>
+<p>HemoStat uses modern, fast tools from Astral (creators of uv):</p>
+<section id="ruff-linting-formatting">
+<h3>Ruff (Linting &amp; Formatting)<a class="headerlink" href="#ruff-linting-formatting" title="Link to this heading"></a></h3>
+<p>Fast Python linter and formatter (written in Rust):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Format code</span>
+ruff<span class="w"> </span>format
+
+<span class="c1"># Lint and auto-fix</span>
+ruff<span class="w"> </span>check<span class="w"> </span>--fix
+</pre></div>
+</div>
+</section>
+<section id="ty-type-checking">
+<h3>ty (Type Checking)<a class="headerlink" href="#ty-type-checking" title="Link to this heading"></a></h3>
+<p>Modern type checker (written in Rust):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run type checker</span>
+ty<span class="w"> </span>check
+</pre></div>
+</div>
+</section>
+<section id="run-all-quality-checks">
+<h3>Run All Quality Checks<a class="headerlink" href="#run-all-quality-checks" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using make (recommended)</span>
+make<span class="w"> </span>quality
+
+<span class="c1"># Or manually</span>
+ruff<span class="w"> </span>format<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>--fix<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>ty<span class="w"> </span>check
+</pre></div>
+</div>
+</section>
+<section id="pre-commit-hooks-optional">
+<h3>Pre-commit Hooks (Optional)<a class="headerlink" href="#pre-commit-hooks-optional" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install pre-commit hooks</span>
+pre-commit<span class="w"> </span>install
+
+<span class="c1"># Run on all files</span>
+pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+</pre></div>
+</div>
+</section>
+</section>
+<section id="development-workflow">
+<h2>Development Workflow<a class="headerlink" href="#development-workflow" title="Link to this heading"></a></h2>
+<section id="running-agents-locally">
+<h3>Running Agents Locally<a class="headerlink" href="#running-agents-locally" title="Link to this heading"></a></h3>
+<p>Start Redis first (required for all agents):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>redis
+</pre></div>
+</div>
+<p>Then run individual agents:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using make</span>
+make<span class="w"> </span>monitor
+make<span class="w"> </span>analyzer
+make<span class="w"> </span>responder
+make<span class="w"> </span>alert
+
+<span class="c1"># Or directly</span>
+python<span class="w"> </span>-m<span class="w"> </span>agents.hemostat_monitor.main
+python<span class="w"> </span>-m<span class="w"> </span>agents.hemostat_analyzer.main
+python<span class="w"> </span>-m<span class="w"> </span>agents.hemostat_responder.main
+python<span class="w"> </span>-m<span class="w"> </span>agents.hemostat_alert.main
+</pre></div>
+</div>
+</section>
+<section id="running-the-dashboard">
+<h3>Running the Dashboard<a class="headerlink" href="#running-the-dashboard" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>streamlit<span class="w"> </span>run<span class="w"> </span>dashboard/app.py
+<span class="c1"># Access at http://localhost:8501</span>
+</pre></div>
+</div>
+</section>
+<section id="testing-changes">
+<h3>Testing Changes<a class="headerlink" href="#testing-changes" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run all tests</span>
+pytest
+
+<span class="c1"># Run specific test file</span>
+pytest<span class="w"> </span>tests/test_monitor.py<span class="w"> </span>-v
+
+<span class="c1"># Run single test</span>
+pytest<span class="w"> </span>tests/test_monitor.py::TestMonitorAgent::test_cpu_threshold<span class="w"> </span>-v
+
+<span class="c1"># Run with coverage report</span>
+pytest<span class="w"> </span>--cov<span class="o">=</span>agents<span class="w"> </span>--cov-report<span class="o">=</span>html
+<span class="c1"># View report at htmlcov/index.html</span>
+</pre></div>
+</div>
+</section>
+<section id="running-quality-checks">
+<h3>Running Quality Checks<a class="headerlink" href="#running-quality-checks" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Format code</span>
+make<span class="w"> </span>format
+
+<span class="c1"># Lint with auto-fix</span>
+make<span class="w"> </span>lint
+
+<span class="c1"># Type check</span>
+make<span class="w"> </span>typecheck
+
+<span class="c1"># Run all checks</span>
+make<span class="w"> </span>quality
+</pre></div>
+</div>
+</section>
+</section>
+<section id="understanding-the-architecture">
+<h2>Understanding the Architecture<a class="headerlink" href="#understanding-the-architecture" title="Link to this heading"></a></h2>
+<section id="multi-agent-message-flow">
+<h3>Multi-Agent Message Flow<a class="headerlink" href="#multi-agent-message-flow" title="Link to this heading"></a></h3>
+<p>HemoStat uses a <strong>pub/sub architecture</strong> with four specialized agents communicating via Redis:</p>
+<ol class="arabic simple">
+<li><p><strong>Monitor Agent</strong> - Continuously polls container metrics (CPU, memory, disk, process status)</p></li>
+<li><p><strong>Analyzer Agent</strong> - Receives health events, performs AI-powered root cause analysis using GPT-4 or Claude</p></li>
+<li><p><strong>Responder Agent</strong> - Receives remediation recommendations, executes safe container actions (restart, scale, cleanup)</p></li>
+<li><p><strong>Alert Agent</strong> - Receives remediation events, sends Slack notifications and stores event history</p></li>
+</ol>
+<p>All agents inherit from <code class="docutils literal notranslate"><span class="pre">HemoStatAgent</span></code> base class which provides:</p>
+<ul class="simple">
+<li><p>Redis pub/sub communication primitives</p></li>
+<li><p>Shared state management</p></li>
+<li><p>Graceful shutdown handling and connection retry logic</p></li>
+</ul>
+<p>See the <a class="reference internal" href="architecture.html"><span class="std std-doc">Architecture documentation</span></a> for detailed information.</p>
+</section>
+<section id="redis-channel-schema">
+<h3>Redis Channel Schema<a class="headerlink" href="#redis-channel-schema" title="Link to this heading"></a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>hemostat:health_alert           (Monitor → Analyzer)
+hemostat:remediation_needed     (Analyzer → Responder)
+hemostat:remediation_complete   (Responder → Alert)
+hemostat:false_alarm            (Analyzer → Alert)
+</pre></div>
+</div>
+<p>See the <a class="reference internal" href="api_protocol.html"><span class="std std-doc">API Protocol documentation</span></a> for message formats.</p>
+</section>
+</section>
+<section id="writing-docstrings">
+<h2>Writing Docstrings<a class="headerlink" href="#writing-docstrings" title="Link to this heading"></a></h2>
+<p>All code should include Google-style docstrings. These are automatically extracted and included in the <a class="reference internal" href="api/index.html"><span class="std std-doc">API Reference documentation</span></a>.</p>
+<section id="example-function-docstring">
+<h3>Example: Function Docstring<a class="headerlink" href="#example-function-docstring" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">analyze_container_health</span><span class="p">(</span><span class="n">container_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Analyze container health and determine if remediation is needed.</span>
+<span class="sd">    </span>
+<span class="sd">    Performs AI-powered root cause analysis on container metrics to determine</span>
+<span class="sd">    if the issue is real or a false alarm. Returns analysis results with</span>
+<span class="sd">    confidence scoring.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        container_name: Name of the container to analyze</span>
+<span class="sd">        metrics: Dictionary of container metrics (cpu_pct, memory_pct, etc.)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dictionary containing:</span>
+<span class="sd">            - action: Recommended remediation action (restart, scale, etc.)</span>
+<span class="sd">            - confidence: Confidence score (0.0-1.0)</span>
+<span class="sd">            - reason: Human-readable explanation</span>
+<span class="sd">    </span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If metrics are invalid or incomplete</span>
+<span class="sd">        ConnectionError: If AI service is unavailable</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Implementation here</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="example-class-docstring">
+<h3>Example: Class Docstring<a class="headerlink" href="#example-class-docstring" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ContainerMonitor</span><span class="p">(</span><span class="n">HemoStatAgent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Monitors Docker container health and publishes alerts.</span>
+<span class="sd">    </span>
+<span class="sd">    Continuously polls container metrics and detects anomalies. When issues</span>
+<span class="sd">    are detected, publishes health_alert events to Redis for the Analyzer</span>
+<span class="sd">    to process.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        polling_interval: Seconds between health checks (default: 30)</span>
+<span class="sd">        thresholds: Dict of metric thresholds (cpu_pct, memory_pct, etc.)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Monitor&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the Monitor Agent.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            agent_name: Name for this agent instance</span>
+<span class="sd">            **kwargs: Additional arguments passed to HemoStatAgent</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">agent_name</span><span class="o">=</span><span class="n">agent_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="adding-features">
+<h2>Adding Features<a class="headerlink" href="#adding-features" title="Link to this heading"></a></h2>
+<section id="adding-a-new-agent">
+<h3>Adding a New Agent<a class="headerlink" href="#adding-a-new-agent" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Create <code class="docutils literal notranslate"><span class="pre">agents/my_agent/my_agent.py</span></code></p></li>
+<li><p>Import <code class="docutils literal notranslate"><span class="pre">HemoStatAgent</span></code> from <code class="docutils literal notranslate"><span class="pre">agents.agent_base</span></code></p></li>
+<li><p>Override <code class="docutils literal notranslate"><span class="pre">run()</span></code> method</p></li>
+<li><p>Subscribe to relevant Redis channels</p></li>
+<li><p>Publish events to specific channels</p></li>
+<li><p>Add Dockerfile and update docker-compose.yml</p></li>
+<li><p>Write comprehensive docstrings (they’ll appear in API docs!)</p></li>
+</ol>
+<p>See the <a class="reference internal" href="api/agents.html"><span class="std std-doc">API Reference</span></a> for the <code class="docutils literal notranslate"><span class="pre">HemoStatAgent</span></code> base class documentation.</p>
+</section>
+<section id="adding-new-remediation-actions">
+<h3>Adding New Remediation Actions<a class="headerlink" href="#adding-new-remediation-actions" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Edit <code class="docutils literal notranslate"><span class="pre">agents/hemostat_responder/responder.py</span></code></p></li>
+<li><p>Add new method (e.g., <code class="docutils literal notranslate"><span class="pre">scale_container()</span></code>)</p></li>
+<li><p>Update <code class="docutils literal notranslate"><span class="pre">_handle_remediation_request()</span></code> to call new method</p></li>
+<li><p>Update Analyzer to suggest new action</p></li>
+<li><p>Document the new action with docstrings</p></li>
+</ol>
+</section>
+<section id="customizing-monitor-thresholds">
+<h3>Customizing Monitor Thresholds<a class="headerlink" href="#customizing-monitor-thresholds" title="Link to this heading"></a></h3>
+<p>Edit <code class="docutils literal notranslate"><span class="pre">agents/hemostat_monitor/monitor.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;memory_pct&#39;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>   <span class="c1"># Change to 70 for earlier alerts</span>
+    <span class="s1">&#39;cpu_pct&#39;</span><span class="p">:</span> <span class="mi">85</span>       <span class="c1"># Change to 75 for earlier alerts</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="testing-with-dry-run-mode">
+<h2>Testing with Dry-Run Mode<a class="headerlink" href="#testing-with-dry-run-mode" title="Link to this heading"></a></h2>
+<p>Test remediation actions without modifying containers:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set dry-run mode</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">RESPONDER_DRY_RUN</span><span class="o">=</span><span class="nb">true</span>
+
+<span class="c1"># Run responder</span>
+python<span class="w"> </span>-m<span class="w"> </span>agents.hemostat_responder.main
+
+<span class="c1"># Actions will be logged but not executed</span>
+</pre></div>
+</div>
+</section>
+<section id="contributing-guidelines">
+<h2>Contributing Guidelines<a class="headerlink" href="#contributing-guidelines" title="Link to this heading"></a></h2>
+<section id="code-style">
+<h3>Code Style<a class="headerlink" href="#code-style" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Follow Google-style docstrings (they’re auto-documented!)</p></li>
+<li><p>Use type hints for all function parameters and returns</p></li>
+<li><p>Line length: 100 characters (enforced by ruff)</p></li>
+<li><p>Use double quotes for strings (enforced by ruff)</p></li>
+</ul>
+</section>
+<section id="testing-requirements">
+<h3>Testing Requirements<a class="headerlink" href="#testing-requirements" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Write tests for new features</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">test</span></code> before committing</p></li>
+<li><p>Aim for &gt;80% code coverage</p></li>
+</ul>
+</section>
+<section id="documentation-requirements">
+<h3>Documentation Requirements<a class="headerlink" href="#documentation-requirements" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Write comprehensive docstrings (they appear in API docs!)</p></li>
+<li><p>Update relevant markdown files in <code class="docutils literal notranslate"><span class="pre">docs/</span></code></p></li>
+<li><p>Update README.md if adding major features</p></li>
+</ul>
+</section>
+<section id="making-commits">
+<h3>Making Commits<a class="headerlink" href="#making-commits" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run quality checks before committing</span>
+make<span class="w"> </span>quality
+
+<span class="c1"># Run tests</span>
+make<span class="w"> </span><span class="nb">test</span>
+
+<span class="c1"># Commit with descriptive message</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Add feature: description&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="project-phases">
+<h2>Project Phases<a class="headerlink" href="#project-phases" title="Link to this heading"></a></h2>
+<section id="phase-1-core-architecture">
+<h3>Phase 1: Core Architecture ✅<a class="headerlink" href="#phase-1-core-architecture" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Multi-agent system with Redis pub/sub</p></li>
+<li><p>Base agent class with communication primitives</p></li>
+<li><p>Logging and error handling</p></li>
+</ul>
+</section>
+<section id="phase-2-agent-implementations">
+<h3>Phase 2: Agent Implementations ✅<a class="headerlink" href="#phase-2-agent-implementations" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Monitor Agent - Container health polling</p></li>
+<li><p>Analyzer Agent - AI-powered analysis</p></li>
+<li><p>Responder Agent - Safe remediation</p></li>
+<li><p>Alert Agent - Slack notifications</p></li>
+</ul>
+</section>
+<section id="phase-3-dashboard">
+<h3>Phase 3: Dashboard ✅<a class="headerlink" href="#phase-3-dashboard" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Streamlit-based monitoring interface</p></li>
+<li><p>Real-time metrics and event visualization</p></li>
+<li><p>Historical data and trends</p></li>
+</ul>
+</section>
+<section id="phase-4-testing-monitoring">
+<h3>Phase 4: Testing &amp; Monitoring 🔄<a class="headerlink" href="#phase-4-testing-monitoring" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Unit tests for all agents</p></li>
+<li><p>Integration tests</p></li>
+<li><p>Performance monitoring</p></li>
+<li><p>CI/CD pipeline</p></li>
+</ul>
+</section>
+</section>
+<section id="useful-commands">
+<h2>Useful Commands<a class="headerlink" href="#useful-commands" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># View logs for a specific service</span>
+docker-compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>monitor
+
+<span class="c1"># Rebuild a service after code changes</span>
+docker-compose<span class="w"> </span>build<span class="w"> </span>analyzer<span class="w"> </span>--no-cache
+docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>analyzer
+
+<span class="c1"># Run agents locally (requires Redis)</span>
+make<span class="w"> </span>monitor
+
+<span class="c1"># Run quality checks</span>
+make<span class="w"> </span>quality
+
+<span class="c1"># Run tests with coverage</span>
+make<span class="w"> </span>test-cov
+
+<span class="c1"># View test coverage report</span>
+open<span class="w"> </span>htmlcov/index.html
+
+<span class="c1"># Clean up build artifacts</span>
+make<span class="w"> </span>clean
+</pre></div>
+</div>
+</section>
+<section id="getting-help">
+<h2>Getting Help<a class="headerlink" href="#getting-help" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Architecture questions</strong>: See <a class="reference internal" href="architecture.html"><span class="std std-doc">Architecture documentation</span></a></p></li>
+<li><p><strong>API questions</strong>: See <a class="reference internal" href="api/index.html"><span class="std std-doc">API Reference</span></a> (auto-generated from docstrings!)</p></li>
+<li><p><strong>Common issues</strong>: See <a class="reference internal" href="troubleshooting.html"><span class="std std-doc">Troubleshooting guide</span></a></p></li>
+<li><p><strong>Deployment</strong>: See <a class="reference internal" href="deployment.html"><span class="std std-doc">Deployment guide</span></a></p></li>
+</ul>
+</section>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading"></a></h2>
+<p>Your docstrings are automatically included in the <a class="reference internal" href="api/index.html"><span class="std std-doc">API Reference documentation</span></a>! Write clear, comprehensive docstrings and they’ll be visible to all users.</p>
+<p>To build and view documentation locally:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install docs dependencies</span>
+make<span class="w"> </span>docs-install
+
+<span class="c1"># Build documentation</span>
+make<span class="w"> </span>docs-build
+
+<span class="c1"># Serve locally</span>
+make<span class="w"> </span>docs-serve
+<span class="c1"># View at http://localhost:8000</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="troubleshooting.html" class="btn btn-neutral float-left" title="Troubleshooting Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api/index.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, The HemoStat Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

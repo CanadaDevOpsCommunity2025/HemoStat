@@ -1,0 +1,65 @@
+name: Build and Deploy Documentation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/source/**'
+      - 'agents/**'
+      - 'dashboard/**'
+      - 'pyproject.toml'
+      - '.github/workflows/docs.yml'
+  schedule:
+    # Run every hour at the top of the hour
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+        with:
+          version: "latest"
+
+      - name: Install dependencies
+        run: |
+          uv venv
+          source .venv/bin/activate
+          uv sync --extra docs
+
+      - name: Build documentation
+        run: |
+          source .venv/bin/activate
+          make docs-build
+
+      - name: Commit and push documentation
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Check if there are changes
+          if git diff --quiet docs/; then
+            echo "No changes to documentation"
+          else
+            echo "Changes detected in docs/"
+            git add docs/
+            git status
+            git commit -m "docs: auto-build documentation [skip ci]"
+            git push
+            echo "Documentation pushed successfully"
+          fi

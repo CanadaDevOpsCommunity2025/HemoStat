@@ -1,0 +1,501 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deployment Guide &mdash; HemoStat Documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Troubleshooting Guide" href="troubleshooting.html" />
+    <link rel="prev" title="API Protocol" href="api_protocol.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            HemoStat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">System Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring &amp; Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_protocol.html">API Protocol</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Deployment Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#production-checklist">Production Checklist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kubernetes-deployment">Kubernetes Deployment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#helm-chart-structure">Helm Chart Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deploy-to-kubernetes">Deploy to Kubernetes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#docker-registry">Docker Registry</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#push-images">Push Images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#use-private-registry">Use Private Registry</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cloud-deployments">Cloud Deployments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#aws-ecs">AWS ECS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#azure-container-instances">Azure Container Instances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#google-cloud-run">Google Cloud Run</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#high-availability-setup">High Availability Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#redis-cluster">Redis Cluster</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#agent-replicas">Agent Replicas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#load-balancing">Load Balancing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#monitoring-and-alerting">Monitoring and Alerting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#prometheus-metrics">Prometheus Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#grafana-dashboards">Grafana Dashboards</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#alerting-rules">Alerting Rules</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#scaling-strategies">Scaling Strategies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vertical-scaling">Vertical Scaling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#horizontal-scaling">Horizontal Scaling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#auto-scaling-rules">Auto-Scaling Rules</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#backup-and-recovery">Backup and Recovery</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#redis-backup">Redis Backup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#restore-redis">Restore Redis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#security-hardening">Security Hardening</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#network">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#secrets-management">Secrets Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rbac">RBAC</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#audit-logging">Audit Logging</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#performance-tuning">Performance Tuning</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#redis-optimization">Redis Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#agent-optimization">Agent Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#docker-optimization">Docker Optimization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#disaster-recovery">Disaster Recovery</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#failure-scenarios">Failure Scenarios</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rto-rpo-goals">RTO/RPO Goals</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html#base-classes">Base Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HemoStat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Deployment Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/deployment.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="deployment-guide">
+<h1>Deployment Guide<a class="headerlink" href="#deployment-guide" title="Link to this heading"></a></h1>
+<p>Production deployment guide for HemoStat across different platforms.</p>
+<section id="production-checklist">
+<h2>Production Checklist<a class="headerlink" href="#production-checklist" title="Link to this heading"></a></h2>
+<p>Before deploying to production, ensure:</p>
+<ul class="simple">
+<li><p>All credentials in environment variables (<code class="docutils literal notranslate"><span class="pre">.env</span></code> file)</p></li>
+<li><p>Redis password configured</p></li>
+<li><p>TLS enabled for all network traffic</p></li>
+<li><p>Logs shipped to centralized logging (ELK, DataDog, etc.)</p></li>
+<li><p>Monitoring and alerting configured</p></li>
+<li><p>Backup strategy for Redis data</p></li>
+<li><p>Disaster recovery plan</p></li>
+<li><p>Security audit completed</p></li>
+<li><p>Performance testing done</p></li>
+<li><p>Load testing done</p></li>
+</ul>
+</section>
+<section id="kubernetes-deployment">
+<h2>Kubernetes Deployment<a class="headerlink" href="#kubernetes-deployment" title="Link to this heading"></a></h2>
+<section id="helm-chart-structure">
+<h3>Helm Chart Structure<a class="headerlink" href="#helm-chart-structure" title="Link to this heading"></a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>hemostat-chart/
+├── Chart.yaml
+├── values.yaml
+├── templates/
+│   ├── monitor-deployment.yaml
+│   ├── analyzer-deployment.yaml
+│   ├── responder-deployment.yaml
+│   ├── alert-deployment.yaml
+│   ├── dashboard-deployment.yaml
+│   ├── redis-statefulset.yaml
+│   └── configmap.yaml
+</pre></div>
+</div>
+</section>
+<section id="deploy-to-kubernetes">
+<h3>Deploy to Kubernetes<a class="headerlink" href="#deploy-to-kubernetes" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>helm<span class="w"> </span>install<span class="w"> </span>hemostat<span class="w"> </span>./hemostat-chart
+helm<span class="w"> </span>upgrade<span class="w"> </span>hemostat<span class="w"> </span>./hemostat-chart
+helm<span class="w"> </span>uninstall<span class="w"> </span>hemostat
+</pre></div>
+</div>
+</section>
+</section>
+<section id="docker-registry">
+<h2>Docker Registry<a class="headerlink" href="#docker-registry" title="Link to this heading"></a></h2>
+<section id="push-images">
+<h3>Push Images<a class="headerlink" href="#push-images" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>tag<span class="w"> </span>hemostat-agents-hemostat-monitor:latest<span class="w"> </span>myregistry/hemostat-monitor:v1.0
+docker<span class="w"> </span>push<span class="w"> </span>myregistry/hemostat-monitor:v1.0
+</pre></div>
+</div>
+</section>
+<section id="use-private-registry">
+<h3>Use Private Registry<a class="headerlink" href="#use-private-registry" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># In docker-compose.yml</span>
+<span class="nt">hemostat-monitor</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myregistry/hemostat-monitor:v1.0</span>
+<span class="w">  </span><span class="nt">imagePullPolicy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IfNotPresent</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="cloud-deployments">
+<h2>Cloud Deployments<a class="headerlink" href="#cloud-deployments" title="Link to this heading"></a></h2>
+<section id="aws-ecs">
+<h3>AWS ECS<a class="headerlink" href="#aws-ecs" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Create ECS cluster</p></li>
+<li><p>Push images to ECR</p></li>
+<li><p>Create ECS task definitions</p></li>
+<li><p>Create ECS services</p></li>
+<li><p>Configure auto-scaling</p></li>
+</ol>
+</section>
+<section id="azure-container-instances">
+<h3>Azure Container Instances<a class="headerlink" href="#azure-container-instances" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Push images to ACR</p></li>
+<li><p>Create container groups</p></li>
+<li><p>Configure network</p></li>
+<li><p>Set up monitoring</p></li>
+</ol>
+</section>
+<section id="google-cloud-run">
+<h3>Google Cloud Run<a class="headerlink" href="#google-cloud-run" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Push images to GCR</p></li>
+<li><p>Deploy services</p></li>
+<li><p>Configure ingress</p></li>
+<li><p>Set up monitoring</p></li>
+</ol>
+</section>
+</section>
+<section id="high-availability-setup">
+<h2>High Availability Setup<a class="headerlink" href="#high-availability-setup" title="Link to this heading"></a></h2>
+<section id="redis-cluster">
+<h3>Redis Cluster<a class="headerlink" href="#redis-cluster" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Multi-node Redis cluster</span>
+redis-cli<span class="w"> </span>--cluster<span class="w"> </span>create<span class="w"> </span>node1:6379<span class="w"> </span>node2:6379<span class="w"> </span>node3:6379<span class="w"> </span>...
+</pre></div>
+</div>
+</section>
+<section id="agent-replicas">
+<h3>Agent Replicas<a class="headerlink" href="#agent-replicas" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">hemostat-analyzer-1</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./agents/hemostat_analyzer</span>
+
+<span class="nt">hemostat-analyzer-2</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./agents/hemostat_analyzer</span>
+
+<span class="nt">hemostat-analyzer-3</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./agents/hemostat_analyzer</span>
+</pre></div>
+</div>
+</section>
+<section id="load-balancing">
+<h3>Load Balancing<a class="headerlink" href="#load-balancing" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Use Redis for load distribution</p></li>
+<li><p>Agents pull work from queues</p></li>
+<li><p>Automatic failover on agent crash</p></li>
+</ul>
+</section>
+</section>
+<section id="monitoring-and-alerting">
+<h2>Monitoring and Alerting<a class="headerlink" href="#monitoring-and-alerting" title="Link to this heading"></a></h2>
+<section id="prometheus-metrics">
+<h3>Prometheus Metrics<a class="headerlink" href="#prometheus-metrics" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Agent cycle times</p></li>
+<li><p>Redis latency</p></li>
+<li><p>Docker API latency</p></li>
+<li><p>Remediation success rate</p></li>
+<li><p>False alarm rate</p></li>
+</ul>
+</section>
+<section id="grafana-dashboards">
+<h3>Grafana Dashboards<a class="headerlink" href="#grafana-dashboards" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>System overview (all agents)</p></li>
+<li><p>Per-agent metrics</p></li>
+<li><p>Redis performance</p></li>
+<li><p>Historical trends</p></li>
+</ol>
+</section>
+<section id="alerting-rules">
+<h3>Alerting Rules<a class="headerlink" href="#alerting-rules" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MonitorHighLatency</span>
+<span class="w">  </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">avg(monitor_cycle_time) &gt; 60</span>
+<span class="w">  </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AnalyzerHighErrorRate</span>
+<span class="w">  </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate(analyzer_errors[5m]) &gt; 0.1</span>
+<span class="w">  </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="scaling-strategies">
+<h2>Scaling Strategies<a class="headerlink" href="#scaling-strategies" title="Link to this heading"></a></h2>
+<section id="vertical-scaling">
+<h3>Vertical Scaling<a class="headerlink" href="#vertical-scaling" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Increase CPU/memory per agent</p></li>
+<li><p>Increase container limits</p></li>
+<li><p>Better for single-machine deployments</p></li>
+</ul>
+</section>
+<section id="horizontal-scaling">
+<h3>Horizontal Scaling<a class="headerlink" href="#horizontal-scaling" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Run multiple agent instances</p></li>
+<li><p>Redis handles message distribution</p></li>
+<li><p>Better for production</p></li>
+</ul>
+</section>
+<section id="auto-scaling-rules">
+<h3>Auto-Scaling Rules<a class="headerlink" href="#auto-scaling-rules" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">minReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">maxReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="nt">targetCPUUtilizationPercentage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">70</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="backup-and-recovery">
+<h2>Backup and Recovery<a class="headerlink" href="#backup-and-recovery" title="Link to this heading"></a></h2>
+<section id="redis-backup">
+<h3>Redis Backup<a class="headerlink" href="#redis-backup" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enable RDB snapshots</span>
+redis-cli<span class="w"> </span>BGSAVE
+docker<span class="w"> </span>cp<span class="w"> </span>hemostat-redis:/data/dump.rdb<span class="w"> </span>./backup/
+
+<span class="c1"># Enable AOF (append-only file)</span>
+redis-cli<span class="w"> </span>CONFIG<span class="w"> </span>SET<span class="w"> </span>appendonly<span class="w"> </span>yes
+</pre></div>
+</div>
+</section>
+<section id="restore-redis">
+<h3>Restore Redis<a class="headerlink" href="#restore-redis" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>cp<span class="w"> </span>./backup/dump.rdb<span class="w"> </span>hemostat-redis:/data/
+docker-compose<span class="w"> </span>restart<span class="w"> </span>hemostat-redis
+</pre></div>
+</div>
+</section>
+</section>
+<section id="security-hardening">
+<h2>Security Hardening<a class="headerlink" href="#security-hardening" title="Link to this heading"></a></h2>
+<section id="network">
+<h3>Network<a class="headerlink" href="#network" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Use private networks only</p></li>
+<li><p>Whitelist allowed IPs</p></li>
+<li><p>Disable unnecessary ports</p></li>
+</ul>
+</section>
+<section id="secrets-management">
+<h3>Secrets Management<a class="headerlink" href="#secrets-management" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use Docker secrets</span>
+docker<span class="w"> </span>secret<span class="w"> </span>create<span class="w"> </span>openai_key<span class="w"> </span>&lt;<span class="o">(</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;sk-...&quot;</span><span class="o">)</span>
+docker<span class="w"> </span>secret<span class="w"> </span>create<span class="w"> </span>slack_webhook<span class="w"> </span>&lt;<span class="o">(</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;https://...&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+</section>
+<section id="rbac">
+<h3>RBAC<a class="headerlink" href="#rbac" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Kubernetes RBAC</span>
+kubectl<span class="w"> </span>create<span class="w"> </span>role<span class="w"> </span>hemostat-reader<span class="w"> </span>--verb<span class="o">=</span>get<span class="w"> </span>--verb<span class="o">=</span>list<span class="w"> </span>--resource<span class="o">=</span>pods
+kubectl<span class="w"> </span>create<span class="w"> </span>rolebinding<span class="w"> </span>hemostat-reader-binding<span class="w"> </span>--role<span class="o">=</span>hemostat-reader
+</pre></div>
+</div>
+</section>
+<section id="audit-logging">
+<h3>Audit Logging<a class="headerlink" href="#audit-logging" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>All container operations logged</p></li>
+<li><p>All remediation actions logged</p></li>
+<li><p>Centralized log aggregation</p></li>
+<li><p>Regular audit reviews</p></li>
+</ul>
+</section>
+</section>
+<section id="performance-tuning">
+<h2>Performance Tuning<a class="headerlink" href="#performance-tuning" title="Link to this heading"></a></h2>
+<section id="redis-optimization">
+<h3>Redis Optimization<a class="headerlink" href="#redis-optimization" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># In redis.conf</span>
+maxmemory<span class="w"> </span>2gb
+maxmemory-policy<span class="w"> </span>allkeys-lru
+</pre></div>
+</div>
+</section>
+<section id="agent-optimization">
+<h3>Agent Optimization<a class="headerlink" href="#agent-optimization" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Tune polling intervals</span>
+<span class="n">Monitor</span><span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>      <span class="c1"># Faster detection</span>
+<span class="n">Analyzer</span><span class="p">:</span> <span class="n">parallel_analysis</span>  <span class="c1"># Process multiple alerts</span>
+<span class="n">Responder</span><span class="p">:</span> <span class="n">batch_execution</span>   <span class="c1"># Execute multiple fixes</span>
+</pre></div>
+</div>
+</section>
+<section id="docker-optimization">
+<h3>Docker Optimization<a class="headerlink" href="#docker-optimization" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># In docker-compose.yml</span>
+<span class="nt">hemostat-monitor</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">limits</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;0.5&#39;</span>
+<span class="w">      </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512M</span>
+<span class="w">    </span><span class="nt">reservations</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;0.25&#39;</span>
+<span class="w">      </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">256M</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="disaster-recovery">
+<h2>Disaster Recovery<a class="headerlink" href="#disaster-recovery" title="Link to this heading"></a></h2>
+<section id="failure-scenarios">
+<h3>Failure Scenarios<a class="headerlink" href="#failure-scenarios" title="Link to this heading"></a></h3>
+<p><strong>Redis Down</strong></p>
+<ul class="simple">
+<li><p>Agents queue messages in memory</p></li>
+<li><p>Messages lost if multiple agents crash</p></li>
+<li><p>Recovery: Restart Redis, restart agents</p></li>
+</ul>
+<p><strong>Monitor Down</strong></p>
+<ul class="simple">
+<li><p>No new metrics collected</p></li>
+<li><p>Stale data in Redis</p></li>
+<li><p>Recovery: Restart Monitor</p></li>
+</ul>
+<p><strong>Analyzer Down</strong></p>
+<ul class="simple">
+<li><p>Alerts accumulate in Redis</p></li>
+<li><p>Recovery: Restart Analyzer, process queue</p></li>
+</ul>
+<p><strong>Responder Down</strong></p>
+<ul class="simple">
+<li><p>Remediation requests queue up</p></li>
+<li><p>Issues not fixed</p></li>
+<li><p>Recovery: Restart Responder, execute queue</p></li>
+</ul>
+<p><strong>Alert Down</strong></p>
+<ul class="simple">
+<li><p>Notifications not sent</p></li>
+<li><p>Events still recorded in Redis</p></li>
+<li><p>Recovery: Restart Alert, send backlog</p></li>
+</ul>
+</section>
+<section id="rto-rpo-goals">
+<h3>RTO/RPO Goals<a class="headerlink" href="#rto-rpo-goals" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>RTO</strong> (Recovery Time Objective): &lt; 5 minutes</p></li>
+<li><p><strong>RPO</strong> (Recovery Point Objective): &lt; 1 minute</p></li>
+</ul>
+<p>For detailed deployment steps, consult your cloud provider’s documentation.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api_protocol.html" class="btn btn-neutral float-left" title="API Protocol" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="troubleshooting.html" class="btn btn-neutral float-right" title="Troubleshooting Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, The HemoStat Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

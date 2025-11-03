@@ -1,0 +1,75 @@
+# Plans
+plans/
+
+# ============================================================================
+# Environment and Secrets
+# ============================================================================
+.env                      
+.env.local                
+*.env.local               
+.env.*.local
+.env.docker.windows
+.env.docker.linux
+.env.docker.macos
+.env.*
+
+# ============================================================================
+# Python & UV
+# ============================================================================
+__pycache__/              
+# Agent-specific cache
+agents/**/__pycache__/
+agents/*/__pycache__/
+dashboard/__pycache__/
+*.py[cod]                 
+*$py.class                
+*.so                      
+.Python                   
+venv/                     
+env/                      
+.venv/                    
+.uv/                      
+uv.lock                   
+pip-log.txt               
+pip-delete-this-directory.txt  
+.pytest_cache/            
+.coverage                 
+htmlcov/                  
+*.egg-info/               
+dist/                     
+build/                    
+
+# ============================================================================
+# Docker
+# ============================================================================
+.dockerignore             
+docker-compose.override.yml
+buildcache/               
+.dockerbuildkitconfig     
+
+# ============================================================================
+# IDE
+# ============================================================================
+.vscode/                  
+.idea/                    
+*.swp                     
+*.swo                     
+.DS_Store                 
+
+# ============================================================================
+# Logs
+# ============================================================================
+*.log
+
+# ============================================================================
+# Redis
+# ============================================================================
+dump.rdb
+
+# ============================================================================
+# Documentation Build Artifacts
+# ============================================================================
+# Note: Generated HTML files in /docs are committed for GitHub Pages serving
+# Only ignore Sphinx cache and source autosummary stubs
+docs/source/_autosummary/ 
+.doctrees/               
