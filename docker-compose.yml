@@ -75,16 +75,35 @@ services:
     networks:
       - hemostat-network
 
-  # Placeholder for Responder Agent (Phase 2)
-  # responder:
-  #   build:
-  #     context: .
-  #     dockerfile: agents/hemostat_responder/Dockerfile
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
-  #   networks:
-  #     - hemostat-network
+  # Responder Agent - Executes safe container remediation with safety constraints
+  responder:
+    container_name: hemostat-responder
+    build:
+      context: .
+      dockerfile: agents/hemostat_responder/Dockerfile
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      RESPONDER_COOLDOWN_SECONDS: ${RESPONDER_COOLDOWN_SECONDS:-3600}
+      RESPONDER_MAX_RETRIES_PER_HOUR: ${RESPONDER_MAX_RETRIES_PER_HOUR:-3}
+      RESPONDER_DRY_RUN: ${RESPONDER_DRY_RUN:-false}
+      RESPONDER_ENFORCE_EXEC_ALLOWLIST: ${RESPONDER_ENFORCE_EXEC_ALLOWLIST:-false}
+      DOCKER_HOST: unix:///var/run/docker.sock
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import redis; redis.Redis(host='redis').ping()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hemostat-network
 
   # Placeholder for Alert Agent (Phase 2)
   # alert:

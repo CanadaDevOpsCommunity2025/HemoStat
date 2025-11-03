@@ -55,7 +55,7 @@ All agents communicate via Redis pub/sub and share state through Redis KV store
 
 - **Monitor Agent**: Continuously polls container metrics and publishes health events
 - **Analyzer Agent**: Consumes health events, performs AI-powered root cause analysis using GPT-4 or Claude, distinguishes real issues from false alarms with confidence scoring, and publishes remediation recommendations or false alarm notifications
-- **Responder Agent**: Executes remediation actions with safety constraints and cooldowns
+- **Responder Agent**: Executes remediation actions (restart, scale, cleanup, exec) with comprehensive safety constraints including cooldown periods (1 hour default), circuit breakers (max 3 retries/hour), dry-run mode support, and audit logging for compliance
 - **Alert Agent**: Sends notifications to external systems (Slack, email, etc.)
 
 All agents inherit from the shared `HemoStatAgent` base class, which provides Redis pub/sub primitives and state management.
@@ -90,6 +90,10 @@ All agents inherit from the shared `HemoStatAgent` base class, which provides Re
    # Edit .env and set:
    # - OPENAI_API_KEY (required for GPT-4 analysis)
    # - ANTHROPIC_API_KEY (required for Claude analysis)
+   # - RESPONDER_COOLDOWN_SECONDS (default: 3600 = 1 hour)
+   # - RESPONDER_MAX_RETRIES_PER_HOUR (default: 3)
+   # - RESPONDER_DRY_RUN (set to true for testing without actual remediation)
+   # - RESPONDER_ENFORCE_EXEC_ALLOWLIST (set to true to enforce strict command allowlist in exec action)
    # - SLACK_WEBHOOK_URL (for Alert agent - Phase 2d)
    # - Other optional settings
    
@@ -130,8 +134,8 @@ python -m agents.hemostat_monitor.main
 # Terminal 2: Start Analyzer Agent
 python -m agents.hemostat_analyzer.main
 
-# Terminal 3: Start Responder Agent (coming soon)
-# python -m agents.hemostat_responder.main
+# Terminal 3: Start Responder Agent
+python -m agents.hemostat_responder.main
 
 # Terminal 4: Start Alert Agent (coming soon)
 # python -m agents.hemostat_alert.main
@@ -143,11 +147,11 @@ python -m agents.hemostat_analyzer.main
 Alternative: Run all services with Docker Compose
 
 ```bash
-# Start all services including monitor
+# Start all services including monitor, analyzer, and responder
 docker-compose up -d
 
-# View monitor logs
-docker-compose logs -f monitor
+# View responder logs
+docker-compose logs -f responder
 ```
 
 ## Project Structure
@@ -159,7 +163,7 @@ HemoStat-test/
 │   ├── agent_base.py               # Base class for all agents
 │   ├── hemostat_monitor/           # Monitor agent ✅
 │   ├── hemostat_analyzer/          # Analyzer agent ✅
-│   ├── hemostat_responder/         # Responder agent (Phase 2c)
+│   ├── hemostat_responder/         # Responder agent ✅
 │   └── hemostat_alert/             # Alert agent (Phase 2d)
 ├── dashboard/                       # Streamlit UI (Phase 3)
 ├── scripts/                         # Demo and test scripts (Phase 3)
@@ -185,8 +189,8 @@ HemoStat-test/
 
 - ✅ Monitor Agent: Container health polling
 - ✅ Analyzer Agent: AI-powered root cause analysis
-- ⏳ Responder Agent: Safe remediation execution (Next)
-- ⏳ Alert Agent: Multi-channel notifications
+- ✅ Responder Agent: Safe remediation execution
+- ⏳ Alert Agent: Multi-channel notifications (Next)
 
 ### Phase 3: Dashboard & Visualization
 
@@ -223,4 +227,4 @@ MIT License - See LICENSE file for details
 
 ---
 
-*HemoStat is building a multi-agent container health monitoring system. Phase 1 infrastructure complete, Phase 2 Monitor Agent implemented.*
+*HemoStat is building a multi-agent container health monitoring system. Phase 1 infrastructure complete, Phase 2 Monitor/Analyzer/Responder Agents implemented.*
