@@ -7,8 +7,13 @@ WORKDIR /build
 COPY README.md pyproject.toml uv.lock* ./
 COPY agents/ ./agents/
 
+# Set UV timeout for slow networks (HuggingFace dependencies can be large)
+ENV UV_HTTP_TIMEOUT=1000
+
 # Install dependencies
-RUN uv sync --extra agents --no-dev
+# BuildKit cache mount persists UV cache between builds for faster rebuilds
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --extra agents --no-dev
 
 # Stage 2: Runtime
 FROM python:3.11-slim-bookworm

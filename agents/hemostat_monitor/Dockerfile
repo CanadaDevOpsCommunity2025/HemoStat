@@ -11,9 +11,14 @@ RUN pip install --no-cache-dir uv
 COPY README.md pyproject.toml uv.lock ./
 COPY agents/ ./agents/
 
+# Set UV timeout for slow networks (HuggingFace dependencies can be large)
+ENV UV_HTTP_TIMEOUT=1000
+
 # Install dependencies using UV with agents extra group
 # This includes docker==7.0.0 and all base dependencies
-RUN uv sync --extra agents --no-dev
+# BuildKit cache mount persists UV cache between builds for faster rebuilds
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --extra agents --no-dev
 
 # Stage 2: Runtime - Minimal image with only runtime dependencies
 FROM python:3.11-slim

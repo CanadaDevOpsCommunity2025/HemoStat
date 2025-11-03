@@ -341,14 +341,14 @@ docker-compose logs -f test-api test-worker
 
 HTTP API with endpoints for triggering controllable resource stress.
 
-**Base URL:** `http://localhost:5000`
+**Base URL:** `http://localhost:5001`
 
 #### Endpoints
 
 **Health Check:**
 
 ```bash
-curl http://localhost:5000/health
+curl http://localhost:5001/health
 ```
 
 Response:
@@ -363,7 +363,7 @@ Response:
 **Get Current Metrics:**
 
 ```bash
-curl http://localhost:5000/metrics
+curl http://localhost:5001/metrics
 ```
 
 Response:
@@ -382,7 +382,7 @@ Response:
 **Trigger CPU Spike:**
 
 ```bash
-curl -X POST http://localhost:5000/stress/cpu \
+curl -X POST http://localhost:5001/stress/cpu \
   -H "Content-Type: application/json" \
   -d '{"duration": 60, "intensity": 0.9}'
 ```
@@ -400,7 +400,7 @@ Response:
 **Trigger Memory Spike:**
 
 ```bash
-curl -X POST http://localhost:5000/stress/memory \
+curl -X POST http://localhost:5001/stress/memory \
   -H "Content-Type: application/json" \
   -d '{"duration": 60, "size_mb": 500}'
 ```
@@ -418,7 +418,7 @@ Response:
 **Stop All Active Stress Tests:**
 
 ```bash
-curl -X POST http://localhost:5000/stress/stop
+curl -X POST http://localhost:5001/stress/stop
 ```
 
 Response:

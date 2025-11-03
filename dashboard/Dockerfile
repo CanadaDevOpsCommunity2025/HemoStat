@@ -17,9 +17,17 @@ COPY README.md pyproject.toml uv.lock* ./
 COPY agents/ ./agents/
 COPY dashboard/ ./dashboard/
 
+# Set UV timeout for slow networks (HuggingFace dependencies can be large)
+ENV UV_HTTP_TIMEOUT=1000
+
 # Install dependencies with UV
 # Create .venv at /app/.venv so shebangs are correct in runtime stage
-RUN uv sync --extra dashboard --extra agents
+# BuildKit cache mount persists UV cache between builds for faster rebuilds
+# Dashboard only needs dashboard extras (streamlit, etc.) + agents.logger utility
+# No need for full agents (langchain, openai, anthropic, etc.) since dashboard
+# reads from Redis, not calling AI directly
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --extra dashboard
 RUN ls -la /app/.venv/bin/ && \
     /app/.venv/bin/streamlit --version || \
     (echo "ERROR: streamlit not installed!" && exit 1)

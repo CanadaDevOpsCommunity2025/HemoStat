@@ -40,7 +40,7 @@ echo "Triggering CPU spike on test-api (duration: ${DURATION}s, intensity: ${INT
 echo ""
 
 # Execute curl command
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:5000/stress/cpu \
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:5001/stress/cpu \
     -H "Content-Type: application/json" \
     -d "{\"duration\": ${DURATION}, \"intensity\": ${INTENSITY}}")
 
@@ -87,11 +87,11 @@ echo ""
 echo "CPU spike will end in ${DURATION} seconds from trigger time."
 echo ""
 echo "To stop immediately:"
-echo "  curl -X POST http://localhost:5000/stress/stop"
+echo "  curl -X POST http://localhost:5001/stress/stop"
 echo ""
 echo "To view agent logs:"
 echo "  docker-compose logs -f monitor analyzer responder alert"
 echo ""
 echo "To check current metrics:"
-echo "  curl http://localhost:5000/metrics"
+echo "  curl http://localhost:5001/metrics"
 echo ""

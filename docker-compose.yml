@@ -32,6 +32,7 @@ services:
       AGENT_POLL_INTERVAL: ${AGENT_POLL_INTERVAL:-30}
       THRESHOLD_CPU_PERCENT: ${THRESHOLD_CPU_PERCENT:-85}
       THRESHOLD_MEMORY_PERCENT: ${THRESHOLD_MEMORY_PERCENT:-80}
+      MONITOR_CONTAINER_BLACKLIST: ${MONITOR_CONTAINER_BLACKLIST:-hemostat-*}
     depends_on:
       redis:
         condition: service_healthy
@@ -157,6 +158,134 @@ services:
     networks:
       - hemostat-network
 
+  # Metrics Exporter - Exposes Prometheus metrics for observability
+  metrics:
+    container_name: hemostat-metrics
+    build:
+      context: .
+      dockerfile: agents/hemostat_metrics/Dockerfile
+    ports:
+      - "9090:9090"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      METRICS_PORT: ${METRICS_PORT:-9090}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:9090/metrics')",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hemostat-network
+
+  # Prometheus - Time-series database for metrics collection
+  prometheus:
+    container_name: hemostat-prometheus
+    image: prom/prometheus:latest
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    depends_on:
+      - metrics
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hemostat-network
+
+  # Grafana - Metrics visualization and dashboards
+  grafana:
+    container_name: hemostat-grafana
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3001
+      - GF_INSTALL_PLUGINS=
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hemostat-network
+
+  # DISABLED: Vulnerability Scanner Agent - OWASP ZAP integration for security scanning
+  # Disabled due to startup issues close to submission deadline
+  # Re-enable after submission by uncommenting this section
+  # vulnscanner:
+  #   container_name: hemostat-vulnscanner
+  #   build:
+  #     context: .
+  #     dockerfile: agents/hemostat_vulnscanner/Dockerfile
+  #   environment:
+  #     REDIS_HOST: redis
+  #     REDIS_PORT: 6379
+  #     LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  #     ZAP_HOST: zap
+  #     ZAP_PORT: 8080
+  #     VULNSCANNER_INTERVAL: ${VULNSCANNER_INTERVAL:-3600}
+  #     VULNSCANNER_TIMEOUT: ${VULNSCANNER_TIMEOUT:-1800}
+  #     VULNSCANNER_MAX_TIME: ${VULNSCANNER_MAX_TIME:-3600}
+  #     VULNSCANNER_TARGETS: ${VULNSCANNER_TARGETS:-}
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #     zap:
+  #       condition: service_healthy
+  #     juice-shop:
+  #       condition: service_started
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test:
+  #       [
+  #         "CMD",
+  #         "python",
+  #         "-c",
+  #         "import redis; redis.Redis(host='redis').ping()",
+  #       ]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 10s
+  #   networks:
+  #     - hemostat-network
+
   # Dashboard - Real-time Streamlit monitoring UI (Phase 3)
   dashboard:
     container_name: hemostat-dashboard
@@ -181,7 +310,13 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health')",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -190,6 +325,45 @@ services:
       - hemostat-network
 
   # Test Services (Phase 4) - For demo and integration testing
+
+  # DISABLED: Juice Shop - Vulnerable web application for security testing
+  # Disabled due to startup issues close to submission deadline
+  # Re-enable after submission by uncommenting this section
+  # juice-shop:
+  #   container_name: hemostat-juice-shop
+  #   image: bkimminich/juice-shop
+  #   ports:
+  #     - "3000:3000"
+  #   restart: unless-stopped
+  #   networks:
+  #     - hemostat-network
+  #   labels:
+  #     hemostat.test: "true"
+  #     hemostat.service: "juice-shop"
+  #     hemostat.vuln-target: "true"
+
+  # DISABLED: OWASP ZAP - Security vulnerability scanner
+  # Disabled due to startup issues close to submission deadline
+  # Re-enable after submission by uncommenting this section
+  # zap:
+  #   container_name: hemostat-zap
+  #   image: zaproxy/zap-weekly
+  #   command: zap.sh -daemon -port 8080 -host 0.0.0.0 -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true
+  #   ports:
+  #     - "8080:8080" # ZAP API exposed here
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test:
+  #       ["CMD", "sh", "-c", "curl -f http://localhost:8080/JSON/core/view/version/ || exit 0"]
+  #     interval: 30s
+  #     timeout: 15s
+  #     retries: 8
+  #     start_period: 90s
+  #   networks:
+  #     - hemostat-network
+  #   labels:
+  #     hemostat.service: "zap"
+  #     hemostat.security: "true"
 
   # Test API - HTTP service with controllable resource usage
   test-api:
@@ -203,7 +377,7 @@ services:
       PYTHONUNBUFFERED: 1
       FLASK_APP: test_api.py
     ports:
-      - "5000:5000"
+      - "5001:5000"
     depends_on:
       redis:
         condition: service_healthy
@@ -214,7 +388,7 @@ services:
           "CMD",
           "python",
           "-c",
-          "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')",
+          "import urllib.request; urllib.request.urlopen('http://localhost:5001/health')",
         ]
       interval: 30s
       timeout: 10s
@@ -258,4 +432,8 @@ networks:
 
 volumes:
   redis-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
     driver: local

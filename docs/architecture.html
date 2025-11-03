@@ -30,7 +30,7 @@ window.addEventListener("load", () => mermaid.run());
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API Protocol" href="api_protocol.html" />
+    <link rel="next" title="Monitoring &amp; Observability" href="monitoring.html" />
     <link rel="prev" title="Quick Start Guide" href="quickstart.html" /> 
 </head>
 
@@ -63,6 +63,7 @@ window.addEventListener("load", () => mermaid.run());
 <li class="toctree-l3"><a class="reference internal" href="#analyzer-agent">Analyzer Agent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#responder-agent">Responder Agent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#alert-agent">Alert Agent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#metrics-exporter-agent">Metrics Exporter Agent</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#communication-model">Communication Model</a></li>
@@ -96,6 +97,7 @@ window.addEventListener("load", () => mermaid.run());
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#monitoring-hemostat-itself">Monitoring HemoStat Itself</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#key-metrics-to-track">Key Metrics to Track</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#available-metrics">Available Metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#health-checks">Health Checks</a></li>
 </ul>
 </li>
@@ -108,6 +110,7 @@ window.addEventListener("load", () => mermaid.run());
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring &amp; Observability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_protocol.html">API Protocol</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deployment.html">Deployment Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting Guide</a></li>
@@ -153,6 +156,11 @@ window.addEventListener("load", () => mermaid.run());
     C --&gt;|publishes remediation_complete| D[&quot;Alert Agent&lt;br/&gt;Sends notifications&quot;]
     D --&gt;|updates Redis| E[&quot;Dashboard&lt;br/&gt;Real-time visualization&quot;]
     B --&gt;|publishes false_alarm| D
+    A --&gt;|events| M[&quot;Metrics Exporter&lt;br/&gt;Prometheus metrics&quot;]
+    B --&gt;|events| M
+    C --&gt;|events| M
+    D --&gt;|events| M
+    M --&gt;|scraped by| P[&quot;Prometheus + Grafana&lt;br/&gt;Historical analysis&quot;]
     </pre></section>
 <section id="agent-roles-and-responsibilities">
 <h2>Agent Roles and Responsibilities<a class="headerlink" href="#agent-roles-and-responsibilities" title="Link to this heading"></a></h2>
@@ -199,6 +207,17 @@ window.addEventListener("load", () => mermaid.run());
 <li><p>Provides comprehensive audit trail</p></li>
 <li><p>Implements event deduplication to prevent notification spam</p></li>
 </ul>
+</section>
+<section id="metrics-exporter-agent">
+<h3>Metrics Exporter Agent<a class="headerlink" href="#metrics-exporter-agent" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Subscribes to all HemoStat event channels</p></li>
+<li><p>Converts events into Prometheus-compatible metrics</p></li>
+<li><p>Exposes HTTP endpoint for Prometheus scraping (port 9090)</p></li>
+<li><p>Tracks container health, agent performance, and system operations</p></li>
+<li><p>Enables historical analysis and trend identification via Grafana</p></li>
+</ul>
+<p>See the <a class="reference internal" href="monitoring.html"><span class="std std-doc">Monitoring documentation</span></a> for detailed information on metrics and observability.</p>
 </section>
 </section>
 <section id="communication-model">
@@ -371,6 +390,7 @@ hemostat:containers              List of monitored containers
 </section>
 <section id="monitoring-hemostat-itself">
 <h2>Monitoring HemoStat Itself<a class="headerlink" href="#monitoring-hemostat-itself" title="Link to this heading"></a></h2>
+<p>HemoStat includes comprehensive monitoring through Prometheus and Grafana. See the <a class="reference internal" href="monitoring.html"><span class="std std-doc">Monitoring documentation</span></a> for complete details.</p>
 <section id="key-metrics-to-track">
 <h3>Key Metrics to Track<a class="headerlink" href="#key-metrics-to-track" title="Link to this heading"></a></h3>
 <ol class="arabic simple">
@@ -383,6 +403,21 @@ hemostat:containers              List of monitored containers
 <li><p>Mean time to fix (should be ~13s)</p></li>
 </ol>
 </section>
+<section id="available-metrics">
+<h3>Available Metrics<a class="headerlink" href="#available-metrics" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Container Health</strong>: CPU, memory, restarts, network I/O</p></li>
+<li><p><strong>Analysis Performance</strong>: Duration, confidence scores, request rates</p></li>
+<li><p><strong>Remediation Tracking</strong>: Attempts, success rates, execution time</p></li>
+<li><p><strong>System Health</strong>: Agent uptime, Redis operations, alert rates</p></li>
+</ul>
+<p>Access metrics at:</p>
+<ul class="simple">
+<li><p><strong>Grafana Dashboard</strong>: http://localhost:3000</p></li>
+<li><p><strong>Prometheus UI</strong>: http://localhost:9091</p></li>
+<li><p><strong>Raw Metrics</strong>: http://localhost:9090/metrics</p></li>
+</ul>
+</section>
 <section id="health-checks">
 <h3>Health Checks<a class="headerlink" href="#health-checks" title="Link to this heading"></a></h3>
 <ul class="simple">
@@ -390,6 +425,7 @@ hemostat:containers              List of monitored containers
 <li><p>Redis connectivity verified at startup</p></li>
 <li><p>Docker socket connectivity verified at startup</p></li>
 <li><p>Health check endpoints available</p></li>
+<li><p>Prometheus monitors agent availability</p></li>
 </ul>
 </section>
 </section>
@@ -435,7 +471,7 @@ hemostat:containers              List of monitored containers
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="quickstart.html" class="btn btn-neutral float-left" title="Quick Start Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="api_protocol.html" class="btn btn-neutral float-right" title="API Protocol" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="monitoring.html" class="btn btn-neutral float-right" title="Monitoring &amp; Observability" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

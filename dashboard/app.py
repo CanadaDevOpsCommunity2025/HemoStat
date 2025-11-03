@@ -449,9 +449,8 @@ def render_sidebar() -> None:
     st.sidebar.markdown("---")
 
     # Manual refresh button
-    if st.sidebar.button("Refresh Now", use_container_width=True):
-        st.session_state.manual_refresh_trigger += 1
-        st.cache_data.clear()
+    if st.sidebar.button("Refresh Now", width="stretch"):
+        st.rerun()
 
     st.sidebar.markdown("---")
 

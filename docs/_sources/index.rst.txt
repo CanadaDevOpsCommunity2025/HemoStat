@@ -11,6 +11,7 @@ Key Features
 - **Safe Remediation**: Automated container recovery with safety constraints and cooldown periods
 - **Slack Alerts**: Real-time notifications for critical events
 - **Live Dashboard**: Streamlit-based monitoring interface
+- **Metrics & Observability**: Prometheus metrics and Grafana dashboards for historical analysis
 - **Demo Scripts**: Automated scenarios for testing and hackathon presentations
 
 .. toctree::
@@ -19,6 +20,7 @@ Key Features
 
    quickstart
    architecture
+   monitoring
    api_protocol
    deployment
    troubleshooting

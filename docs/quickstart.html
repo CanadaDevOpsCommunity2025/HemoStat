@@ -58,8 +58,8 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#quick-test">Quick Test</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#verify-system-is-running">Verify System is Running</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#view-the-dashboard">View the Dashboard</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#verify-system-status">Verify System Status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#view-the-dashboards">View the Dashboards</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#run-demo-scenarios">Run Demo Scenarios</a></li>
 </ul>
 </li>
@@ -69,6 +69,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">System Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring &amp; Observability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_protocol.html">API Protocol</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deployment.html">Deployment Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting Guide</a></li>
@@ -169,23 +170,55 @@ docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"
 docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>responder<span class="w">    </span><span class="c1"># Responder Agent</span>
 docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>alert<span class="w">        </span><span class="c1"># Alert Agent</span>
 docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>dashboard<span class="w">    </span><span class="c1"># Dashboard</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>metrics<span class="w">      </span><span class="c1"># Prometheus metrics exporter</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>prometheus<span class="w">   </span><span class="c1"># Time-series metrics database</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>grafana<span class="w">      </span><span class="c1"># Metrics visualization dashboards</span>
 </pre></div>
 </div>
 </section>
 </section>
 <section id="quick-test">
 <h2>Quick Test<a class="headerlink" href="#quick-test" title="Link to this heading"></a></h2>
-<section id="verify-system-is-running">
-<h3>Verify System is Running<a class="headerlink" href="#verify-system-is-running" title="Link to this heading"></a></h3>
-<p>Check that all services are healthy:</p>
+<section id="verify-system-status">
+<h3>Verify System Status<a class="headerlink" href="#verify-system-status" title="Link to this heading"></a></h3>
+<p>Check that all services are running:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>compose<span class="w"> </span>ps
 </pre></div>
 </div>
-<p>All services should show status <code class="docutils literal notranslate"><span class="pre">Up</span></code>.</p>
+<p>You should see:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">hemostat-redis</span></code> - Redis message broker</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hemostat-monitor</span></code> - Container health monitoring</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hemostat-analyzer</span></code> - AI-powered analysis</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hemostat-responder</span></code> - Automated remediation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hemostat-alert</span></code> - Notification system</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hemostat-metrics</span></code> - Prometheus metrics exporter</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hemostat-prometheus</span></code> - Time-series metrics database</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hemostat-grafana</span></code> - Metrics visualization dashboards</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hemostat-dashboard</span></code> - Streamlit UI</p></li>
+</ul>
 </section>
-<section id="view-the-dashboard">
-<h3>View the Dashboard<a class="headerlink" href="#view-the-dashboard" title="Link to this heading"></a></h3>
-<p>Open your browser to <code class="docutils literal notranslate"><span class="pre">http://localhost:8501</span></code> to see the live monitoring dashboard.</p>
+<section id="view-the-dashboards">
+<h3>View the Dashboards<a class="headerlink" href="#view-the-dashboards" title="Link to this heading"></a></h3>
+<p>HemoStat provides two complementary dashboards:</p>
+<p><strong>Streamlit Dashboard (Real-time Monitoring)</strong></p>
+<ul class="simple">
+<li><p>URL: http://localhost:8501</p></li>
+<li><p>Live event streaming and container status</p></li>
+</ul>
+<p><strong>Grafana Dashboard (Historical Metrics)</strong></p>
+<ul class="simple">
+<li><p>URL: http://localhost:3000</p></li>
+<li><p>Username: <code class="docutils literal notranslate"><span class="pre">admin</span></code>, Password: <code class="docutils literal notranslate"><span class="pre">admin</span></code> (change on first login)</p></li>
+<li><p>Historical metrics, performance trends, and alerts</p></li>
+<li><p>Navigate to: Dashboards → HemoStat → HemoStat Overview</p></li>
+</ul>
+<p><strong>Prometheus Query UI</strong></p>
+<ul class="simple">
+<li><p>URL: http://localhost:9091</p></li>
+<li><p>Direct metric queries and alert status</p></li>
+</ul>
+<p>See the <a class="reference internal" href="monitoring.html"><span class="std std-doc">Monitoring documentation</span></a> for detailed information on metrics and dashboards.</p>
 </section>
 <section id="run-demo-scenarios">
 <h3>Run Demo Scenarios<a class="headerlink" href="#run-demo-scenarios" title="Link to this heading"></a></h3>
@@ -203,6 +236,7 @@ docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"
 <section id="next-steps">
 <h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
 <ul class="simple">
+<li><p><strong>Monitoring</strong>: Explore <a class="reference internal" href="monitoring.html"><span class="std std-doc">Prometheus metrics and Grafana dashboards</span></a> for observability</p></li>
 <li><p><strong>Architecture</strong>: Learn about the <a class="reference internal" href="architecture.html"><span class="std std-doc">system architecture</span></a> and agent communication</p></li>
 <li><p><strong>API Reference</strong>: Explore the <a class="reference internal" href="api/index.html"><span class="std std-doc">complete API documentation</span></a> auto-generated from code docstrings</p></li>
 <li><p><strong>Deployment</strong>: See <a class="reference internal" href="deployment.html"><span class="std std-doc">production deployment guides</span></a></p></li>

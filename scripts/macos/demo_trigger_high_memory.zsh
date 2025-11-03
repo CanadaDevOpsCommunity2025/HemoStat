@@ -39,7 +39,7 @@ echo "Triggering memory allocation on test-api (duration: ${DURATION}s, size: ${
 echo ""
 
 # Execute curl command
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:5000/stress/memory \
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:5001/stress/memory \
     -H "Content-Type: application/json" \
     -d "{\"duration\": ${DURATION}, \"size_mb\": ${SIZE_MB}}")
 
@@ -88,11 +88,11 @@ echo ""
 echo "Memory spike will end in ${DURATION} seconds from trigger time."
 echo ""
 echo "To stop immediately:"
-echo "  curl -X POST http://localhost:5000/stress/stop"
+echo "  curl -X POST http://localhost:5001/stress/stop"
 echo ""
 echo "To view agent logs:"
 echo "  docker-compose logs -f monitor analyzer responder alert"
 echo ""
 echo "To check current metrics:"
-echo "  curl http://localhost:5000/metrics"
+echo "  curl http://localhost:5001/metrics"
 echo ""

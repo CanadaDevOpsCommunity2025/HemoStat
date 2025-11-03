@@ -74,23 +74,51 @@ docker compose logs -f analyzer     # Analyzer Agent
 docker compose logs -f responder    # Responder Agent
 docker compose logs -f alert        # Alert Agent
 docker compose logs -f dashboard    # Dashboard
+docker compose logs -f metrics      # Prometheus metrics exporter
+docker compose logs -f prometheus   # Time-series metrics database
+docker compose logs -f grafana      # Metrics visualization dashboards
 ```
 
 ## Quick Test
 
-### Verify System is Running
+### Verify System Status
 
-Check that all services are healthy:
+Check that all services are running:
 
 ```bash
 docker compose ps
 ```
 
-All services should show status `Up`.
+You should see:
+- `hemostat-redis` - Redis message broker
+- `hemostat-monitor` - Container health monitoring
+- `hemostat-analyzer` - AI-powered analysis
+- `hemostat-responder` - Automated remediation
+- `hemostat-alert` - Notification system
+- `hemostat-metrics` - Prometheus metrics exporter
+- `hemostat-prometheus` - Time-series metrics database
+- `hemostat-grafana` - Metrics visualization dashboards
+- `hemostat-dashboard` - Streamlit UI
 
-### View the Dashboard
+### View the Dashboards
 
-Open your browser to `http://localhost:8501` to see the live monitoring dashboard.
+HemoStat provides two complementary dashboards:
+
+**Streamlit Dashboard (Real-time Monitoring)**
+- URL: http://localhost:8501
+- Live event streaming and container status
+
+**Grafana Dashboard (Historical Metrics)**
+- URL: http://localhost:3000
+- Username: `admin`, Password: `admin` (change on first login)
+- Historical metrics, performance trends, and alerts
+- Navigate to: Dashboards → HemoStat → HemoStat Overview
+
+**Prometheus Query UI**
+- URL: http://localhost:9091
+- Direct metric queries and alert status
+
+See the [Monitoring documentation](monitoring.md) for detailed information on metrics and dashboards.
 
 ### Run Demo Scenarios
 
@@ -108,6 +136,7 @@ Test the system with automated demo scenarios:
 
 ## Next Steps
 
+- **Monitoring**: Explore [Prometheus metrics and Grafana dashboards](monitoring.md) for observability
 - **Architecture**: Learn about the [system architecture](architecture.md) and agent communication
 - **API Reference**: Explore the [complete API documentation](api/index.rst) auto-generated from code docstrings
 - **Deployment**: See [production deployment guides](deployment.md)

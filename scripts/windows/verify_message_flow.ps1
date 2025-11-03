@@ -76,7 +76,7 @@ try {
         intensity = 0.9
     } | ConvertTo-Json
 
-    $response = Invoke-WebRequest -Uri "http://localhost:5000/stress/cpu" `
+    $response = Invoke-WebRequest -Uri "http://localhost:5001/stress/cpu" `
         -Method POST `
         -ContentType "application/json" `
         -Body $body `
@@ -232,7 +232,7 @@ Write-Host ""
 # Cleanup - stop stress test
 Write-Host "Cleaning up..." -ForegroundColor Cyan
 try {
-    Invoke-WebRequest -Uri "http://localhost:5000/stress/stop" -Method POST -UseBasicParsing -ErrorAction SilentlyContinue | Out-Null
+    Invoke-WebRequest -Uri "http://localhost:5001/stress/stop" -Method POST -UseBasicParsing -ErrorAction SilentlyContinue | Out-Null
 } catch {
     # Ignore cleanup errors
 }

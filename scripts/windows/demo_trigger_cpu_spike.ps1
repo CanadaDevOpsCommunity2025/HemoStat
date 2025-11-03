@@ -41,7 +41,7 @@ try {
         intensity = $Intensity
     } | ConvertTo-Json
 
-    $response = Invoke-WebRequest -Uri "http://localhost:5000/stress/cpu" `
+    $response = Invoke-WebRequest -Uri "http://localhost:5001/stress/cpu" `
         -Method POST `
         -ContentType "application/json" `
         -Body $body `
@@ -100,11 +100,11 @@ Write-Host ""
 Write-Host "CPU spike will end in $Duration seconds from trigger time."
 Write-Host ""
 Write-Host "To stop immediately:"
-Write-Host "  curl -X POST http://localhost:5000/stress/stop"
+Write-Host "  curl -X POST http://localhost:5001/stress/stop"
 Write-Host ""
 Write-Host "To view agent logs:"
 Write-Host "  docker-compose logs -f monitor analyzer responder alert"
 Write-Host ""
 Write-Host "To check current metrics:"
-Write-Host "  curl http://localhost:5000/metrics"
+Write-Host "  curl http://localhost:5001/metrics"
 Write-Host ""
