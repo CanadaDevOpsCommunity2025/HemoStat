@@ -11,6 +11,11 @@ graph TD
     C -->|publishes remediation_complete| D["Alert Agent<br/>Sends notifications"]
     D -->|updates Redis| E["Dashboard<br/>Real-time visualization"]
     B -->|publishes false_alarm| D
+    A -->|events| M["Metrics Exporter<br/>Prometheus metrics"]
+    B -->|events| M
+    C -->|events| M
+    D -->|events| M
+    M -->|scraped by| P["Prometheus + Grafana<br/>Historical analysis"]
 ```
 
 ## Agent Roles and Responsibilities
@@ -47,6 +52,16 @@ graph TD
 - Stores events in Redis for dashboard consumption
 - Provides comprehensive audit trail
 - Implements event deduplication to prevent notification spam
+
+### Metrics Exporter Agent
+
+- Subscribes to all HemoStat event channels
+- Converts events into Prometheus-compatible metrics
+- Exposes HTTP endpoint for Prometheus scraping (port 9090)
+- Tracks container health, agent performance, and system operations
+- Enables historical analysis and trend identification via Grafana
+
+See the [Monitoring documentation](monitoring.md) for detailed information on metrics and observability.
 
 ## Communication Model
 
@@ -190,6 +205,8 @@ self.thresholds = {
 
 ## Monitoring HemoStat Itself
 
+HemoStat includes comprehensive monitoring through Prometheus and Grafana. See the [Monitoring documentation](monitoring.md) for complete details.
+
 ### Key Metrics to Track
 
 1. Monitor cycle time (should be ~30s)
@@ -200,12 +217,25 @@ self.thresholds = {
 6. Mean time to detection (should be <30s)
 7. Mean time to fix (should be ~13s)
 
+### Available Metrics
+
+- **Container Health**: CPU, memory, restarts, network I/O
+- **Analysis Performance**: Duration, confidence scores, request rates
+- **Remediation Tracking**: Attempts, success rates, execution time
+- **System Health**: Agent uptime, Redis operations, alert rates
+
+Access metrics at:
+- **Grafana Dashboard**: http://localhost:3000
+- **Prometheus UI**: http://localhost:9091
+- **Raw Metrics**: http://localhost:9090/metrics
+
 ### Health Checks
 
 - All agents restart automatically on failure
 - Redis connectivity verified at startup
 - Docker socket connectivity verified at startup
 - Health check endpoints available
+- Prometheus monitors agent availability
 
 ## Security Considerations
 
