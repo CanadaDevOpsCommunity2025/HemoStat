@@ -46,7 +46,7 @@ Configure the Monitor Agent via environment variables in `.env`:
 
 ### Docker Compose (Recommended)
 
-```bash
+```sh
 # Start all services including monitor
 docker-compose up -d
 
@@ -59,7 +59,7 @@ docker-compose down
 
 ### Local Development
 
-```bash
+```sh
 # Install dependencies (from project root)
 uv sync --extra agents
 
@@ -71,7 +71,7 @@ uv run python -m agents.hemostat_monitor.main
 
 Subscribe to health alerts in another terminal:
 
-```bash
+```sh
 redis-cli SUBSCRIBE hemostat:health_alert
 ```
 
@@ -147,8 +147,10 @@ Uses Docker's official two-sample calculation to avoid spurious readings:
 
 ```python
 cpu_delta = current_total_usage - previous_total_usage
+
 system_delta = current_system_usage - previous_system_usage
-cpu_percent = (cpu_delta / system_delta) × online_cpus × 100
+
+cpu_percent = (cpu_delta / system_delta) * online_cpus * 100
 ```
 
 ### Memory Percentage
@@ -159,7 +161,7 @@ Excludes cache to match `docker stats` behavior:
 usage = memory_stats['usage']
 cache = memory_stats['stats'].get('inactive_file', 0)
 actual_usage = usage - cache
-memory_percent = (actual_usage / limit) × 100
+memory_percent = (actual_usage / limit) * 100
 ```
 
 ## Troubleshooting

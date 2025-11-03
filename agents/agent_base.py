@@ -22,13 +22,14 @@ load_dotenv()
 
 class HemoStatConnectionError(Exception):
     """Custom exception for Redis connection failures."""
+
     pass
 
 
 class HemoStatAgent:
     """
     Base class for all HemoStat agents.
-    
+
     Encapsulates Redis pub/sub communication and shared state management.
     All specialized agents (Monitor, Analyzer, Responder, Alert) inherit from this class.
     """
@@ -98,10 +99,11 @@ class HemoStatAgent:
         if not logger.handlers:
             handler = logging.StreamHandler()
             log_format = os.getenv("LOG_FORMAT", "text")
-            
+
             if log_format == "json":
                 try:
                     from pythonjsonlogger import jsonlogger
+
                     formatter = jsonlogger.JsonFormatter(
                         fmt="%(timestamp)s %(level)s %(agent)s %(message)s",
                         rename_fields={"levelname": "level", "name": "logger"},
@@ -117,7 +119,7 @@ class HemoStatAgent:
                 formatter = logging.Formatter(
                     f"[{self.agent_name}] %(asctime)s - %(levelname)s - %(message)s"
                 )
-            
+
             handler.setFormatter(formatter)
             logger.addHandler(handler)
 
@@ -135,10 +137,10 @@ class HemoStatAgent:
         """
         max_retries = int(os.getenv("AGENT_RETRY_MAX", 3))
         initial_delay = float(os.getenv("AGENT_RETRY_DELAY", 1))
-        
+
         # Build exponential backoff list
-        retry_delays = [initial_delay * (2 ** i) for i in range(max_retries)]
-        
+        retry_delays = [initial_delay * (2**i) for i in range(max_retries)]
+
         redis_password = os.getenv("REDIS_PASSWORD", "").strip()
 
         for attempt in range(max_retries):
@@ -153,7 +155,7 @@ class HemoStatAgent:
                 }
                 if redis_password:
                     redis_kwargs["password"] = redis_password
-                
+
                 client = redis.Redis(**redis_kwargs)
                 # Test connection
                 client.ping()
@@ -193,9 +195,9 @@ class HemoStatAgent:
         """
         max_retries = int(os.getenv("AGENT_RETRY_MAX", 3))
         initial_delay = float(os.getenv("AGENT_RETRY_DELAY", 1))
-        
+
         # Build exponential backoff list
-        retry_delays = [initial_delay * (2 ** i) for i in range(max_retries)]
+        retry_delays = [initial_delay * (2**i) for i in range(max_retries)]
 
         event_payload = {
             "event_type": event_type,
@@ -214,9 +216,7 @@ class HemoStatAgent:
                 )
                 return True
             except (TypeError, ValueError) as e:
-                self.logger.error(
-                    f"Failed to serialize event payload: {str(e)}"
-                )
+                self.logger.error(f"Failed to serialize event payload: {str(e)}")
                 return False
             except redis.RedisError as e:
                 if attempt < max_retries - 1:
@@ -277,9 +277,7 @@ class HemoStatAgent:
                         if callback:
                             callback(payload)
                     except json.JSONDecodeError as e:
-                        self.logger.error(
-                            f"Failed to deserialize message: {str(e)}"
-                        )
+                        self.logger.error(f"Failed to deserialize message: {str(e)}")
                     except Exception as e:
                         self.logger.error(
                             f"Error processing message: {str(e)}", exc_info=True
@@ -309,9 +307,7 @@ class HemoStatAgent:
             # Check TTL and warn if expiring soon
             ttl = self.redis.ttl(full_key)
             if ttl > 0 and ttl < 300:  # Less than 5 minutes
-                self.logger.warning(
-                    f"Shared state '{key}' expiring soon (TTL: {ttl}s)"
-                )
+                self.logger.warning(f"Shared state '{key}' expiring soon (TTL: {ttl}s)")
 
             return json.loads(value)
         except redis.RedisError as e:
