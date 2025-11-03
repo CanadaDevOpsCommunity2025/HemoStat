@@ -9,6 +9,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
 
+import pandas as pd
 import streamlit as st
 
 from agents.logger import HemoStatLogger
@@ -30,7 +31,7 @@ def render_metrics_cards(
         false_alarm_count: Number of false alarm events
         active_containers: Number of active containers
     """
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4 = st.columns(4, gap="medium")
 
     with col1:
         st.metric(
@@ -266,6 +267,8 @@ def render_remediation_history(events: list[dict]) -> None:
 
     # Build dataframe
     history_data = []
+    full_reasons_map = {}  # Map to store full reasons separately
+    
     for idx, event in enumerate(filtered_events):
         # Extract data from nested structure
         data = event.get("data", {})
@@ -274,12 +277,19 @@ def render_remediation_history(events: list[dict]) -> None:
         # Get reason from result (remediation reason) or data (AI analysis reason)
         full_reason = result.get("reason") or data.get("reason") or "N/A"
         
-        # Truncate for display with ellipsis if too long
-        max_display_length = 40
+        # Truncate for display (no forced ellipsis)
+        max_display_length = 60
         if len(str(full_reason)) > max_display_length:
-            display_reason = str(full_reason)[:max_display_length] + "..."
+            display_reason = str(full_reason)[:max_display_length]
         else:
             display_reason = str(full_reason)
+        
+        row_key = f"{idx}_{data.get('container', 'Unknown')}"
+        full_reasons_map[row_key] = {
+            "full_reason": full_reason,
+            "container": data.get("container", "Unknown"),
+            "timestamp": format_timestamp(event.get("timestamp", "")),
+        }
         
         history_data.append(
             {
@@ -289,8 +299,6 @@ def render_remediation_history(events: list[dict]) -> None:
                 "Status": result.get("status", "unknown").upper(),
                 "Reason": display_reason,
                 "Confidence": f"{data.get('confidence', 0):.1%}",
-                "_full_reason": full_reason,  # Hidden column for expander
-                "_event_idx": idx,  # Hidden column for unique key
             }
         )
 
@@ -298,33 +306,25 @@ def render_remediation_history(events: list[dict]) -> None:
         history_data,
         width="stretch",
         hide_index=True,
-        column_config={
-            "Reason": st.column_config.TextColumn(
-                "Reason",
-                help="Click on a reason with '...' to see the full text",
-            ),
-            "_full_reason": st.column_config.Column(disabled=True),
-            "_event_idx": st.column_config.Column(disabled=True),
-        },
     )
     
     # Add expandable sections for full reasons
     st.markdown("---")
-    st.subheader("Full Reasoning Details")
+    st.subheader("📋 Full Reasoning Details")
     
-    for item in history_data:
-        if "..." in item["Reason"]:
-            with st.expander(f"📋 {item['Container']} - {item['Timestamp']}", expanded=False):
-                st.write(f"**Full Reason:**")
-                st.write(item["_full_reason"])
+    for row_key, reason_data in full_reasons_map.items():
+        if len(str(reason_data["full_reason"])) > 60:
+            with st.expander(f"{reason_data['container']} - {reason_data['timestamp']}", expanded=False):
+                st.write(reason_data["full_reason"])
 
 
 def render_timeline(events: list[dict], max_events: int = 100) -> None:
     """
-    Render chronological timeline of all events.
+    Render chronological timeline of all events with graph visualization.
 
     Displays events in reverse chronological order (newest first) with
-    type indicators, container names, and expandable details.
+    type indicators, container names, and expandable details. Also shows
+    a timeline graph of event frequency.
 
     Args:
         events: List of event dictionaries from Redis
@@ -337,15 +337,54 @@ def render_timeline(events: list[dict], max_events: int = 100) -> None:
     # Sort by timestamp, newest first
     sorted_events = sorted(events, key=lambda x: x.get("timestamp", ""), reverse=True)
 
+    # Build event type counts for graph
+    event_type_counts = {}
+    for event in sorted_events:
+        event_type = event.get("event_type", "unknown").lower()
+        event_type_counts[event_type] = event_type_counts.get(event_type, 0) + 1
+
+    # Display event type distribution chart
+    st.markdown("**Event Type Distribution**")
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        df = pd.DataFrame(list(event_type_counts.items()), columns=["Event Type", "Count"])
+        st.bar_chart(df.set_index("Event Type"), use_container_width=True)
+    with col3:
+        st.metric("Total Events", len(sorted_events))
+
+    st.markdown("---")
+    st.markdown("**Recent Events**")
+
+    # Display events
     for event in sorted_events[:max_events]:
         event_type = event.get("event_type", "unknown").lower()
-        container_id = event.get("container_id", "Unknown")
+        
+        # Extract container from nested data structure
+        data = event.get("data", {})
+        container_id = data.get("container", event.get("container_id", "Unknown"))
+        
         timestamp = format_timestamp(event.get("timestamp", ""))
         icon = get_event_type_icon(event_type)
+        
+        # Build description from event data
+        description = ""
+        if event_type == "remediation_complete":
+            action = data.get("action", "unknown")
+            result = data.get("result", {})
+            status = result.get("status", "unknown")
+            description = f"Action: {action} | Status: {status}"
+        elif event_type == "health_alert":
+            status = data.get("status", "unknown")
+            description = f"Status: {status}"
+        elif event_type == "false_alarm":
+            reason = data.get("reason", "No reason provided")
+            description = f"Reason: {reason[:60]}"
+        else:
+            description = event.get("description", "No description")
 
         with st.container(border=True):
             st.write(f"{icon} **{timestamp}** - {container_id}")
-            st.caption(event.get("description", "No description"))
+            st.caption(description if description else "No description")
 
             with st.expander("Details"):
                 st.json(event)

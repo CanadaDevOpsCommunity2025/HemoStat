@@ -43,6 +43,192 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# Custom CSS styling - clinical/medical + DevOps infrastructure theme
+st.markdown("""
+<style>
+    /* Primary colors: Medical blue + DevOps infrastructure orange */
+    :root {
+        --primary-blue: #0066cc;
+        --secondary-blue: #003d99;
+        --devops-orange: #ff6b35;
+        --accent-green: #00aa44;
+        --accent-red: #cc0000;
+        --accent-yellow: #ffaa00;
+        --neutral-light: #f5f7fa;
+        --neutral-dark: #1a1a1a;
+    }
+    
+    /* Main container styling - subtle infrastructure grid pattern */
+    .main {
+        background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+        background-image: 
+            linear-gradient(0deg, transparent 24%, rgba(0, 102, 204, 0.02) 25%, rgba(0, 102, 204, 0.02) 26%, transparent 27%, transparent 74%, rgba(0, 102, 204, 0.02) 75%, rgba(0, 102, 204, 0.02) 76%, transparent 77%, transparent),
+            linear-gradient(90deg, transparent 24%, rgba(0, 102, 204, 0.02) 25%, rgba(0, 102, 204, 0.02) 26%, transparent 27%, transparent 74%, rgba(0, 102, 204, 0.02) 75%, rgba(0, 102, 204, 0.02) 76%, transparent 77%, transparent);
+        background-size: 50px 50px;
+    }
+    
+    /* Sidebar styling - DevOps infrastructure gradient */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #003d99 0%, #0066cc 50%, #ff6b35 100%);
+        color: white;
+    }
+    
+    [data-testid="stSidebar"] * {
+        color: white !important;
+    }
+    
+    /* Headers - clean and professional with DevOps accent */
+    h1, h2, h3 {
+        color: #003d99;
+        font-weight: 600;
+        letter-spacing: -0.5px;
+    }
+    
+    h1 {
+        border-bottom: 3px solid #ff6b35;
+        padding-bottom: 12px;
+        margin-bottom: 24px;
+    }
+    
+    h2 {
+        border-left: 4px solid #ff6b35;
+        padding-left: 12px;
+    }
+    
+    /* Metric cards - elevated with DevOps accent */
+    [data-testid="metric-container"] {
+        background: white;
+        border-radius: 12px;
+        border-left: 4px solid #ff6b35;
+        box-shadow: 0 2px 8px rgba(255, 107, 53, 0.1);
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    [data-testid="metric-container"]:hover {
+        box-shadow: 0 4px 16px rgba(255, 107, 53, 0.15);
+        transform: translateY(-2px);
+        border-left-color: #0066cc;
+    }
+    
+    /* Data frames - infrastructure style */
+    [data-testid="stDataFrame"] {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(255, 107, 53, 0.1);
+    }
+    
+    /* Buttons - DevOps orange with blue accent */
+    button {
+        background: linear-gradient(135deg, #ff6b35 0%, #ff5722 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 6px !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    button:hover {
+        background: linear-gradient(135deg, #ff5722 0%, #ff6b35 100%) !important;
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4) !important;
+    }
+    
+    /* Containers and cards */
+    [data-testid="stContainer"] {
+        border-radius: 8px;
+    }
+    
+    /* Expanders - DevOps infrastructure style */
+    [data-testid="stExpander"] {
+        border: 1px solid rgba(255, 107, 53, 0.2);
+        border-radius: 8px;
+        background: white;
+    }
+    
+    [data-testid="stExpander"] summary {
+        color: #003d99;
+        font-weight: 500;
+    }
+    
+    /* Tabs - modern with DevOps accent */
+    [data-testid="stTabs"] [role="tablist"] {
+        border-bottom: 2px solid rgba(255, 107, 53, 0.2);
+    }
+    
+    [data-testid="stTabs"] [role="tab"] {
+        color: #666;
+        font-weight: 500;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s ease;
+    }
+    
+    [data-testid="stTabs"] [role="tab"][aria-selected="true"] {
+        color: #ff6b35;
+        border-bottom-color: #ff6b35;
+    }
+    
+    /* Status indicators - operational colors */
+    .status-healthy {
+        color: #00aa44;
+        font-weight: 600;
+    }
+    
+    .status-unhealthy {
+        color: #cc0000;
+        font-weight: 600;
+    }
+    
+    .status-warning {
+        color: #ffaa00;
+        font-weight: 600;
+    }
+    
+    .status-deploying {
+        color: #ff6b35;
+        font-weight: 600;
+    }
+    
+    /* Chart containers - infrastructure monitoring style */
+    [data-testid="stPlotlyContainer"] {
+        border-radius: 8px;
+        background: white;
+        padding: 16px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(255, 107, 53, 0.1);
+    }
+    
+    /* Dividers - DevOps themed */
+    hr {
+        border: none;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.3), transparent);
+        margin: 24px 0;
+    }
+    
+    /* Text styling */
+    p, span, label {
+        color: #333;
+        line-height: 1.6;
+    }
+    
+    /* Info boxes - infrastructure alerts */
+    [data-testid="stAlert"] {
+        border-radius: 8px;
+        border-left: 4px solid #ff6b35;
+    }
+    
+    /* Code blocks - terminal style */
+    code {
+        background: #1a1a1a;
+        color: #00aa44;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 
 # Initialize session state
 if "auto_refresh_enabled" not in st.session_state:
@@ -136,27 +322,26 @@ def render_header() -> None:
     Displays main title, subtitle with current timestamp, and
     connection status indicator.
     """
-    col1, col2 = st.columns([3, 1])
     eastern = ZoneInfo("America/New_York")
     now_et = datetime.now(eastern)
     tz_abbr = now_et.strftime("%Z")  # EST or EDT
-    st.title("🏥 HemoStat: Container Health Monitoring")
-    st.markdown(f"Real-time monitoring dashboard | {now_et.strftime(f'%Y-%m-%d %I:%M:%S %p {tz_abbr}')}")
-
+    
+    col1, col2 = st.columns([3, 1], gap="large")
+    
     with col1:
-        st.title("HemoStat")
-        st.caption(f"Container Health Monitoring • {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        st.markdown("## HemoStat Container Health Monitoring")
+        st.caption(f"Real-time autonomous monitoring • {now_et.strftime(f'%Y-%m-%d %I:%M:%S %p {tz_abbr}')}")
 
     with col2:
         redis_connected = check_redis_connection()
-        status_text = "Redis Connected" if redis_connected else "Redis Disconnected"
-        bg_color = "#d4edda" if redis_connected else "#f8d7da"
-        text_color = "#155724" if redis_connected else "#721c24"
+        status_indicator = "Connected" if redis_connected else "Disconnected"
+        status_color = "#00aa44" if redis_connected else "#cc0000"
         st.markdown(
-            f"<div style='text-align: right; margin-top: 1.5rem;'>"
-            f"<span style='background-color: {bg_color}; color: {text_color}; "
-            f"padding: 4px 12px; border-radius: 4px; font-weight: 600; font-size: 14px;'>"
-            f"{status_text}</span></div>",
+            f"<div style='text-align: right; padding: 12px; border-radius: 8px; "
+            f"background: rgba(0, 102, 204, 0.05); border-left: 3px solid {status_color};'>"
+            f"<div style='font-size: 12px; color: #666; margin-bottom: 4px;'>System Status</div>"
+            f"<div style='font-size: 14px; font-weight: 600; color: {status_color};'>"
+            f"Redis {status_indicator}</div></div>",
             unsafe_allow_html=True
         )
 
