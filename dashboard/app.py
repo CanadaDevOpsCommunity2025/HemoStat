@@ -149,19 +149,19 @@ def render_live_content() -> None:
 
     Uses st.fragment with dynamic run_every interval tied to session state.
     Fetches data from Redis and renders all dashboard tabs.
+    Tabs are outside fragment to preserve selection across refreshes.
     """
+    
+    if not st.session_state.auto_refresh_enabled:
+        st.info("Auto-refresh is disabled. Click 'Refresh Now' to update.")
+        return
 
-    # Create fragment with dynamic refresh interval
+    # Fetch data with fragment for auto-refresh
     @st.fragment(run_every=st.session_state.refresh_interval)  # type: ignore[attr-defined]
-    def content_fragment() -> None:
-        if not st.session_state.auto_refresh_enabled:
-            st.info("Auto-refresh is disabled. Click 'Refresh Now' to update.")
-            return
-
+    def fetch_data() -> tuple:
         st.session_state.last_refresh = datetime.now()
-
+        
         try:
-            # Fetch data
             with st.spinner("Loading data from Redis..."):
                 all_events = get_all_events(limit=st.session_state.max_events)
                 remediation_events = get_events_by_type(
@@ -170,37 +170,40 @@ def render_live_content() -> None:
                 false_alarm_count = get_false_alarm_count()
                 active_containers = len(get_active_containers())
                 remediation_stats = get_remediation_stats()
-
-            # Metrics section
-            st.subheader("Key Metrics")
-            render_metrics_cards(remediation_stats, false_alarm_count, active_containers)
-
-            # Tabs for different views
-            tab1, tab2, tab3, tab4 = st.tabs(
-                ["🏥 Health Grid", "⚠️ Active Issues", "📊 History", "📈 Timeline"]
-            )
-
-            with tab1:
-                st.subheader("Container Health Grid")
-                render_health_grid(all_events)
-
-            with tab2:
-                st.subheader("Active Issues")
-                render_active_issues(all_events)
-
-            with tab3:
-                st.subheader("Remediation History")
-                render_remediation_history(remediation_events)
-
-            with tab4:
-                st.subheader("Event Timeline")
-                render_timeline(all_events, max_events=st.session_state.max_events)
-
+            
+            return all_events, remediation_events, false_alarm_count, active_containers, remediation_stats
         except Exception as e:
-            logger.error(f"Error rendering dashboard content: {e}")
+            logger.error(f"Error fetching dashboard data: {e}")
             st.error(f"Error loading dashboard data: {e}")
+            return [], [], 0, 0, {"success_rate": 0.0, "total_remediations": 0, "false_alarms": 0}
 
-    content_fragment()
+    # Fetch data (will auto-refresh)
+    all_events, remediation_events, false_alarm_count, active_containers, remediation_stats = fetch_data()
+
+    # Metrics section (outside fragment)
+    st.subheader("Key Metrics")
+    render_metrics_cards(remediation_stats, false_alarm_count, active_containers)
+
+    # Tabs for different views (outside fragment to preserve tab state)
+    tab1, tab2, tab3, tab4 = st.tabs(
+        ["🏥 Health Grid", "⚠️ Active Issues", "📊 History", "📈 Timeline"]
+    )
+
+    with tab1:
+        st.subheader("Container Health Grid")
+        render_health_grid(all_events)
+
+    with tab2:
+        st.subheader("Active Issues")
+        render_active_issues(all_events)
+
+    with tab3:
+        st.subheader("Remediation History")
+        render_remediation_history(remediation_events)
+
+    with tab4:
+        st.subheader("Event Timeline")
+        render_timeline(all_events, max_events=st.session_state.max_events)
 
 
 def render_footer() -> None:
