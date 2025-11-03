@@ -47,9 +47,7 @@ st.set_page_config(
 if "auto_refresh_enabled" not in st.session_state:
     st.session_state.auto_refresh_enabled = True
 if "refresh_interval" not in st.session_state:
-    st.session_state.refresh_interval = int(
-        os.getenv("DASHBOARD_REFRESH_INTERVAL", 5)
-    )
+    st.session_state.refresh_interval = int(os.getenv("DASHBOARD_REFRESH_INTERVAL", 5))
 if "last_refresh" not in st.session_state:
     st.session_state.last_refresh = None
 
@@ -86,9 +84,7 @@ def render_sidebar() -> None:
     st.sidebar.write(f"**Redis**: {status_indicator}")
 
     if st.session_state.last_refresh:
-        st.sidebar.write(
-            f"**Last Refresh**: {st.session_state.last_refresh.strftime('%H:%M:%S')}"
-        )
+        st.sidebar.write(f"**Last Refresh**: {st.session_state.last_refresh.strftime('%H:%M:%S')}")
 
     refresh_interval = int(os.getenv("DASHBOARD_REFRESH_INTERVAL", 5))
     st.sidebar.write(f"**Refresh Interval**: {refresh_interval}s")
@@ -113,8 +109,7 @@ def render_sidebar() -> None:
     )
 
     st.sidebar.info(
-        "Auto-refresh updates the dashboard every N seconds. "
-        "Lower intervals increase Redis load."
+        "Auto-refresh updates the dashboard every N seconds. Lower intervals increase Redis load."
     )
 
     # Links section
@@ -136,9 +131,7 @@ def render_header() -> None:
     connection status indicator.
     """
     st.title("🏥 HemoStat: Container Health Monitoring")
-    st.markdown(
-        f"Real-time monitoring dashboard | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-    )
+    st.markdown(f"Real-time monitoring dashboard | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
     # Connection status
     redis_connected = check_redis_connection()
@@ -148,7 +141,7 @@ def render_header() -> None:
         st.error("❌ Cannot connect to Redis")
 
 
-@st.fragment(run_every=5)
+@st.fragment(run_every=5)  # type: ignore[attr-defined]
 def render_live_content() -> None:
     """
     Render auto-refreshing dashboard content.
@@ -218,9 +211,7 @@ def render_footer() -> None:
 
     with col3:
         if st.session_state.last_refresh:
-            st.caption(
-                f"Last updated: {st.session_state.last_refresh.strftime('%H:%M:%S')}"
-            )
+            st.caption(f"Last updated: {st.session_state.last_refresh.strftime('%H:%M:%S')}")
 
 
 def main() -> None:

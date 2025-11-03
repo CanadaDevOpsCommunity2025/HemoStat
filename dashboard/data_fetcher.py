@@ -48,9 +48,7 @@ def get_redis_client() -> redis.Redis:
             socket_keepalive=True,
         )
         client.ping()
-        logger.info(
-            f"Redis connection established: {redis_host}:{redis_port}/{redis_db}"
-        )
+        logger.info(f"Redis connection established: {redis_host}:{redis_port}/{redis_db}")
         return client
     except redis.ConnectionError as e:
         logger.error(f"Failed to connect to Redis: {e}")
@@ -78,8 +76,8 @@ def get_all_events(limit: int = 100) -> list[dict]:
         client = get_redis_client()
         events_raw = client.lrange("hemostat:events:all", 0, limit - 1)
 
-        events = []
-        for event_str in events_raw:
+        events: list[dict] = []
+        for event_str in events_raw:  # type: ignore[union-attr]
             try:
                 event = json.loads(event_str)
                 events.append(event)
@@ -88,9 +86,7 @@ def get_all_events(limit: int = 100) -> list[dict]:
                 continue
 
         # Sort by timestamp, newest first
-        events.sort(
-            key=lambda x: x.get("timestamp", ""), reverse=True
-        )
+        events.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
         return events
     except Exception as e:
         logger.error(f"Error fetching all events: {e}")
@@ -119,8 +115,8 @@ def get_events_by_type(event_type: str, limit: int = 100) -> list[dict]:
         key = f"hemostat:events:{event_type}"
         events_raw = client.lrange(key, 0, limit - 1)
 
-        events = []
-        for event_str in events_raw:
+        events: list[dict] = []
+        for event_str in events_raw:  # type: ignore[union-attr]
             try:
                 event = json.loads(event_str)
                 events.append(event)
@@ -189,9 +185,7 @@ def get_active_containers() -> list[str]:
         # Use SCAN for production safety (doesn't block Redis)
         cursor = 0
         while True:
-            cursor, keys = client.scan(
-                cursor, match="hemostat:state:container:*", count=100
-            )
+            cursor, keys = client.scan(cursor, match="hemostat:state:container:*", count=100)
             for key in keys:
                 # Extract container ID from key format: hemostat:state:container:{id}
                 container_id = key.replace("hemostat:state:container:", "")
@@ -227,15 +221,9 @@ def get_remediation_stats() -> dict[str, Any]:
         remediation_events = get_events_by_type("remediation_complete", limit=1000)
 
         total = len(remediation_events)
-        success_count = sum(
-            1 for e in remediation_events if e.get("status") == "success"
-        )
-        failure_count = sum(
-            1 for e in remediation_events if e.get("status") == "failed"
-        )
-        rejection_count = sum(
-            1 for e in remediation_events if e.get("status") == "rejected"
-        )
+        success_count = sum(1 for e in remediation_events if e.get("status") == "success")
+        failure_count = sum(1 for e in remediation_events if e.get("status") == "failed")
+        rejection_count = sum(1 for e in remediation_events if e.get("status") == "rejected")
 
         success_rate = (success_count / total * 100) if total > 0 else 0.0
 
@@ -273,7 +261,7 @@ def get_false_alarm_count() -> int:
     try:
         client = get_redis_client()
         count = client.llen("hemostat:events:false_alarm")
-        return count if count else 0
+        return int(count) if count else 0
     except Exception as e:
         logger.error(f"Error fetching false alarm count: {e}")
         return 0

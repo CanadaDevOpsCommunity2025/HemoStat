@@ -147,7 +147,7 @@ class HemoStatLogger:
                     self, name, level, fn, lno, msg, args, exc_info, func, extra, sinfo
                 )
 
-            logging.Logger.makeRecord = make_record_with_agent
+            logging.Logger.makeRecord = make_record_with_agent  # type: ignore[assignment]
             return formatter
         except ImportError:
             # Fall back to text format if python-json-logger not available

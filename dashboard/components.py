@@ -5,7 +5,7 @@ Provides reusable Streamlit components for rendering dashboard visualizations.
 Includes metrics cards, health grids, issue feeds, history tables, and timelines.
 """
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import streamlit as st
@@ -129,7 +129,7 @@ def render_active_issues(events: list[dict]) -> None:
 
     # Filter for active issues
     active_issues = []
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     five_minutes_ago = now - timedelta(minutes=5)
 
     for event in events:
@@ -157,9 +157,7 @@ def render_active_issues(events: list[dict]) -> None:
         status = issue.get("status", "unknown").upper()
         severity = get_severity_emoji(issue.get("severity", "unknown"))
 
-        with st.expander(
-            f"{severity} {container_id} - {status}", expanded=False
-        ):
+        with st.expander(f"{severity} {container_id} - {status}", expanded=False):
             st.write(f"**Container**: {container_id}")
             st.write(f"**Status**: {status}")
             st.write(f"**Reason**: {issue.get('reason', 'N/A')}")
@@ -194,9 +192,7 @@ def render_remediation_history(events: list[dict]) -> None:
         )
 
     with col2:
-        unique_containers = sorted(
-            {e.get("container_id", "Unknown") for e in events}
-        )
+        unique_containers = sorted({e.get("container_id", "Unknown") for e in events})
         container_filter = st.selectbox(
             "Filter by Container",
             ["All", *unique_containers],
@@ -212,7 +208,7 @@ def render_remediation_history(events: list[dict]) -> None:
 
     # Apply filters
     filtered_events = events
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
 
     if status_filter != "All":
         status_map = {
@@ -227,9 +223,7 @@ def render_remediation_history(events: list[dict]) -> None:
         ]
 
     if container_filter != "All":
-        filtered_events = [
-            e for e in filtered_events if e.get("container_id") == container_filter
-        ]
+        filtered_events = [e for e in filtered_events if e.get("container_id") == container_filter]
 
     if time_filter != "All":
         time_deltas = {
@@ -287,9 +281,7 @@ def render_timeline(events: list[dict]) -> None:
         return
 
     # Sort by timestamp, newest first
-    sorted_events = sorted(
-        events, key=lambda x: x.get("timestamp", ""), reverse=True
-    )
+    sorted_events = sorted(events, key=lambda x: x.get("timestamp", ""), reverse=True)
 
     for event in sorted_events[:100]:  # Limit to 100 most recent
         event_type = event.get("event_type", "unknown").lower()
@@ -330,7 +322,7 @@ def format_timestamp(iso_timestamp: str) -> str:
 
     try:
         event_time = datetime.fromisoformat(iso_timestamp.replace("Z", "+00:00"))
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
 
         # Make both timezone-naive for comparison
         if event_time.tzinfo:
