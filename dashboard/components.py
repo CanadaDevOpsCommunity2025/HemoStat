@@ -161,7 +161,7 @@ def render_active_issues(events: list[dict]) -> None:
                 logger.warning(f"Invalid timestamp format: {timestamp_str}")
 
     if not active_issues:
-        st.success("No active issues")
+        st.info("No active issues")
         return
 
     for issue in active_issues:
@@ -303,17 +303,11 @@ def render_timeline(events: list[dict], max_events: int = 100) -> None:
         icon = get_event_type_icon(event_type)
 
         with st.container(border=True):
-            col1, col2 = st.columns([1, 10])
+            st.write(f"{icon} **{timestamp}** - {container_id}")
+            st.caption(event.get("description", "No description"))
 
-            with col1:
-                st.write(icon)
-
-            with col2:
-                st.write(f"**{timestamp}** - {container_id}")
-                st.caption(event.get("description", "No description"))
-
-                with st.expander("Details"):
-                    st.json(event)
+            with st.expander("Details"):
+                st.json(event)
 
 
 def format_timestamp(iso_timestamp: str) -> str:
@@ -394,53 +388,53 @@ def get_status_color(status: str) -> str:
 
 def get_severity_emoji(severity: str) -> str:
     """
-    Map severity level to emoji indicator.
+    Map severity level to text indicator.
 
-    Returns emoji for different severity levels:
-    - critical: 🔴
-    - high: 🟡
-    - medium: 🟢
-    - low: ⚪
-    - unknown: ❓
+    Returns text indicator for different severity levels:
+    - critical: [CRITICAL]
+    - high: [HIGH]
+    - medium: [MEDIUM]
+    - low: [LOW]
+    - unknown: [UNKNOWN]
 
     Args:
         severity: Severity level string
 
     Returns:
-        str: Emoji character
+        str: Text indicator
     """
     severity_lower = severity.lower()
-    emoji_map = {
-        "critical": "🔴",
-        "high": "🟡",
-        "medium": "🟢",
-        "low": "⚪",
-        "unknown": "❓",
+    indicator_map = {
+        "critical": "[CRITICAL]",
+        "high": "[HIGH]",
+        "medium": "[MEDIUM]",
+        "low": "[LOW]",
+        "unknown": "[UNKNOWN]",
     }
-    return emoji_map.get(severity_lower, "❓")
+    return indicator_map.get(severity_lower, "[UNKNOWN]")
 
 
 def get_event_type_icon(event_type: str) -> str:
     """
-    Map event type to icon emoji.
+    Map event type to text indicator.
 
-    Returns emoji icon for different event types:
-    - health_alert: 🔍
-    - remediation: 🤖
-    - false_alarm: ⚠️
-    - unknown: 📋
+    Returns text indicator for different event types:
+    - health_alert: [ALERT]
+    - remediation: [REMEDIATION]
+    - false_alarm: [FALSE ALARM]
+    - unknown: [EVENT]
 
     Args:
         event_type: Event type string
 
     Returns:
-        str: Emoji icon
+        str: Text indicator
     """
     event_type_lower = event_type.lower()
     icon_map = {
-        "health_alert": "🔍",
-        "remediation": "🤖",
-        "false_alarm": "⚠️",
-        "unknown": "📋",
+        "health_alert": "[ALERT]",
+        "remediation": "[REMEDIATION]",
+        "false_alarm": "[FALSE ALARM]",
+        "unknown": "[EVENT]",
     }
-    return icon_map.get(event_type_lower, "📋")
+    return icon_map.get(event_type_lower, "[EVENT]")
