@@ -118,7 +118,7 @@ with auto-refresh every 5 seconds.</p>
 <dd class="field-odd"><p>True if Redis is connected, False otherwise</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+<dd class="field-even"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
@@ -188,13 +188,13 @@ Includes metrics cards, health grids, issue feeds, history tables, and timelines
 (“Jan 3, 10:30 AM EST”).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>iso_timestamp</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – ISO format timestamp string</p>
+<dd class="field-odd"><p><strong>iso_timestamp</strong> (<em>str</em>) – ISO format timestamp string</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Formatted timestamp string in Eastern Time or “Unknown” if invalid</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -210,13 +210,13 @@ Includes metrics cards, health grids, issue feeds, history tables, and timelines
 - unknown: [EVENT]</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>event_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Event type string</p>
+<dd class="field-odd"><p><strong>event_type</strong> (<em>str</em>) – Event type string</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Text indicator</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -233,13 +233,13 @@ Includes metrics cards, health grids, issue feeds, history tables, and timelines
 - unknown: [UNKNOWN]</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>severity</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Severity level string</p>
+<dd class="field-odd"><p><strong>severity</strong> (<em>str</em>) – Severity level string</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Text indicator</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -255,13 +255,13 @@ Includes metrics cards, health grids, issue feeds, history tables, and timelines
 - unknown: gray</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>status</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Status string</p>
+<dd class="field-odd"><p><strong>status</strong> (<em>str</em>) – Status string</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Hex color code</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -274,7 +274,7 @@ Includes metrics cards, health grids, issue feeds, history tables, and timelines
 severity indicators. Uses expanders for detailed information.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>events</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>]</em>) – List of event dictionaries from Redis</p>
+<dd class="field-odd"><p><strong>events</strong> (<em>list</em><em>[</em><em>dict</em><em>]</em>) – List of event dictionaries from Redis</p>
 </dd>
 </dl>
 </dd></dl>
@@ -289,7 +289,7 @@ and last update timestamp. Uses color coding for status
 (green=healthy, red=unhealthy, blue=remediated).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>events</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>]</em>) – List of event dictionaries from Redis</p>
+<dd class="field-odd"><p><strong>events</strong> (<em>list</em><em>[</em><em>dict</em><em>]</em>) – List of event dictionaries from Redis</p>
 </dd>
 </dl>
 </dd></dl>
@@ -304,9 +304,9 @@ false alarms, and active containers. Uses color coding for success rate
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>remediation_stats</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>) – Dictionary with remediation statistics</p></li>
-<li><p><strong>false_alarm_count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of false alarm events</p></li>
-<li><p><strong>active_containers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of active containers</p></li>
+<li><p><strong>remediation_stats</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Dictionary with remediation statistics</p></li>
+<li><p><strong>false_alarm_count</strong> (<em>int</em>) – Number of false alarm events</p></li>
+<li><p><strong>active_containers</strong> (<em>int</em>) – Number of active containers</p></li>
 </ul>
 </dd>
 </dl>
@@ -321,7 +321,7 @@ action, status, reason, and confidence. Includes filters for status,
 container, and time range. Reasons can be expanded to view full text.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>events</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>]</em>) – List of remediation event dictionaries from Redis</p>
+<dd class="field-odd"><p><strong>events</strong> (<em>list</em><em>[</em><em>dict</em><em>]</em>) – List of remediation event dictionaries from Redis</p>
 </dd>
 </dl>
 </dd></dl>
@@ -336,8 +336,8 @@ a timeline graph of event frequency.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>events</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>]</em>) – List of event dictionaries from Redis</p></li>
-<li><p><strong>max_events</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Maximum number of events to display (default: 100)</p></li>
+<li><p><strong>events</strong> (<em>list</em><em>[</em><em>dict</em><em>]</em>) – List of event dictionaries from Redis</p></li>
+<li><p><strong>max_events</strong> (<em>int</em>) – Maximum number of events to display (default: 100)</p></li>
 </ul>
 </dd>
 </dl>
@@ -361,7 +361,7 @@ and extracts container IDs. Uses SCAN instead of KEYS for production safety.</p>
 <dd class="field-odd"><p>List of active container IDs</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>]</p>
+<dd class="field-even"><p>list[str]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -377,7 +377,7 @@ parsed stats for each container. Uses SCAN for production safety.</p>
 <dd class="field-odd"><p>Dictionary mapping container IDs to their stats</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any]]</p>
+<dd class="field-even"><p>dict[str, dict[str, Any]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -391,13 +391,13 @@ and returns sorted by timestamp (newest first). Handles missing keys
 and malformed JSON gracefully.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>limit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Maximum number of events to retrieve (default: 1000)</p>
+<dd class="field-odd"><p><strong>limit</strong> (<em>int</em>) – Maximum number of events to retrieve (default: 1000)</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>List of event dictionaries sorted by timestamp (newest first)</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>]</p>
+<dd class="field-odd"><p>list[dict]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -411,13 +411,13 @@ parses JSON, and returns as dictionary. Returns None if key doesn’t
 exist or has expired.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>container_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Container ID to fetch stats for</p>
+<dd class="field-odd"><p><strong>container_id</strong> (<em>str</em>) – Container ID to fetch stats for</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Container stats dictionary or None if not found</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any] | None</p>
+<dd class="field-odd"><p>dict[str, Any] | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -431,15 +431,15 @@ and returns as list. Handles missing keys gracefully.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>event_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Type of events to fetch (e.g., ‘remediation_complete’, ‘false_alarm’)</p></li>
-<li><p><strong>limit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Maximum number of events to retrieve (default: 1000)</p></li>
+<li><p><strong>event_type</strong> (<em>str</em>) – Type of events to fetch (e.g., ‘remediation_complete’, ‘false_alarm’)</p></li>
+<li><p><strong>limit</strong> (<em>int</em>) – Maximum number of events to retrieve (default: 1000)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>List of event dictionaries of the specified type</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>]</p>
+<dd class="field-odd"><p>list[dict]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -455,7 +455,7 @@ without fetching all events.</p>
 <dd class="field-odd"><p>Number of false alarm events</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+<dd class="field-even"><p>int</p>
 </dd>
 </dl>
 </dd></dl>
@@ -495,7 +495,7 @@ on first initialization.</p>
 <dd class="field-odd"><p>Dictionary with aggregated remediation statistics</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any]</p>
+<dd class="field-even"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>

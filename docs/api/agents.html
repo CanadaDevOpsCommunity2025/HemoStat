@@ -123,7 +123,7 @@ Encapsulates Redis pub/sub communication patterns and shared state management.</
 <dl class="py class">
 <dt class="sig sig-object py" id="agents.agent_base.HemoStatAgent">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agents.agent_base.</span></span><span class="sig-name descname"><span class="pre">HemoStatAgent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redis_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redis_port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redis_db</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/agents/agent_base.html#HemoStatAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.agent_base.HemoStatAgent" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class for all HemoStat agents.</p>
 <p>Encapsulates Redis pub/sub communication and shared state management.
 All specialized agents (Monitor, Analyzer, Responder, Alert) inherit from this class.</p>
@@ -136,10 +136,10 @@ All specialized agents (Monitor, Analyzer, Responder, Alert) inherit from this c
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>agent_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Unique identifier for this agent (e.g., ‘monitor’, ‘analyzer’)</p></li>
-<li><p><strong>redis_host</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>) – Redis server hostname (defaults to env REDIS_HOST or ‘redis’)</p></li>
-<li><p><strong>redis_port</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><em>None</em>) – Redis server port (defaults to env REDIS_PORT or 6379)</p></li>
-<li><p><strong>redis_db</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Redis database number (default: 0)</p></li>
+<li><p><strong>agent_name</strong> (<em>str</em>) – Unique identifier for this agent (e.g., ‘monitor’, ‘analyzer’)</p></li>
+<li><p><strong>redis_host</strong> (<em>str</em><em> | </em><em>None</em>) – Redis server hostname (defaults to env REDIS_HOST or ‘redis’)</p></li>
+<li><p><strong>redis_port</strong> (<em>int</em><em> | </em><em>None</em>) – Redis server port (defaults to env REDIS_PORT or 6379)</p></li>
+<li><p><strong>redis_db</strong> (<em>int</em>) – Redis database number (default: 0)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
@@ -155,7 +155,7 @@ All specialized agents (Monitor, Analyzer, Responder, Alert) inherit from this c
 <p>Reads REDIS_HOST, REDIS_PORT, and REDIS_DB from environment.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>agent_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the agent</p>
+<dd class="field-odd"><p><strong>agent_name</strong> (<em>str</em>) – Name of the agent</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Initialized HemoStatAgent instance</p>
@@ -172,20 +172,20 @@ All specialized agents (Monitor, Analyzer, Responder, Alert) inherit from this c
 <dd><p>Retrieve shared state from Redis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – State key (will be prefixed with ‘hemostat:state:’)</p>
+<dd class="field-odd"><p><strong>key</strong> (<em>str</em>) – State key (will be prefixed with ‘hemostat:state:’)</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Deserialized state dict, or None if key doesn’t exist or error occurs</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>] | None</p>
+<dd class="field-odd"><p>dict[str, <em>Any</em>] | None</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="agents.agent_base.HemoStatAgent.is_running">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_running</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#agents.agent_base.HemoStatAgent.is_running" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_running</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#agents.agent_base.HemoStatAgent.is_running" title="Link to this definition"></a></dt>
 <dd><p>Check if the agent is currently running.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -201,16 +201,16 @@ All specialized agents (Monitor, Analyzer, Responder, Alert) inherit from this c
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>channel</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Redis channel name (e.g., ‘hemostat:events:health’)</p></li>
-<li><p><strong>event_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Type of event (e.g., ‘container_unhealthy’)</p></li>
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>) – Event payload data</p></li>
+<li><p><strong>channel</strong> (<em>str</em>) – Redis channel name (e.g., ‘hemostat:events:health’)</p></li>
+<li><p><strong>event_type</strong> (<em>str</em>) – Type of event (e.g., ‘container_unhealthy’)</p></li>
+<li><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Event payload data</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>True if publish succeeded, False otherwise</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+<dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
@@ -222,16 +222,16 @@ All specialized agents (Monitor, Analyzer, Responder, Alert) inherit from this c
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – State key (will be prefixed with ‘hemostat:state:’)</p></li>
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>) – State data to store</p></li>
-<li><p><strong>ttl</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><em>None</em>) – Time-to-live in seconds (optional)</p></li>
+<li><p><strong>key</strong> (<em>str</em>) – State key (will be prefixed with ‘hemostat:state:’)</p></li>
+<li><p><strong>value</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – State data to store</p></li>
+<li><p><strong>ttl</strong> (<em>int</em><em> | </em><em>None</em>) – Time-to-live in seconds (optional)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>True if successful, False otherwise</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+<dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
@@ -261,8 +261,8 @@ All specialized agents (Monitor, Analyzer, Responder, Alert) inherit from this c
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>channel</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Redis channel name to subscribe to</p></li>
-<li><p><strong>callback</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><em>Callable</em></a><em>[</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em><em>]</em><em>, </em><em>None</em><em>]</em>) – Callable that will be invoked for each message
+<li><p><strong>channel</strong> (<em>str</em>) – Redis channel name to subscribe to</p></li>
+<li><p><strong>callback</strong> (<em>Callable</em><em>[</em><em>[</em><em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em><em>, </em><em>None</em><em>]</em>) – Callable that will be invoked for each message
 (receives deserialized message dict)</p></li>
 </ul>
 </dd>
@@ -274,7 +274,7 @@ All specialized agents (Monitor, Analyzer, Responder, Alert) inherit from this c
 <dl class="py exception">
 <dt class="sig sig-object py" id="agents.agent_base.HemoStatConnectionError">
 <em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agents.agent_base.</span></span><span class="sig-name descname"><span class="pre">HemoStatConnectionError</span></span><a class="reference internal" href="../_modules/agents/agent_base.html#HemoStatConnectionError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.agent_base.HemoStatConnectionError" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Custom exception for Redis connection failures.</p>
 </dd></dl>
 
@@ -289,7 +289,7 @@ structured logging with contextual information.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="agents.logger.HemoStatLogger">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agents.logger.</span></span><span class="sig-name descname"><span class="pre">HemoStatLogger</span></span><a class="reference internal" href="../_modules/agents/logger.html#HemoStatLogger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agents.logger.HemoStatLogger" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Centralized logger factory for HemoStat agents.</p>
 <p>Provides consistent logging configuration across all agents with support for:
 - Multiple output formats (text, JSON)
@@ -313,13 +313,13 @@ structured logging with contextual information.</p>
 All loggers are configured with consistent formatting and handlers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Logger name (typically agent name like ‘monitor’, ‘analyzer’, etc.)</p>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Logger name (typically agent name like ‘monitor’, ‘analyzer’, etc.)</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Configured logging.Logger instance</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><em>Logger</em></a></p>
+<dd class="field-odd"><p><em>Logger</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -358,7 +358,7 @@ Supports Windows, Linux, and macOS with automatic detection of running environme
 <dd class="field-odd"><p>Docker daemon socket path appropriate for the platform</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dd class="field-even"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -372,7 +372,7 @@ Supports Windows, Linux, and macOS with automatic detection of running environme
 <dd class="field-odd"><p>‘Windows’, ‘Linux’, or ‘Darwin’ (macOS)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dd class="field-even"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -386,7 +386,7 @@ Supports Windows, Linux, and macOS with automatic detection of running environme
 <dd class="field-odd"><p>Platform description string</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+<dd class="field-even"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -400,7 +400,7 @@ Supports Windows, Linux, and macOS with automatic detection of running environme
 <dd class="field-odd"><p>True if running in Docker, False otherwise</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+<dd class="field-even"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
